@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
 #include "string.h"
+#include "General.h"
 #include "Tools.h"
 #include "MPU6050.h"
 #include "NRF24L01P.h"
@@ -738,7 +739,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     if (USART_ReceivedByte == '\n')
     {
       char* escaped_str = escape_quotes(USART_Buffer);
-      LogInformation(1005, escaped_str);
+      //LogInformation(1005, escaped_str);
+      HandlePackage(escaped_str);
       memset(USART_Buffer, '\0', sizeof(char) * sizeof(USART_Buffer));
       USART_dataIndex = 0;
     }

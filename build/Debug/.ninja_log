@@ -30,3 +30,7 @@
 63	2147	7472717617061429	CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj	b6c0746981f55a7c
 55	2094	7472717615712198	CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj	d3a57ce202cb0fa3
 40	526	7382678111660740	CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj	c9fcabd56a2f22c
+106	1955	7473294809011179	CMakeFiles/FlightController.dir/Core/Src/main.c.obj	5ed48474f85c72ba
+31	1004	7473295897875623	CMakeFiles/FlightController.dir/Core/Src/main.c.obj	5ed48474f85c72ba
+6	939	7473297124422688	CMakeFiles/FlightController.dir/Core/Src/main.c.obj	5ed48474f85c72ba
+49	958	7473298486061498	CMakeFiles/FlightController.dir/Core/Src/main.c.obj	5ed48474f85c72ba
