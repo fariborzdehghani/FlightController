@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2024 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -59,6 +59,11 @@ TIM_HandleTypeDef htim4;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
+// Serial Port
+uint8_t USART_ReceivedByte;
+uint8_t USART_Buffer[1000];
+uint16_t USART_dataIndex = 0;
+
 // NRF24L01P
 uint8_t rx_data[8];
 
@@ -89,6 +94,7 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 /* USER CODE BEGIN PFP */
+// void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 /* USER CODE END PFP */
 
@@ -136,32 +142,38 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
 
-	// Init Motors
-  Motors_Init(&htim1, &htim2, &htim3, &htim4);
-  Motors_SetSpeed(Motors_Speed);
-  LogInformation(1001, "Motors Started!");
+  // Init Logger
+  HAL_UART_Receive_IT(&huart1, &USART_ReceivedByte, 1);
 
   // Init MPU6050
-	HAL_Delay(10);
-	MPU6050_Init(&hi2c1);
+  HAL_Delay(10);
+  MPU6050_Init(&hi2c1);
 
-	// Init NRF24L01
-	HAL_Delay(10);
-	NRF24L01P_Rx_Init(2500, _1Mbps);
+  // Init NRF24L01
+  // HAL_Delay(10);
+  // NRF24L01P_Rx_Init(2500, _1Mbps);
 
   // Init PID
-  PID_Init(&pid_roll, 0.1, 0.0, 0.0); 
-  PID_Init(&pid_pitch, 0.1, 0.01, 0.01);
-  PID_Init(&pid_yaw, 0.01, 0.001, 0.001);
-  PID_Init(&pid_Vz, 0.1, 0.01, 0.01);
+  PID_Init(&pid_pitch, 0, 0.0, 0.0);
+  PID_Init(&pid_roll, 2, 0.001, 0.3);
+  PID_Init(&pid_yaw, 0, 0.0, 0.0);
+  PID_Init(&pid_Vz, 0, 0.0, 0.0);
+
+  // Init Motors
+  Motors_Init(&htim1, &htim2, &htim3, &htim4);
 
   // Getting ready to fly
   LogInformation(1002, "Doing Last Checks...");
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-  HAL_Delay(1000);
+  HAL_Delay(2000);
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
   LogInformation(1001, "Drone is ready to Fly!");
 
+  // Starting the motor
+  HAL_Delay(1000);
+  Motors_SetSpeed(Motors_Speed);
+  LogInformation(1001, "Motors Started!");
+  HAL_Delay(100);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -169,21 +181,12 @@ int main(void)
   char Packet[300];
 
   while (1)
-  {    
-		if (MPU6050_readystatus == 12){
+  {
+    if (MPU6050_readystatus == 12)
+    {
 
       // Read Sensors Data
       MPU6050_ReadAll(&MPU6050);
-
-      // Report Position Parameters
-      memset(Packet,'\0', sizeof(Packet));
-			sprintf(Packet, "Position = {\"Roll\": %.3f, \"Pitch\": %.3f, \"Gz\": %.3f, \"Vertical_Velocity\": %.3f, \"Vertical_Acc\": %.3f}", MPU6050.KalmanAngleY, MPU6050.KalmanAngleX, MPU6050.Gz, MPU6050.Vz, MPU6050.Az_ms);
-      LogStringToPC(Packet);
-
-      // Report Current Motors Speed
-      memset(Packet,'\0', sizeof(Packet));
-      sprintf(Packet, "MotorsSpeed = {\"Motor1\": %.3f, \"Motor2\": %.3f, \"Motor3\": %.3f, \"Motor4\": %.3f}", Motors_Speed[0], Motors_Speed[1], Motors_Speed[2], Motors_Speed[3]);
-      LogStringToPC(Packet);
 
       // Calculate PID Values
       double pid_roll_Adj = 0;
@@ -191,61 +194,74 @@ int main(void)
       double pid_yaw_Adj = 0;
       double pid_Vz_Adj = 0;
 
-      pid_roll_Adj = PID_Compute(&pid_roll, 0, MPU6050.KalmanAngleY, LOOP_TIME);
-      //pid_pitch_Adj = PID_Compute(&pid_pitch, 0, MPU6050.KalmanAngleX, LOOP_TIME);
-      //pid_yaw_Adj = PID_Compute(&pid_yaw, 0, MPU6050.Gz, LOOP_TIME);
-      //pid_Vz_Adj = PID_Compute(&pid_Vz, 0, MPU6050.Vz, LOOP_TIME);
+      pid_pitch_Adj = PID_Compute(&pid_pitch, 0, MPU6050.KalmanAngleX, LOOP_TIME);
+      pid_roll_Adj = PID_Compute(&pid_roll, -10, MPU6050.KalmanAngleY, LOOP_TIME);
+      pid_yaw_Adj = PID_Compute(&pid_yaw, 0, MPU6050.Gz, LOOP_TIME);
+      pid_Vz_Adj = PID_Compute(&pid_Vz, 0, MPU6050.Vz, LOOP_TIME);
 
-      Motors_PID_Adj[0] = + pid_roll_Adj - pid_pitch_Adj - pid_yaw_Adj + pid_Vz_Adj;
-      Motors_PID_Adj[1] = - pid_roll_Adj - pid_pitch_Adj + pid_yaw_Adj + pid_Vz_Adj;
-      Motors_PID_Adj[2] = - pid_roll_Adj + pid_pitch_Adj - pid_yaw_Adj + pid_Vz_Adj;
-      Motors_PID_Adj[3] = + pid_roll_Adj + pid_pitch_Adj + pid_yaw_Adj + pid_Vz_Adj;
-
-      memset(Packet,'\0', sizeof(Packet));
-      sprintf(Packet, "PID = {\"Adj1\": %.3f, \"Adj2\": %.3f, \"Adj3\": %.3f, \"Adj4\": %.3f}", Motors_PID_Adj[0], Motors_PID_Adj[1], Motors_PID_Adj[2], Motors_PID_Adj[3]);
-      LogStringToPC(Packet);
-
-      // write the code to adjust the Motors speeds array with result of PID system result array and using the Motors_SetSpeed function set the 4 motors speeds
+      Motors_PID_Adj[0] = +pid_roll_Adj + pid_pitch_Adj - pid_yaw_Adj + pid_Vz_Adj;
+      Motors_PID_Adj[1] = -pid_roll_Adj + pid_pitch_Adj + pid_yaw_Adj + pid_Vz_Adj;
+      Motors_PID_Adj[2] = -pid_roll_Adj - pid_pitch_Adj - pid_yaw_Adj + pid_Vz_Adj;
+      Motors_PID_Adj[3] = +pid_roll_Adj - pid_pitch_Adj + pid_yaw_Adj + pid_Vz_Adj;
 
       Motors_Speed[0] += Motors_PID_Adj[0];
       Motors_Speed[1] += Motors_PID_Adj[1];
       Motors_Speed[2] += Motors_PID_Adj[2];
       Motors_Speed[3] += Motors_PID_Adj[3];
 
-      if (Motors_Speed[0] < 0) Motors_Speed[0] = 0;
-      if (Motors_Speed[1] < 0) Motors_Speed[1] = 0;
-      if (Motors_Speed[2] < 0) Motors_Speed[2] = 0;
-      if (Motors_Speed[3] < 0) Motors_Speed[3] = 0;
+      if (Motors_Speed[0] < MIN_MOTORS_SPEED)
+        Motors_Speed[0] = MIN_MOTORS_SPEED;
+      if (Motors_Speed[1] < MIN_MOTORS_SPEED)
+        Motors_Speed[1] = MIN_MOTORS_SPEED;
+      if (Motors_Speed[2] < MIN_MOTORS_SPEED)
+        Motors_Speed[2] = MIN_MOTORS_SPEED;
+      if (Motors_Speed[3] < MIN_MOTORS_SPEED)
+        Motors_Speed[3] = MIN_MOTORS_SPEED;
 
-      if (Motors_Speed[0] > 50) Motors_Speed[0] = 50;
-      if (Motors_Speed[1] > 50) Motors_Speed[1] = 50;
-      if (Motors_Speed[2] > 50) Motors_Speed[2] = 50;
-      if (Motors_Speed[3] > 50) Motors_Speed[3] = 50;
+      if (Motors_Speed[0] > MAX_MOTORS_SPEED)
+        Motors_Speed[0] = MAX_MOTORS_SPEED;
+      if (Motors_Speed[1] > MAX_MOTORS_SPEED)
+        Motors_Speed[1] = MAX_MOTORS_SPEED;
+      if (Motors_Speed[2] > MAX_MOTORS_SPEED)
+        Motors_Speed[2] = MAX_MOTORS_SPEED;
+      if (Motors_Speed[3] > MAX_MOTORS_SPEED)
+        Motors_Speed[3] = MAX_MOTORS_SPEED;
 
-      double SafetyLimit = 30;
+      double SafetyAngleLimit = 50;
 
-      if (MPU6050.KalmanAngleY < SafetyLimit && MPU6050.KalmanAngleY > -SafetyLimit)
+      if ((MPU6050.KalmanAngleY > SafetyAngleLimit || MPU6050.KalmanAngleY < -SafetyAngleLimit) ||
+          (MPU6050.KalmanAngleX > SafetyAngleLimit || MPU6050.KalmanAngleX < -SafetyAngleLimit))
       {
-        Motors_SetSpeed(Motors_Speed);      
+        Motors_Speed[0] = 0;
+        Motors_Speed[1] = 0;
+        Motors_Speed[2] = 0;
+        Motors_Speed[3] = 0;
       }
-      // else
-      // {
-      //   Motors_Speed[0] = 0;
-      //   Motors_Speed[1] = 0;
-      //   Motors_Speed[2] = 0;
-      //   Motors_Speed[3] = 0;
 
-      //   Motors_SetSpeed(Motors_Speed);
-      // }
+      Motors_SetSpeed(Motors_Speed);
+
+      // Report Position Parameters
+      memset(Packet, '\0', sizeof(Packet));
+      sprintf(Packet, "Position = {\"Roll\": %.3f, \"Pitch\": %.3f, \"Gz\": %.3f, \"Vertical_Velocity\": %.3f, \"Vertical_Acc\": %.3f}", MPU6050.KalmanAngleY, MPU6050.KalmanAngleX, MPU6050.Gz, MPU6050.Vz, MPU6050.Az_ms);
+      LogStringToPC(Packet);
+
+      // Report Current Motors Speed
+      memset(Packet, '\0', sizeof(Packet));
+      sprintf(Packet, "MotorsSpeed = {\"Motor1\": %.3f, \"Motor2\": %.3f, \"Motor3\": %.3f, \"Motor4\": %.3f}", Motors_Speed[0], Motors_Speed[1], Motors_Speed[2], Motors_Speed[3]);
+      LogStringToPC(Packet);
+
+      memset(Packet, '\0', sizeof(Packet));
+      sprintf(Packet, "PID = {\"Adj1\": %.3f, \"Adj2\": %.3f, \"Adj3\": %.3f, \"Adj4\": %.3f}", Motors_PID_Adj[0], Motors_PID_Adj[1], Motors_PID_Adj[2], Motors_PID_Adj[3]);
+      LogStringToPC(Packet);
 
       // Loop Delay
       HAL_Delay(LOOP_TIME * 1000);
-		}
-		else
-		{
-			LogError(MPU6050_readystatus, "Device not initialized");
+    }
+    else
+    {
+      LogError(MPU6050_readystatus, "Device not initialized");
       HAL_Delay(1000);
-		}
+    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -715,14 +731,36 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-	if (GPIO_Pin == NRF24L01P_IRQ_PIN_NUMBER){
-		RCC->APB1ENR &= ~RCC_APB1ENR_I2C1EN;
-		memset(rx_data, '\0', sizeof(char)* 8);
-		nrf24l01p_rx_receive(rx_data); // read data when data ready flag is set
-		LogFLStringToPC(rx_data, 8);
-		RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
-	}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  if (huart->Instance == USART1)
+  {
+    if (USART_ReceivedByte == '\n')
+    {
+      char* escaped_str = escape_quotes(USART_Buffer);
+      LogInformation(1005, escaped_str);
+      memset(USART_Buffer, '\0', sizeof(char) * sizeof(USART_Buffer));
+      USART_dataIndex = 0;
+    }
+    else
+    {
+      USART_Buffer[USART_dataIndex++] = USART_ReceivedByte;
+    }
+
+    HAL_UART_Receive_IT(&huart1, &USART_ReceivedByte, 1);
+  }
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  if (GPIO_Pin == NRF24L01P_IRQ_PIN_NUMBER)
+  {
+    RCC->APB1ENR &= ~RCC_APB1ENR_I2C1EN;
+    memset(rx_data, '\0', sizeof(char) * 8);
+    nrf24l01p_rx_receive(rx_data); // read data when data ready flag is set
+    LogFLStringToPC(rx_data, 8);
+    RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
+  }
 }
 /* USER CODE END 4 */
 

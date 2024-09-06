@@ -71,8 +71,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 #define SPI1_CE_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-#define LOOP_TIME 0.01
-#define BaseSpeed 30
+#define LOOP_TIME             0.01
+#define MIN_MOTORS_SPEED      0
+#define MAX_MOTORS_SPEED      60
+#define BaseSpeed             20
+#define TempTarget            0
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

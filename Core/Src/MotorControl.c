@@ -50,19 +50,4 @@ void Motors_UpdateDutyCicle(TIM_HandleTypeDef *htim, double Speed)
 		DutyCycle = 2000;
 	}
 	__HAL_TIM_SetCompare(htim, TIM_CHANNEL_1, DutyCycle);
-
-	// TIM_OC_InitTypeDef sConfigOC = {0};
-	// HAL_TIM_PWM_Stop(htim, TIM_CHANNEL_1);
-	// sConfigOC.OCMode = TIM_OCMODE_PWM1;
-	// sConfigOC.Pulse = DutyCycle;
-	// sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-	// sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-	// if (HAL_TIM_PWM_ConfigChannel(htim, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-	// {
-	// //Handle Error
-	// }
-	// else
-	// {
-	// 	HAL_TIM_PWM_Start(htim, TIM_CHANNEL_1);
-	// }
 }

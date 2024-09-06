@@ -101,9 +101,8 @@ void MPU6050_Init(I2C_HandleTypeDef *I2Cx)
 					i2c_timeout);
 
 			// Set CONFIG Register (FSYNC & DLPF)
-			Data = 0;
-			HAL_I2C_Mem_Write(I2Cx, MPU6050_ADDR, CONFIG_REG, 1, &Data, 1,
-					i2c_timeout);
+			Data = 5;
+			HAL_I2C_Mem_Write(I2Cx, MPU6050_ADDR, CONFIG_REG, 1, &Data, 1, i2c_timeout);
 
 			// Set Gyroscopic configuration in GYRO_CONFIG Register
 			// XG_ST=0,YG_ST=0,ZG_ST=0, FS_SEL=3 -> 250	?/s
@@ -137,9 +136,9 @@ void MPU6050_Init(I2C_HandleTypeDef *I2Cx)
 			KalmanFilter_Init(&kf, 0.1, 0.1);
 			
 			LogInformation(1001, "MPU6050 Started!");
-			LogInformation(1002, "MPU6050 Calibrating...");
-			MPU6050_Calibrate();
-			LogInformation(1001, "MPU6050 Calibrated!");
+			// LogInformation(1002, "MPU6050 Calibrating...");
+			// MPU6050_Calibrate();
+			// LogInformation(1001, "MPU6050 Calibrated!");
 		}
 		else{
 			MPU6050_readystatus = 99;
@@ -214,13 +213,13 @@ void MPU6050_ReadAll(MPU6050_t *DataStruct)
 		}
 
 		// Add Calibration
-		if (IsCalibrated == 1){
-			DataStruct->KalmanAngleX -= Roll_Offset;
-			DataStruct->KalmanAngleY -= Pitch_Offset;
-			DataStruct->Gz -= Gz_Offset;
-			DataStruct->Az_ms -= Az_Offset;
-			DataStruct->Vz -= Vz_Offset;
-		}
+		// if (IsCalibrated == 1){
+		// 	DataStruct->KalmanAngleX -= Roll_Offset;
+		// 	DataStruct->KalmanAngleY -= Pitch_Offset;
+		// 	DataStruct->Gz -= Gz_Offset;
+		// 	DataStruct->Az_ms -= Az_Offset;
+		// 	DataStruct->Vz -= Vz_Offset;
+		// }
 
 }
 
@@ -256,33 +255,33 @@ double Kalman_GetAngle(Kalman_t *Kalman, double newAngle, double newRate, double
 
 void MPU6050_Calibrate()
 {
-	int i = 0;
-	int Calibration_Cycles = 200;
+	// int i = 0;
+	// int Calibration_Cycles = 200;
 
-	double Roll_Offset_Sum = 0;
-	double Pitch_Offset_Sum = 0;
-	double Gz_Offset_Sum = 0;
-	double Az_Offset_Sum = 0;
-	double Vz_Offset_Sum = 0;
+	// double Roll_Offset_Sum = 0;
+	// double Pitch_Offset_Sum = 0;
+	// double Gz_Offset_Sum = 0;
+	// double Az_Offset_Sum = 0;
+	// double Vz_Offset_Sum = 0;
 
-	for (i = 0; i < Calibration_Cycles; i++)
-	{
-		MPU6050_ReadAll(&MPU6050);
+	// for (i = 0; i < Calibration_Cycles; i++)
+	// {
+	// 	MPU6050_ReadAll(&MPU6050);
 
-		Roll_Offset_Sum += MPU6050.KalmanAngleX;
-		Pitch_Offset_Sum += MPU6050.KalmanAngleY;
-		Gz_Offset_Sum += MPU6050.Gz;
-		Az_Offset_Sum += MPU6050.Az_ms;
-		Vz_Offset_Sum += MPU6050.Vz;
+	// 	Roll_Offset_Sum += MPU6050.KalmanAngleX;
+	// 	Pitch_Offset_Sum += MPU6050.KalmanAngleY;
+	// 	Gz_Offset_Sum += MPU6050.Gz;
+	// 	Az_Offset_Sum += MPU6050.Az_ms;
+	// 	Vz_Offset_Sum += MPU6050.Vz;
 
-		HAL_Delay(LOOP_TIME * 1000);
-	}
+	// 	HAL_Delay(LOOP_TIME * 1000);
+	// }
 
-	Roll_Offset = Roll_Offset_Sum / Calibration_Cycles;
-	Pitch_Offset = Pitch_Offset_Sum / Calibration_Cycles;
-	Gz_Offset = Gz_Offset_Sum / Calibration_Cycles;
-	Az_Offset = Az_Offset_Sum / Calibration_Cycles;
-	Vz_Offset = Vz_Offset_Sum / Calibration_Cycles;
+	// Roll_Offset = Roll_Offset_Sum / Calibration_Cycles;
+	// Pitch_Offset = Pitch_Offset_Sum / Calibration_Cycles;
+	// Gz_Offset = Gz_Offset_Sum / Calibration_Cycles;
+	// Az_Offset = Az_Offset_Sum / Calibration_Cycles;
+	// Vz_Offset = Vz_Offset_Sum / Calibration_Cycles;
 
 	IsCalibrated = 1;
 }

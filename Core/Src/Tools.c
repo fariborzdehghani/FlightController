@@ -37,15 +37,15 @@ void LogError(int Code, char *Message)
 {
 	char Packet[100];
 	memset(Packet,'\0', sizeof(Packet));
-	sprintf(Packet, "Error = {\"Code\": %d, \"Text\": \"%s\"}", Code, Message);
+	sprintf(Packet, "Error = {\"Code\": %d, \"Content\": \"%s\"}", Code, Message);
 	LogStringToPC(Packet);
 }
 
 void LogInformation(int Code, char *Message)
 {
-	char Packet[100];
-	memset(Packet,'\0', sizeof(Packet));
-	sprintf(Packet, "Information = {\"Code\": %d, \"Text\": \"%s\"}", Code, Message);
+	char Packet[1000];
+	memset(Packet,'\0',sizeof(char) * sizeof(Packet));
+	sprintf(Packet, "Information = {\"Code\": %d, \"Content\": \"%s\"}", Code, Message);
 	LogStringToPC(Packet);
 }
 
@@ -58,4 +58,33 @@ char *int_to_binary_string(int num) {
     }
     bin_str[i] = '\0';  // add null terminator
     return bin_str;
+}
+
+char* escape_quotes(const char* input) {
+    // First, calculate how much memory we need for the escaped string
+    int count = 0;
+    for (int i = 0; input[i] != '\0'; i++) {
+        if (input[i] == '"') {
+            count++;
+        }
+    }
+
+    // Allocate memory for the new string
+    int new_length = strlen(input) + count + 1; // +1 for null terminator
+    char* escaped_str = (char*)malloc(new_length);
+    if (!escaped_str) {
+        return NULL; // Return NULL if memory allocation fails
+    }
+
+    // Fill the new string, adding escape characters before quotes
+    int j = 0;
+    for (int i = 0; input[i] != '\0'; i++) {
+        if (input[i] == '"') {
+            escaped_str[j++] = '\\';
+        }
+        escaped_str[j++] = input[i];
+    }
+    escaped_str[j] = '\0';
+
+    return escaped_str;
 }

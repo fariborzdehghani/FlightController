@@ -563,7 +563,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x8ed CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
  .debug_macro   0x00000000      0x28e CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
  .debug_macro   0x00000000       0x83 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
- .debug_macro   0x00000000       0x4c CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
+ .debug_macro   0x00000000       0x5e CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
  .group         0x00000000        0xc CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
  .group         0x00000000        0xc CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
  .group         0x00000000        0xc CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
@@ -623,6 +623,24 @@ Discarded input sections
                 0x00000000        0x2 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
  .rodata.Accel_Z_corrector
                 0x00000000        0x8 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .bss.IsCalibrated
+                0x00000000        0x4 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .bss.Roll_Offset
+                0x00000000        0x8 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .bss.Pitch_Offset
+                0x00000000        0x8 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .bss.Gz_Offset
+                0x00000000        0x8 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .bss.Az_Offset
+                0x00000000        0x8 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .bss.Vz_Offset
+                0x00000000        0x8 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .text.MPU6050_Calibrate
+                0x00000000       0x18 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .text.MPU6050_DisableClock
+                0x00000000       0x1c CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .text.MPU6050_EnableClock
+                0x00000000       0x1c CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
  .debug_macro   0x00000000      0xaa8 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
  .debug_macro   0x00000000      0x227 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
  .debug_macro   0x00000000       0x2e CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
@@ -661,7 +679,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x8ed CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
  .debug_macro   0x00000000      0x28e CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
  .debug_macro   0x00000000       0x83 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
- .debug_macro   0x00000000       0x4c CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .debug_macro   0x00000000       0x5e CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
  .debug_macro   0x00000000       0x74 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
  .debug_macro   0x00000000       0x24 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
  .debug_macro   0x00000000       0x3c CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
@@ -717,34 +735,69 @@ Discarded input sections
  .text          0x00000000        0x0 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .data          0x00000000        0x0 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .bss           0x00000000        0x0 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.ce_high  0x00000000       0x18 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.ce_low   0x00000000       0x18 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.read_register
+                0x00000000       0x4c CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.read_tx_adress_register
                 0x00000000       0x6c CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.write_tx_adress_register
                 0x00000000       0x48 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.read_rx_adress_register
                 0x00000000       0x6c CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.write_rx_adress_register
+                0x00000000       0x48 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .rodata        0x00000000       0x19 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.NRF24L01P_Rx_Init
+                0x00000000       0x78 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.nrf24l01p_tx_init
                 0x00000000       0x64 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.nrf24l01p_tx_transmit
                 0x00000000       0x16 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.nrf24l01p_tx_irq
                 0x00000000       0x2e CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.nrf24l01p_reset
+                0x00000000       0xcc CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.nrf24l01p_prx_mode
+                0x00000000       0x2a CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.nrf24l01p_ptx_mode
                 0x00000000       0x2a CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.nrf24l01p_write_tx_fifo
                 0x00000000       0x54 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.nrf24l01p_flush_rx_fifo
+                0x00000000       0x30 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.nrf24l01p_flush_tx_fifo
+                0x00000000       0x30 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.nrf24l01p_get_fifo_status
                 0x00000000       0x10 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.nrf24l01p_rx_set_payload_widths
+                0x00000000       0x1c CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.nrf24l01p_clear_tx_ds
                 0x00000000       0x28 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.nrf24l01p_clear_max_rt
                 0x00000000       0x28 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.nrf24l01p_power_up
+                0x00000000       0x2a CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.nrf24l01p_power_down
                 0x00000000       0x2a CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.nrf24l01p_set_crc_length
+                0x00000000       0x46 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.nrf24l01p_set_address_widths
+                0x00000000       0x20 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.nRF24L01_Set_Rx_Addr
+                0x00000000       0x16 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.nRF24L01_Set_Tx_Addr
                 0x00000000       0x16 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.nrf24l01p_auto_retransmit_count
+                0x00000000       0x36 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.nrf24l01p_auto_retransmit_delay
                 0x00000000       0x50 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.nrf24l01p_set_rf_channel
+                0x00000000       0x26 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.nrf24l01p_set_rf_tx_output_power
+                0x00000000       0x36 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.nrf24l01p_set_rf_air_data_rate
+                0x00000000       0x46 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .debug_macro   0x00000000      0xaa8 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .debug_macro   0x00000000      0x227 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .debug_macro   0x00000000       0x2e CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
@@ -783,7 +836,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x8ed CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .debug_macro   0x00000000      0x28e CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .debug_macro   0x00000000       0x83 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
- .debug_macro   0x00000000       0x4c CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .debug_macro   0x00000000       0x5e CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .group         0x00000000        0xc CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
  .text          0x00000000        0x0 CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
  .data          0x00000000        0x0 CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
@@ -895,7 +948,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x8ed CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  .debug_macro   0x00000000      0x28e CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  .debug_macro   0x00000000       0x83 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
- .debug_macro   0x00000000       0x4c CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+ .debug_macro   0x00000000       0x5e CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  .debug_macro   0x00000000       0x74 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  .debug_macro   0x00000000       0x24 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  .debug_macro   0x00000000       0x3c CMakeFiles/FlightController.dir/Core/Src/main.c.obj
@@ -996,7 +1049,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x8ed CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
  .debug_macro   0x00000000      0x28e CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
  .debug_macro   0x00000000       0x83 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
- .debug_macro   0x00000000       0x4c CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+ .debug_macro   0x00000000       0x5e CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
  .group         0x00000000        0xc CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
  .group         0x00000000        0xc CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
  .group         0x00000000        0xc CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
@@ -1085,7 +1138,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x8ed CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
  .debug_macro   0x00000000      0x28e CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
  .debug_macro   0x00000000       0x83 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
- .debug_macro   0x00000000       0x4c CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
+ .debug_macro   0x00000000       0x5e CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
  .group         0x00000000        0xc CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio_ex.c.obj
  .group         0x00000000        0xc CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio_ex.c.obj
  .group         0x00000000        0xc CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio_ex.c.obj
@@ -3185,8 +3238,6 @@ Discarded input sections
                 0x00000000      0x124 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
  .text.HAL_UART_Transmit_IT
                 0x00000000       0x6a CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
- .text.HAL_UART_Receive_IT
-                0x00000000       0x4a CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
  .text.HAL_UART_Transmit_DMA
                 0x00000000       0xe0 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
  .text.HAL_UART_Receive_DMA
@@ -3218,6 +3269,8 @@ Discarded input sections
  .text.HAL_UART_AbortReceive_IT
                 0x00000000      0x164 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
  .text.HAL_UART_TxHalfCpltCallback
+                0x00000000       0x12 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+ .text.HAL_UART_RxCpltCallback
                 0x00000000       0x12 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
  .text.HAL_UART_RxHalfCpltCallback
                 0x00000000       0x12 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
@@ -3251,8 +3304,6 @@ Discarded input sections
                 0x00000000       0x3c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
  .text.UART_DMAError
                 0x00000000       0x94 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
- .text.UART_Start_Receive_IT
-                0x00000000       0x72 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
  .text.UART_Start_Receive_DMA
                 0x00000000      0x134 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
  .text.UART_EndTxTransfer
@@ -3674,7 +3725,7 @@ LOAD C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/
                 0x08000000                g_pfnVectors
                 0x0800010c                        . = ALIGN (0x4)
 
-.text           0x08000110     0xc3d0
+.text           0x08000110     0xc050
                 0x08000110                        . = ALIGN (0x4)
  *(.text)
  .text          0x08000110       0x40 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtbegin.o
@@ -3956,663 +4007,615 @@ LOAD C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/
                 0x08003a40       0x3c CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
                 0x08003a40                LogError
  .text.LogInformation
-                0x08003a7c       0x3c CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+                0x08003a7c       0x64 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
                 0x08003a7c                LogInformation
+ .text.escape_quotes
+                0x08003ae0       0xbe CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+                0x08003ae0                escape_quotes
+ *fill*         0x08003b9e        0x2 
  .text.Motors_Init
-                0x08003ab8      0x128 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
-                0x08003ab8                Motors_Init
+                0x08003ba0      0x128 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
+                0x08003ba0                Motors_Init
  .text.Motors_SetSpeed
-                0x08003be0       0x68 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
-                0x08003be0                Motors_SetSpeed
+                0x08003cc8       0x68 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
+                0x08003cc8                Motors_SetSpeed
  .text.Motors_UpdateDutyCicle
-                0x08003c48       0x74 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
-                0x08003c48                Motors_UpdateDutyCicle
+                0x08003d30       0x74 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
+                0x08003d30                Motors_UpdateDutyCicle
  .text.I2C_ReadRegisters
-                0x08003cbc      0x150 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
-                0x08003cbc                I2C_ReadRegisters
+                0x08003da4      0x150 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+                0x08003da4                I2C_ReadRegisters
  .text.MPU6050_Init
-                0x08003e0c      0x1bc CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
-                0x08003e0c                MPU6050_Init
+                0x08003ef4      0x19c CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+                0x08003ef4                MPU6050_Init
  .text.MPU6050_ReadAll
-                0x08003fc8      0x588 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
-                0x08003fc8                MPU6050_ReadAll
+                0x08004090      0x4e8 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+                0x08004090                MPU6050_ReadAll
  .text.Kalman_GetAngle
-                0x08004550      0x2a6 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
-                0x08004550                Kalman_GetAngle
- *fill*         0x080047f6        0x2 
- .text.MPU6050_Calibrate
-                0x080047f8      0x190 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
-                0x080047f8                MPU6050_Calibrate
- .text.MPU6050_DisableClock
-                0x08004988       0x1c CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
-                0x08004988                MPU6050_DisableClock
- .text.MPU6050_EnableClock
-                0x080049a4       0x1c CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
-                0x080049a4                MPU6050_EnableClock
- .text.cs_high  0x080049c0       0x18 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
- .text.cs_low   0x080049d8       0x18 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
- .text.ce_high  0x080049f0       0x18 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
- .text.ce_low   0x08004a08       0x18 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
- .text.read_register
-                0x08004a20       0x4c CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004a20                read_register
+                0x08004578      0x2a6 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+                0x08004578                Kalman_GetAngle
+ *fill*         0x0800481e        0x2 
+ .text.cs_high  0x08004820       0x18 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .text.cs_low   0x08004838       0x18 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.write_register
-                0x08004a6c       0x5c CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
- .text.write_rx_adress_register
-                0x08004ac8       0x48 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
- .text.NRF24L01P_Rx_Init
-                0x08004b10       0x78 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004b10                NRF24L01P_Rx_Init
+                0x08004850       0x5c CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .text.nrf24l01p_rx_receive
-                0x08004b88       0x1a CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004b88                nrf24l01p_rx_receive
- .text.nrf24l01p_reset
-                0x08004ba2       0xcc CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004ba2                nrf24l01p_reset
- .text.nrf24l01p_prx_mode
-                0x08004c6e       0x2a CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004c6e                nrf24l01p_prx_mode
+                0x080048ac       0x1a CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+                0x080048ac                nrf24l01p_rx_receive
+ *fill*         0x080048c6        0x2 
  .text.nrf24l01p_read_rx_fifo
-                0x08004c98       0x48 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004c98                nrf24l01p_read_rx_fifo
- .text.nrf24l01p_flush_rx_fifo
-                0x08004ce0       0x30 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004ce0                nrf24l01p_flush_rx_fifo
- .text.nrf24l01p_flush_tx_fifo
-                0x08004d10       0x30 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004d10                nrf24l01p_flush_tx_fifo
+                0x080048c8       0x48 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+                0x080048c8                nrf24l01p_read_rx_fifo
  .text.nrf24l01p_get_status
-                0x08004d40       0x34 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004d40                nrf24l01p_get_status
- .text.nrf24l01p_rx_set_payload_widths
-                0x08004d74       0x1c CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004d74                nrf24l01p_rx_set_payload_widths
+                0x08004910       0x34 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+                0x08004910                nrf24l01p_get_status
  .text.nrf24l01p_clear_rx_dr
-                0x08004d90       0x28 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004d90                nrf24l01p_clear_rx_dr
- .text.nrf24l01p_power_up
-                0x08004db8       0x2a CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004db8                nrf24l01p_power_up
- .text.nrf24l01p_set_crc_length
-                0x08004de2       0x46 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004de2                nrf24l01p_set_crc_length
- .text.nrf24l01p_set_address_widths
-                0x08004e28       0x20 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004e28                nrf24l01p_set_address_widths
- .text.nRF24L01_Set_Rx_Addr
-                0x08004e48       0x16 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004e48                nRF24L01_Set_Rx_Addr
- .text.nrf24l01p_auto_retransmit_count
-                0x08004e5e       0x36 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004e5e                nrf24l01p_auto_retransmit_count
- .text.nrf24l01p_set_rf_channel
-                0x08004e94       0x26 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004e94                nrf24l01p_set_rf_channel
- .text.nrf24l01p_set_rf_tx_output_power
-                0x08004eba       0x36 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004eba                nrf24l01p_set_rf_tx_output_power
- .text.nrf24l01p_set_rf_air_data_rate
-                0x08004ef0       0x46 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                0x08004ef0                nrf24l01p_set_rf_air_data_rate
+                0x08004944       0x28 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+                0x08004944                nrf24l01p_clear_rx_dr
  .text.PID_Init
-                0x08004f36       0x3a CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
-                0x08004f36                PID_Init
+                0x0800496c       0x3a CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
+                0x0800496c                PID_Init
+ *fill*         0x080049a6        0x2 
  .text.PID_Compute
-                0x08004f70       0xb8 CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
-                0x08004f70                PID_Compute
+                0x080049a8       0xb8 CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
+                0x080049a8                PID_Compute
  .text.KalmanFilter_Init
-                0x08005028       0x3a CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
-                0x08005028                KalmanFilter_Init
+                0x08004a60       0x3a CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
+                0x08004a60                KalmanFilter_Init
  .text.KalmanFilter_Update
-                0x08005062       0xc4 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
-                0x08005062                KalmanFilter_Update
- *fill*         0x08005126        0x2 
- .text.main     0x08005128      0x594 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x08005128                main
+                0x08004a9a       0xc4 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
+                0x08004a9a                KalmanFilter_Update
+ *fill*         0x08004b5e        0x2 
+ .text.main     0x08004b60      0x6b4 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x08004b60                main
  .text.SystemClock_Config
-                0x080056bc       0x82 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x080056bc                SystemClock_Config
- *fill*         0x0800573e        0x2 
+                0x08005214       0x82 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x08005214                SystemClock_Config
+ *fill*         0x08005296        0x2 
  .text.MX_I2C1_Init
-                0x08005740       0x5c CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x08005298       0x5c CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  .text.MX_SPI1_Init
-                0x0800579c       0x6c CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x080052f4       0x6c CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  .text.MX_TIM1_Init
-                0x08005808      0x140 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x08005360      0x140 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  .text.MX_TIM2_Init
-                0x08005948       0xec CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x080054a0       0xec CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  .text.MX_TIM3_Init
-                0x08005a34       0xec CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x0800558c       0xec CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  .text.MX_TIM4_Init
-                0x08005b20       0xec CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x08005678       0xec CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  .text.MX_USART1_UART_Init
-                0x08005c0c       0x54 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x08005764       0x54 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  .text.MX_GPIO_Init
-                0x08005c60      0x13c CMakeFiles/FlightController.dir/Core/Src/main.c.obj
- .text.HAL_GPIO_EXTI_Callback
-                0x08005d9c       0x54 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x08005d9c                HAL_GPIO_EXTI_Callback
- .text.Error_Handler
-                0x08005df0        0xc CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x08005df0                Error_Handler
- .text.NMI_Handler
-                0x08005dfc        0x8 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
-                0x08005dfc                NMI_Handler
- .text.HardFault_Handler
-                0x08005e04        0x8 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
-                0x08005e04                HardFault_Handler
- .text.MemManage_Handler
-                0x08005e0c        0x8 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
-                0x08005e0c                MemManage_Handler
- .text.BusFault_Handler
-                0x08005e14        0x8 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
-                0x08005e14                BusFault_Handler
- .text.UsageFault_Handler
-                0x08005e1c        0x8 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
-                0x08005e1c                UsageFault_Handler
- .text.SVC_Handler
-                0x08005e24        0xc CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
-                0x08005e24                SVC_Handler
- .text.DebugMon_Handler
-                0x08005e30        0xc CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
-                0x08005e30                DebugMon_Handler
- .text.PendSV_Handler
-                0x08005e3c        0xc CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
-                0x08005e3c                PendSV_Handler
- .text.SysTick_Handler
-                0x08005e48        0xc CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
-                0x08005e48                SysTick_Handler
- .text.USART1_IRQHandler
-                0x08005e54       0x14 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
-                0x08005e54                USART1_IRQHandler
- .text.EXTI15_10_IRQHandler
-                0x08005e68       0x18 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
-                0x08005e68                EXTI15_10_IRQHandler
- .text.HAL_MspInit
-                0x08005e80       0x64 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
-                0x08005e80                HAL_MspInit
- .text.HAL_I2C_MspInit
-                0x08005ee4       0xa0 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
-                0x08005ee4                HAL_I2C_MspInit
- .text.HAL_SPI_MspInit
-                0x08005f84       0xb4 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
-                0x08005f84                HAL_SPI_MspInit
- .text.HAL_TIM_Base_MspInit
-                0x08006038       0xb0 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
-                0x08006038                HAL_TIM_Base_MspInit
- .text.HAL_TIM_MspPostInit
-                0x080060e8      0x128 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
-                0x080060e8                HAL_TIM_MspPostInit
- .text.HAL_UART_MspInit
-                0x08006210       0xa8 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
-                0x08006210                HAL_UART_MspInit
- .text.HAL_I2C_Init
-                0x080062b8      0x288 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
-                0x080062b8                HAL_I2C_Init
- .text.HAL_I2C_Mem_Write
-                0x08006540      0x1f4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
-                0x08006540                HAL_I2C_Mem_Write
- .text.HAL_I2C_Mem_Read
-                0x08006734      0x4d0 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
-                0x08006734                HAL_I2C_Mem_Read
- .text.HAL_I2C_IsDeviceReady
-                0x08006c04      0x25c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
-                0x08006c04                HAL_I2C_IsDeviceReady
- .text.I2C_RequestMemoryWrite
-                0x08006e60      0x12c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
- .text.I2C_RequestMemoryRead
-                0x08006f8c      0x1d0 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
- .text.I2C_WaitOnFlagUntilTimeout
-                0x0800715c       0xf4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
- .text.I2C_WaitOnMasterAddressFlagUntilTimeout
-                0x08007250      0x140 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
- .text.I2C_WaitOnTXEFlagUntilTimeout
-                0x08007390       0x90 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
- .text.I2C_WaitOnBTFFlagUntilTimeout
-                0x08007420       0x90 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
- .text.I2C_WaitOnRXNEFlagUntilTimeout
-                0x080074b0       0xba CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
- .text.I2C_IsAcknowledgeFailed
-                0x0800756a       0x5c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
- *fill*         0x080075c6        0x2 
- .text.HAL_Init
-                0x080075c8       0x2c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
-                0x080075c8                HAL_Init
- .text.HAL_InitTick
-                0x080075f4       0x60 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
-                0x080075f4                HAL_InitTick
- .text.HAL_IncTick
-                0x08007654       0x24 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
-                0x08007654                HAL_IncTick
- .text.HAL_GetTick
-                0x08007678       0x14 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
-                0x08007678                HAL_GetTick
- .text.HAL_Delay
-                0x0800768c       0x48 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
-                0x0800768c                HAL_Delay
- .text.HAL_RCC_OscConfig
-                0x080076d4      0x504 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
-                0x080076d4                HAL_RCC_OscConfig
- .text.HAL_RCC_ClockConfig
-                0x08007bd8      0x1d4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
-                0x08007bd8                HAL_RCC_ClockConfig
- .text.HAL_RCC_GetSysClockFreq
-                0x08007dac       0xa8 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
-                0x08007dac                HAL_RCC_GetSysClockFreq
- .text.HAL_RCC_GetHCLKFreq
-                0x08007e54       0x14 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
-                0x08007e54                HAL_RCC_GetHCLKFreq
- .text.HAL_RCC_GetPCLK1Freq
-                0x08007e68       0x28 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
-                0x08007e68                HAL_RCC_GetPCLK1Freq
- .text.HAL_RCC_GetPCLK2Freq
-                0x08007e90       0x28 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
-                0x08007e90                HAL_RCC_GetPCLK2Freq
- .text.RCC_Delay
-                0x08007eb8       0x3c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
- .text.HAL_GPIO_Init
-                0x08007ef4      0x308 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
-                0x08007ef4                HAL_GPIO_Init
- .text.HAL_GPIO_WritePin
-                0x080081fc       0x30 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
-                0x080081fc                HAL_GPIO_WritePin
- .text.HAL_GPIO_EXTI_IRQHandler
-                0x0800822c       0x30 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
-                0x0800822c                HAL_GPIO_EXTI_IRQHandler
- .text.HAL_DMA_Abort
-                0x0800825c       0x76 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
-                0x0800825c                HAL_DMA_Abort
- *fill*         0x080082d2        0x2 
- .text.HAL_DMA_Abort_IT
-                0x080082d4       0xf0 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
-                0x080082d4                HAL_DMA_Abort_IT
- .text.__NVIC_SetPriorityGrouping
-                0x080083c4       0x48 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
- .text.__NVIC_GetPriorityGrouping
-                0x0800840c       0x1c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
- .text.__NVIC_EnableIRQ
-                0x08008428       0x38 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
- .text.__NVIC_SetPriority
-                0x08008460       0x54 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
- .text.NVIC_EncodePriority
-                0x080084b4       0x64 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
- .text.SysTick_Config
-                0x08008518       0x44 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
- .text.HAL_NVIC_SetPriorityGrouping
-                0x0800855c       0x16 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
-                0x0800855c                HAL_NVIC_SetPriorityGrouping
- .text.HAL_NVIC_SetPriority
-                0x08008572       0x38 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
-                0x08008572                HAL_NVIC_SetPriority
- .text.HAL_NVIC_EnableIRQ
-                0x080085aa       0x1c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
-                0x080085aa                HAL_NVIC_EnableIRQ
- .text.HAL_SYSTICK_Config
-                0x080085c6       0x18 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
-                0x080085c6                HAL_SYSTICK_Config
- .text.HAL_SPI_Init
-                0x080085de      0x108 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
-                0x080085de                HAL_SPI_Init
- .text.HAL_SPI_Transmit
-                0x080086e6      0x286 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
-                0x080086e6                HAL_SPI_Transmit
- .text.HAL_SPI_Receive
-                0x0800896c      0x230 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
-                0x0800896c                HAL_SPI_Receive
- .text.HAL_SPI_TransmitReceive
-                0x08008b9c      0x360 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
-                0x08008b9c                HAL_SPI_TransmitReceive
- .text.SPI_WaitFlagStateUntilTimeout
-                0x08008efc      0x110 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
- .text.SPI_EndRxTransaction
-                0x0800900c       0xa4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
- .text.SPI_EndRxTxTransaction
-                0x080090b0       0x3c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
- .text.HAL_TIM_Base_Init
-                0x080090ec       0x9e CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
-                0x080090ec                HAL_TIM_Base_Init
- .text.HAL_TIM_PWM_Init
-                0x0800918a       0x9e CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
-                0x0800918a                HAL_TIM_PWM_Init
- .text.HAL_TIM_PWM_MspInit
-                0x08009228       0x12 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
-                0x08009228                HAL_TIM_PWM_MspInit
- *fill*         0x0800923a        0x2 
- .text.HAL_TIM_PWM_Start
-                0x0800923c      0x144 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
-                0x0800923c                HAL_TIM_PWM_Start
- .text.HAL_TIM_PWM_ConfigChannel
-                0x08009380      0x184 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
-                0x08009380                HAL_TIM_PWM_ConfigChannel
- .text.HAL_TIM_ConfigClockSource
-                0x08009504      0x18e CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
-                0x08009504                HAL_TIM_ConfigClockSource
- *fill*         0x08009692        0x2 
- .text.TIM_Base_SetConfig
-                0x08009694       0xc4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
-                0x08009694                TIM_Base_SetConfig
- .text.TIM_OC1_SetConfig
-                0x08009758       0xcc CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
- .text.TIM_OC2_SetConfig
-                0x08009824       0xd4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
-                0x08009824                TIM_OC2_SetConfig
- .text.TIM_OC3_SetConfig
-                0x080098f8       0xd4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
- .text.TIM_OC4_SetConfig
-                0x080099cc       0x9c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
- .text.TIM_TI1_ConfigInputStage
-                0x08009a68       0x5c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
- .text.TIM_TI2_ConfigInputStage
-                0x08009ac4       0x5e CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
- .text.TIM_ITRx_SetConfig
-                0x08009b22       0x34 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
- .text.TIM_ETR_SetConfig
-                0x08009b56       0x3e CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
-                0x08009b56                TIM_ETR_SetConfig
- .text.TIM_CCxChannelCmd
-                0x08009b94       0x48 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
-                0x08009b94                TIM_CCxChannelCmd
- .text.HAL_TIMEx_MasterConfigSynchronization
-                0x08009bdc       0xbc CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
-                0x08009bdc                HAL_TIMEx_MasterConfigSynchronization
- .text.HAL_TIMEx_ConfigBreakDeadTime
-                0x08009c98       0xa2 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
-                0x08009c98                HAL_TIMEx_ConfigBreakDeadTime
- .text.HAL_UART_Init
-                0x08009d3a       0xa0 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
-                0x08009d3a                HAL_UART_Init
- .text.HAL_UART_Transmit
-                0x08009dda      0x106 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
-                0x08009dda                HAL_UART_Transmit
- .text.HAL_UART_IRQHandler
-                0x08009ee0      0x524 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
-                0x08009ee0                HAL_UART_IRQHandler
- .text.HAL_UART_TxCpltCallback
-                0x0800a404       0x12 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
-                0x0800a404                HAL_UART_TxCpltCallback
+                0x080057b8      0x13c CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  .text.HAL_UART_RxCpltCallback
-                0x0800a416       0x12 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
-                0x0800a416                HAL_UART_RxCpltCallback
+                0x080058f4       0x7c CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x080058f4                HAL_UART_RxCpltCallback
+ .text.HAL_GPIO_EXTI_Callback
+                0x08005970       0x54 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x08005970                HAL_GPIO_EXTI_Callback
+ .text.Error_Handler
+                0x080059c4        0xc CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x080059c4                Error_Handler
+ .text.NMI_Handler
+                0x080059d0        0x8 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+                0x080059d0                NMI_Handler
+ .text.HardFault_Handler
+                0x080059d8        0x8 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+                0x080059d8                HardFault_Handler
+ .text.MemManage_Handler
+                0x080059e0        0x8 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+                0x080059e0                MemManage_Handler
+ .text.BusFault_Handler
+                0x080059e8        0x8 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+                0x080059e8                BusFault_Handler
+ .text.UsageFault_Handler
+                0x080059f0        0x8 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+                0x080059f0                UsageFault_Handler
+ .text.SVC_Handler
+                0x080059f8        0xc CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+                0x080059f8                SVC_Handler
+ .text.DebugMon_Handler
+                0x08005a04        0xc CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+                0x08005a04                DebugMon_Handler
+ .text.PendSV_Handler
+                0x08005a10        0xc CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+                0x08005a10                PendSV_Handler
+ .text.SysTick_Handler
+                0x08005a1c        0xc CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+                0x08005a1c                SysTick_Handler
+ .text.USART1_IRQHandler
+                0x08005a28       0x14 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+                0x08005a28                USART1_IRQHandler
+ .text.EXTI15_10_IRQHandler
+                0x08005a3c       0x18 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+                0x08005a3c                EXTI15_10_IRQHandler
+ .text.HAL_MspInit
+                0x08005a54       0x64 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
+                0x08005a54                HAL_MspInit
+ .text.HAL_I2C_MspInit
+                0x08005ab8       0xa0 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
+                0x08005ab8                HAL_I2C_MspInit
+ .text.HAL_SPI_MspInit
+                0x08005b58       0xb4 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
+                0x08005b58                HAL_SPI_MspInit
+ .text.HAL_TIM_Base_MspInit
+                0x08005c0c       0xb0 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
+                0x08005c0c                HAL_TIM_Base_MspInit
+ .text.HAL_TIM_MspPostInit
+                0x08005cbc      0x128 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
+                0x08005cbc                HAL_TIM_MspPostInit
+ .text.HAL_UART_MspInit
+                0x08005de4       0xa8 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
+                0x08005de4                HAL_UART_MspInit
+ .text.HAL_I2C_Init
+                0x08005e8c      0x288 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+                0x08005e8c                HAL_I2C_Init
+ .text.HAL_I2C_Mem_Write
+                0x08006114      0x1f4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+                0x08006114                HAL_I2C_Mem_Write
+ .text.HAL_I2C_Mem_Read
+                0x08006308      0x4d0 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+                0x08006308                HAL_I2C_Mem_Read
+ .text.HAL_I2C_IsDeviceReady
+                0x080067d8      0x25c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+                0x080067d8                HAL_I2C_IsDeviceReady
+ .text.I2C_RequestMemoryWrite
+                0x08006a34      0x12c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+ .text.I2C_RequestMemoryRead
+                0x08006b60      0x1d0 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+ .text.I2C_WaitOnFlagUntilTimeout
+                0x08006d30       0xf4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+ .text.I2C_WaitOnMasterAddressFlagUntilTimeout
+                0x08006e24      0x140 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+ .text.I2C_WaitOnTXEFlagUntilTimeout
+                0x08006f64       0x90 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+ .text.I2C_WaitOnBTFFlagUntilTimeout
+                0x08006ff4       0x90 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+ .text.I2C_WaitOnRXNEFlagUntilTimeout
+                0x08007084       0xba CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+ .text.I2C_IsAcknowledgeFailed
+                0x0800713e       0x5c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+ *fill*         0x0800719a        0x2 
+ .text.HAL_Init
+                0x0800719c       0x2c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
+                0x0800719c                HAL_Init
+ .text.HAL_InitTick
+                0x080071c8       0x60 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
+                0x080071c8                HAL_InitTick
+ .text.HAL_IncTick
+                0x08007228       0x24 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
+                0x08007228                HAL_IncTick
+ .text.HAL_GetTick
+                0x0800724c       0x14 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
+                0x0800724c                HAL_GetTick
+ .text.HAL_Delay
+                0x08007260       0x48 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
+                0x08007260                HAL_Delay
+ .text.HAL_RCC_OscConfig
+                0x080072a8      0x504 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+                0x080072a8                HAL_RCC_OscConfig
+ .text.HAL_RCC_ClockConfig
+                0x080077ac      0x1d4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+                0x080077ac                HAL_RCC_ClockConfig
+ .text.HAL_RCC_GetSysClockFreq
+                0x08007980       0xa8 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+                0x08007980                HAL_RCC_GetSysClockFreq
+ .text.HAL_RCC_GetHCLKFreq
+                0x08007a28       0x14 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+                0x08007a28                HAL_RCC_GetHCLKFreq
+ .text.HAL_RCC_GetPCLK1Freq
+                0x08007a3c       0x28 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+                0x08007a3c                HAL_RCC_GetPCLK1Freq
+ .text.HAL_RCC_GetPCLK2Freq
+                0x08007a64       0x28 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+                0x08007a64                HAL_RCC_GetPCLK2Freq
+ .text.RCC_Delay
+                0x08007a8c       0x3c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+ .text.HAL_GPIO_Init
+                0x08007ac8      0x308 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
+                0x08007ac8                HAL_GPIO_Init
+ .text.HAL_GPIO_WritePin
+                0x08007dd0       0x30 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
+                0x08007dd0                HAL_GPIO_WritePin
+ .text.HAL_GPIO_EXTI_IRQHandler
+                0x08007e00       0x30 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
+                0x08007e00                HAL_GPIO_EXTI_IRQHandler
+ .text.HAL_DMA_Abort
+                0x08007e30       0x76 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
+                0x08007e30                HAL_DMA_Abort
+ *fill*         0x08007ea6        0x2 
+ .text.HAL_DMA_Abort_IT
+                0x08007ea8       0xf0 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
+                0x08007ea8                HAL_DMA_Abort_IT
+ .text.__NVIC_SetPriorityGrouping
+                0x08007f98       0x48 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+ .text.__NVIC_GetPriorityGrouping
+                0x08007fe0       0x1c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+ .text.__NVIC_EnableIRQ
+                0x08007ffc       0x38 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+ .text.__NVIC_SetPriority
+                0x08008034       0x54 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+ .text.NVIC_EncodePriority
+                0x08008088       0x64 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+ .text.SysTick_Config
+                0x080080ec       0x44 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+ .text.HAL_NVIC_SetPriorityGrouping
+                0x08008130       0x16 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+                0x08008130                HAL_NVIC_SetPriorityGrouping
+ .text.HAL_NVIC_SetPriority
+                0x08008146       0x38 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+                0x08008146                HAL_NVIC_SetPriority
+ .text.HAL_NVIC_EnableIRQ
+                0x0800817e       0x1c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+                0x0800817e                HAL_NVIC_EnableIRQ
+ .text.HAL_SYSTICK_Config
+                0x0800819a       0x18 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+                0x0800819a                HAL_SYSTICK_Config
+ .text.HAL_SPI_Init
+                0x080081b2      0x108 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
+                0x080081b2                HAL_SPI_Init
+ .text.HAL_SPI_Transmit
+                0x080082ba      0x286 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
+                0x080082ba                HAL_SPI_Transmit
+ .text.HAL_SPI_Receive
+                0x08008540      0x230 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
+                0x08008540                HAL_SPI_Receive
+ .text.HAL_SPI_TransmitReceive
+                0x08008770      0x360 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
+                0x08008770                HAL_SPI_TransmitReceive
+ .text.SPI_WaitFlagStateUntilTimeout
+                0x08008ad0      0x110 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
+ .text.SPI_EndRxTransaction
+                0x08008be0       0xa4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
+ .text.SPI_EndRxTxTransaction
+                0x08008c84       0x3c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
+ .text.HAL_TIM_Base_Init
+                0x08008cc0       0x9e CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+                0x08008cc0                HAL_TIM_Base_Init
+ .text.HAL_TIM_PWM_Init
+                0x08008d5e       0x9e CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+                0x08008d5e                HAL_TIM_PWM_Init
+ .text.HAL_TIM_PWM_MspInit
+                0x08008dfc       0x12 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+                0x08008dfc                HAL_TIM_PWM_MspInit
+ *fill*         0x08008e0e        0x2 
+ .text.HAL_TIM_PWM_Start
+                0x08008e10      0x144 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+                0x08008e10                HAL_TIM_PWM_Start
+ .text.HAL_TIM_PWM_ConfigChannel
+                0x08008f54      0x184 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+                0x08008f54                HAL_TIM_PWM_ConfigChannel
+ .text.HAL_TIM_ConfigClockSource
+                0x080090d8      0x18e CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+                0x080090d8                HAL_TIM_ConfigClockSource
+ *fill*         0x08009266        0x2 
+ .text.TIM_Base_SetConfig
+                0x08009268       0xc4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+                0x08009268                TIM_Base_SetConfig
+ .text.TIM_OC1_SetConfig
+                0x0800932c       0xcc CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+ .text.TIM_OC2_SetConfig
+                0x080093f8       0xd4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+                0x080093f8                TIM_OC2_SetConfig
+ .text.TIM_OC3_SetConfig
+                0x080094cc       0xd4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+ .text.TIM_OC4_SetConfig
+                0x080095a0       0x9c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+ .text.TIM_TI1_ConfigInputStage
+                0x0800963c       0x5c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+ .text.TIM_TI2_ConfigInputStage
+                0x08009698       0x5e CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+ .text.TIM_ITRx_SetConfig
+                0x080096f6       0x34 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+ .text.TIM_ETR_SetConfig
+                0x0800972a       0x3e CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+                0x0800972a                TIM_ETR_SetConfig
+ .text.TIM_CCxChannelCmd
+                0x08009768       0x48 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+                0x08009768                TIM_CCxChannelCmd
+ .text.HAL_TIMEx_MasterConfigSynchronization
+                0x080097b0       0xbc CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
+                0x080097b0                HAL_TIMEx_MasterConfigSynchronization
+ .text.HAL_TIMEx_ConfigBreakDeadTime
+                0x0800986c       0xa2 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
+                0x0800986c                HAL_TIMEx_ConfigBreakDeadTime
+ .text.HAL_UART_Init
+                0x0800990e       0xa0 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x0800990e                HAL_UART_Init
+ .text.HAL_UART_Transmit
+                0x080099ae      0x106 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x080099ae                HAL_UART_Transmit
+ .text.HAL_UART_Receive_IT
+                0x08009ab4       0x4a CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x08009ab4                HAL_UART_Receive_IT
+ *fill*         0x08009afe        0x2 
+ .text.HAL_UART_IRQHandler
+                0x08009b00      0x524 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x08009b00                HAL_UART_IRQHandler
+ .text.HAL_UART_TxCpltCallback
+                0x0800a024       0x12 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x0800a024                HAL_UART_TxCpltCallback
  .text.HAL_UART_ErrorCallback
-                0x0800a428       0x12 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
-                0x0800a428                HAL_UART_ErrorCallback
+                0x0800a036       0x12 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x0800a036                HAL_UART_ErrorCallback
  .text.HAL_UARTEx_RxEventCallback
-                0x0800a43a       0x16 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
-                0x0800a43a                HAL_UARTEx_RxEventCallback
+                0x0800a048       0x16 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x0800a048                HAL_UARTEx_RxEventCallback
  .text.UART_WaitOnFlagUntilTimeout
-                0x0800a450       0xdc CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x0800a05e       0xdc CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+ .text.UART_Start_Receive_IT
+                0x0800a13a       0x72 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x0800a13a                UART_Start_Receive_IT
  .text.UART_EndRxTransfer
-                0x0800a52c       0xc4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x0800a1ac       0xc4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
  .text.UART_DMAAbortOnError
-                0x0800a5f0       0x28 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x0800a270       0x28 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
  .text.UART_Transmit_IT
-                0x0800a618       0x9e CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x0800a298       0x9e CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
  .text.UART_EndTransmit_IT
-                0x0800a6b6       0x30 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x0800a336       0x30 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
  .text.UART_Receive_IT
-                0x0800a6e6      0x17c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
- *fill*         0x0800a862        0x2 
+                0x0800a366      0x17c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+ *fill*         0x0800a4e2        0x2 
  .text.UART_SetConfig
-                0x0800a864      0x11c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x0800a4e4      0x11c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
  .text.SystemInit
-                0x0800a980        0xc CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
-                0x0800a980                SystemInit
- .text._sbrk    0x0800a98c       0x6c CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
-                0x0800a98c                _sbrk
- .text._getpid  0x0800a9f8        0xe CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
-                0x0800a9f8                _getpid
- .text._kill    0x0800aa06       0x20 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
-                0x0800aa06                _kill
- .text._exit    0x0800aa26       0x16 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
-                0x0800aa26                _exit
- .text._read    0x0800aa3c       0x3a CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
-                0x0800aa3c                _read
- .text._write   0x0800aa76       0x38 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
-                0x0800aa76                _write
- .text._close   0x0800aaae       0x16 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
-                0x0800aaae                _close
- .text._fstat   0x0800aac4       0x1e CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
-                0x0800aac4                _fstat
- .text._isatty  0x0800aae2       0x14 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
-                0x0800aae2                _isatty
- .text._lseek   0x0800aaf6       0x18 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
-                0x0800aaf6                _lseek
- *fill*         0x0800ab0e        0x2 
+                0x0800a600        0xc CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
+                0x0800a600                SystemInit
+ .text._sbrk    0x0800a60c       0x6c CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
+                0x0800a60c                _sbrk
+ .text._getpid  0x0800a678        0xe CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+                0x0800a678                _getpid
+ .text._kill    0x0800a686       0x20 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+                0x0800a686                _kill
+ .text._exit    0x0800a6a6       0x16 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+                0x0800a6a6                _exit
+ .text._read    0x0800a6bc       0x3a CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+                0x0800a6bc                _read
+ .text._write   0x0800a6f6       0x38 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+                0x0800a6f6                _write
+ .text._close   0x0800a72e       0x16 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+                0x0800a72e                _close
+ .text._fstat   0x0800a744       0x1e CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+                0x0800a744                _fstat
+ .text._isatty  0x0800a762       0x14 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+                0x0800a762                _isatty
+ .text._lseek   0x0800a776       0x18 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+                0x0800a776                _lseek
+ *fill*         0x0800a78e        0x2 
  .text.Reset_Handler
-                0x0800ab10       0x48 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
-                0x0800ab10                Reset_Handler
+                0x0800a790       0x48 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
+                0x0800a790                Reset_Handler
  .text.Default_Handler
-                0x0800ab58        0x2 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
-                0x0800ab58                RTC_Alarm_IRQHandler
-                0x0800ab58                EXTI2_IRQHandler
-                0x0800ab58                TIM1_CC_IRQHandler
-                0x0800ab58                PVD_IRQHandler
-                0x0800ab58                EXTI3_IRQHandler
-                0x0800ab58                EXTI0_IRQHandler
-                0x0800ab58                I2C2_EV_IRQHandler
-                0x0800ab58                ADC1_2_IRQHandler
-                0x0800ab58                SPI1_IRQHandler
-                0x0800ab58                TAMPER_IRQHandler
-                0x0800ab58                DMA1_Channel4_IRQHandler
-                0x0800ab58                USART3_IRQHandler
-                0x0800ab58                RTC_IRQHandler
-                0x0800ab58                DMA1_Channel7_IRQHandler
-                0x0800ab58                CAN1_RX1_IRQHandler
-                0x0800ab58                TIM4_IRQHandler
-                0x0800ab58                I2C1_EV_IRQHandler
-                0x0800ab58                DMA1_Channel6_IRQHandler
-                0x0800ab58                TIM3_IRQHandler
-                0x0800ab58                RCC_IRQHandler
-                0x0800ab58                TIM1_TRG_COM_IRQHandler
-                0x0800ab58                DMA1_Channel1_IRQHandler
-                0x0800ab58                Default_Handler
-                0x0800ab58                EXTI9_5_IRQHandler
-                0x0800ab58                SPI2_IRQHandler
-                0x0800ab58                DMA1_Channel5_IRQHandler
-                0x0800ab58                EXTI4_IRQHandler
-                0x0800ab58                USB_LP_CAN1_RX0_IRQHandler
-                0x0800ab58                USB_HP_CAN1_TX_IRQHandler
-                0x0800ab58                DMA1_Channel3_IRQHandler
-                0x0800ab58                TIM1_UP_IRQHandler
-                0x0800ab58                WWDG_IRQHandler
-                0x0800ab58                TIM2_IRQHandler
-                0x0800ab58                TIM1_BRK_IRQHandler
-                0x0800ab58                EXTI1_IRQHandler
-                0x0800ab58                USART2_IRQHandler
-                0x0800ab58                I2C2_ER_IRQHandler
-                0x0800ab58                DMA1_Channel2_IRQHandler
-                0x0800ab58                CAN1_SCE_IRQHandler
-                0x0800ab58                FLASH_IRQHandler
-                0x0800ab58                I2C1_ER_IRQHandler
-                0x0800ab58                USBWakeUp_IRQHandler
- *fill*         0x0800ab5a        0x2 
- .text.sprintf  0x0800ab5c       0x40 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
-                0x0800ab5c                siprintf
-                0x0800ab5c                sprintf
- .text.__errno  0x0800ab9c        0xc C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
-                0x0800ab9c                __errno
+                0x0800a7d8        0x2 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
+                0x0800a7d8                RTC_Alarm_IRQHandler
+                0x0800a7d8                EXTI2_IRQHandler
+                0x0800a7d8                TIM1_CC_IRQHandler
+                0x0800a7d8                PVD_IRQHandler
+                0x0800a7d8                EXTI3_IRQHandler
+                0x0800a7d8                EXTI0_IRQHandler
+                0x0800a7d8                I2C2_EV_IRQHandler
+                0x0800a7d8                ADC1_2_IRQHandler
+                0x0800a7d8                SPI1_IRQHandler
+                0x0800a7d8                TAMPER_IRQHandler
+                0x0800a7d8                DMA1_Channel4_IRQHandler
+                0x0800a7d8                USART3_IRQHandler
+                0x0800a7d8                RTC_IRQHandler
+                0x0800a7d8                DMA1_Channel7_IRQHandler
+                0x0800a7d8                CAN1_RX1_IRQHandler
+                0x0800a7d8                TIM4_IRQHandler
+                0x0800a7d8                I2C1_EV_IRQHandler
+                0x0800a7d8                DMA1_Channel6_IRQHandler
+                0x0800a7d8                TIM3_IRQHandler
+                0x0800a7d8                RCC_IRQHandler
+                0x0800a7d8                TIM1_TRG_COM_IRQHandler
+                0x0800a7d8                DMA1_Channel1_IRQHandler
+                0x0800a7d8                Default_Handler
+                0x0800a7d8                EXTI9_5_IRQHandler
+                0x0800a7d8                SPI2_IRQHandler
+                0x0800a7d8                DMA1_Channel5_IRQHandler
+                0x0800a7d8                EXTI4_IRQHandler
+                0x0800a7d8                USB_LP_CAN1_RX0_IRQHandler
+                0x0800a7d8                USB_HP_CAN1_TX_IRQHandler
+                0x0800a7d8                DMA1_Channel3_IRQHandler
+                0x0800a7d8                TIM1_UP_IRQHandler
+                0x0800a7d8                WWDG_IRQHandler
+                0x0800a7d8                TIM2_IRQHandler
+                0x0800a7d8                TIM1_BRK_IRQHandler
+                0x0800a7d8                EXTI1_IRQHandler
+                0x0800a7d8                USART2_IRQHandler
+                0x0800a7d8                I2C2_ER_IRQHandler
+                0x0800a7d8                DMA1_Channel2_IRQHandler
+                0x0800a7d8                CAN1_SCE_IRQHandler
+                0x0800a7d8                FLASH_IRQHandler
+                0x0800a7d8                I2C1_ER_IRQHandler
+                0x0800a7d8                USBWakeUp_IRQHandler
+ *fill*         0x0800a7da        0x2 
+ .text.sprintf  0x0800a7dc       0x40 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
+                0x0800a7dc                siprintf
+                0x0800a7dc                sprintf
+ .text.__errno  0x0800a81c        0xc C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
+                0x0800a81c                __errno
  .text.__ssputs_r
-                0x0800aba8       0xb6 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
-                0x0800aba8                __ssputs_r
- *fill*         0x0800ac5e        0x2 
+                0x0800a828       0xb6 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
+                0x0800a828                __ssputs_r
+ *fill*         0x0800a8de        0x2 
  .text._svfprintf_r
-                0x0800ac60      0x1f8 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
-                0x0800ac60                _svfiprintf_r
-                0x0800ac60                _svfprintf_r
- .text.atan2    0x0800ae58        0x4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-w_atan2.o)
-                0x0800ae58                atan2
- .text.sqrt     0x0800ae5c       0x48 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-w_sqrt.o)
-                0x0800ae5c                sqrt
- *fill*         0x0800aea4        0x4 
- .text.atan     0x0800aea8      0x320 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_atan.o)
-                0x0800aea8                atan
- .text.cos      0x0800b1c8       0x8c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_cos.o)
-                0x0800b1c8                cos
- .text.fabs     0x0800b254        0x8 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_fabs.o)
-                0x0800b254                fabs
+                0x0800a8e0      0x1f8 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
+                0x0800a8e0                _svfiprintf_r
+                0x0800a8e0                _svfprintf_r
+ .text.atan2    0x0800aad8        0x4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-w_atan2.o)
+                0x0800aad8                atan2
+ .text.sqrt     0x0800aadc       0x48 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-w_sqrt.o)
+                0x0800aadc                sqrt
+ *fill*         0x0800ab24        0x4 
+ .text.atan     0x0800ab28      0x320 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_atan.o)
+                0x0800ab28                atan
+ .text.cos      0x0800ae48       0x8c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_cos.o)
+                0x0800ae48                cos
+ .text.fabs     0x0800aed4        0x8 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_fabs.o)
+                0x0800aed4                fabs
  .text.__ieee754_sqrt
-                0x0800b25c      0x1ac C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_sqrt.o)
-                0x0800b25c                __ieee754_sqrt
+                0x0800aedc      0x1ac C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_sqrt.o)
+                0x0800aedc                __ieee754_sqrt
  .text.__kernel_cos
-                0x0800b408      0x17c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_cos.o)
-                0x0800b408                __kernel_cos
- *fill*         0x0800b584        0x4 
+                0x0800b088      0x17c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_cos.o)
+                0x0800b088                __kernel_cos
+ *fill*         0x0800b204        0x4 
  .text.__kernel_sin
-                0x0800b588      0x16c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_sin.o)
-                0x0800b588                __kernel_sin
- *fill*         0x0800b6f4        0x4 
+                0x0800b208      0x16c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_sin.o)
+                0x0800b208                __kernel_sin
+ *fill*         0x0800b374        0x4 
  .text.__ieee754_atan2
-                0x0800b6f8      0x1a4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_atan2.o)
-                0x0800b6f8                __ieee754_atan2
- *fill*         0x0800b89c        0x4 
+                0x0800b378      0x1a4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_atan2.o)
+                0x0800b378                __ieee754_atan2
+ *fill*         0x0800b51c        0x4 
  .text.__ieee754_rem_pio2
-                0x0800b8a0      0x3ec C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_rem_pio2.o)
-                0x0800b8a0                __ieee754_rem_pio2
+                0x0800b520      0x3ec C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_rem_pio2.o)
+                0x0800b520                __ieee754_rem_pio2
  .text.__kernel_rem_pio2
-                0x0800bc8c      0x648 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_rem_pio2.o)
-                0x0800bc8c                __kernel_rem_pio2
- *fill*         0x0800c2d4        0x4 
- .text.scalbn   0x0800c2d8       0xec C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_scalbn.o)
-                0x0800c2d8                scalbn
- *fill*         0x0800c3c4        0x4 
- .text.floor    0x0800c3c8      0x100 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_floor.o)
-                0x0800c3c8                floor
+                0x0800b90c      0x648 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_rem_pio2.o)
+                0x0800b90c                __kernel_rem_pio2
+ *fill*         0x0800bf54        0x4 
+ .text.scalbn   0x0800bf58       0xec C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_scalbn.o)
+                0x0800bf58                scalbn
+ *fill*         0x0800c044        0x4 
+ .text.floor    0x0800c048      0x100 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_floor.o)
+                0x0800c048                floor
  *(.glue_7)
- .glue_7        0x0800c4c8        0x0 linker stubs
+ .glue_7        0x0800c148        0x0 linker stubs
  *(.glue_7t)
- .glue_7t       0x0800c4c8        0x0 linker stubs
+ .glue_7t       0x0800c148        0x0 linker stubs
  *(.eh_frame)
- .eh_frame      0x0800c4c8        0x0 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtbegin.o
+ .eh_frame      0x0800c148        0x0 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtbegin.o
  *(.init)
- .init          0x0800c4c8        0x4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crti.o
-                0x0800c4c8                _init
- .init          0x0800c4cc        0x8 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtn.o
+ .init          0x0800c148        0x4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crti.o
+                0x0800c148                _init
+ .init          0x0800c14c        0x8 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtn.o
  *(.fini)
- .fini          0x0800c4d4        0x4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crti.o
-                0x0800c4d4                _fini
- .fini          0x0800c4d8        0x8 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtn.o
-                0x0800c4e0                        . = ALIGN (0x4)
-                0x0800c4e0                        _etext = .
+ .fini          0x0800c154        0x4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crti.o
+                0x0800c154                _fini
+ .fini          0x0800c158        0x8 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtn.o
+                0x0800c160                        . = ALIGN (0x4)
+                0x0800c160                        _etext = .
 
-.vfp11_veneer   0x0800c4e0        0x0
- .vfp11_veneer  0x0800c4e0        0x0 linker stubs
+.vfp11_veneer   0x0800c160        0x0
+ .vfp11_veneer  0x0800c160        0x0 linker stubs
 
-.v4_bx          0x0800c4e0        0x0
- .v4_bx         0x0800c4e0        0x0 linker stubs
+.v4_bx          0x0800c160        0x0
+ .v4_bx         0x0800c160        0x0 linker stubs
 
-.iplt           0x0800c4e0        0x0
- .iplt          0x0800c4e0        0x0 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtbegin.o
+.iplt           0x0800c160        0x0
+ .iplt          0x0800c160        0x0 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtbegin.o
 
-.rodata         0x0800c4e0      0x828
-                0x0800c4e0                        . = ALIGN (0x4)
+.rodata         0x0800c160      0x7e0
+                0x0800c160                        . = ALIGN (0x4)
  *(.rodata)
- .rodata        0x0800c4e0       0x61 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- *fill*         0x0800c541        0x3 
- .rodata        0x0800c544       0x2b CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
- *fill*         0x0800c56f        0x1 
- .rodata        0x0800c570       0x40 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
- .rodata        0x0800c5b0       0x19 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
- *fill*         0x0800c5c9        0x3 
- .rodata        0x0800c5cc      0x14f CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+ .rodata        0x0800c160       0x68 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .rodata        0x0800c1c8       0x2b CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
+ *fill*         0x0800c1f3        0x1 
+ .rodata        0x0800c1f4       0x11 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ *fill*         0x0800c205        0x3 
+ .rodata        0x0800c208      0x14f CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  *(.rodata*)
  .rodata._printf_float.str1.1
-                0x0800c71b       0x12 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-nano-vfprintf_float.o)
+                0x0800c357       0x12 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-nano-vfprintf_float.o)
  .rodata._printf_i.str1.1
-                0x0800c72d       0x22 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-nano-vfprintf_i.o)
+                0x0800c369       0x22 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-nano-vfprintf_i.o)
  .rodata._dtoa_r.str1.1
-                0x0800c74f       0x8d C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-dtoa.o)
+                0x0800c38b       0x8d C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-dtoa.o)
                                  0x8f (size before relaxing)
  .rodata._Balloc.str1.1
-                0x0800c7dc       0x59 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-mprec.o)
+                0x0800c418       0x59 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-mprec.o)
                                  0x70 (size before relaxing)
  .rodata.__multadd.str1.1
-                0x0800c835       0x11 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-mprec.o)
- *fill*         0x0800c835        0x3 
- .rodata.p05.0  0x0800c838        0xc C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-mprec.o)
- *fill*         0x0800c844        0x4 
+                0x0800c471       0x11 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-mprec.o)
+ *fill*         0x0800c471        0x3 
+ .rodata.p05.0  0x0800c474        0xc C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-mprec.o)
  .rodata.__mprec_bigtens
-                0x0800c848       0x28 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-mprec.o)
-                0x0800c848                __mprec_bigtens
+                0x0800c480       0x28 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-mprec.o)
+                0x0800c480                __mprec_bigtens
  .rodata.__mprec_tens
-                0x0800c870       0xc8 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-mprec.o)
-                0x0800c870                __mprec_tens
+                0x0800c4a8       0xc8 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-mprec.o)
+                0x0800c4a8                __mprec_tens
  .rodata._setlocale_r.str1.1
-                0x0800c938        0x8 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-locale.o)
+                0x0800c570        0x8 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-locale.o)
                                   0x9 (size before relaxing)
  .rodata.str1.1
-                0x0800c940        0x2 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-locale.o)
+                0x0800c578        0x2 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-locale.o)
  .rodata.__assert_func.str1.1
-                0x0800c942       0x3c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-assert.o)
+                0x0800c57a       0x3c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-assert.o)
                                  0x3d (size before relaxing)
  .rodata._ctype_
-                0x0800c97e      0x101 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-ctype_.o)
-                0x0800c97e                _ctype_
+                0x0800c5b6      0x101 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-ctype_.o)
+                0x0800c5b6                _ctype_
  .rodata._vfprintf_r.str1.1
-                0x0800ca7f       0x11 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-nano-vfprintf.o)
+                0x0800c6b7       0x11 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-nano-vfprintf.o)
  .rodata.aPLLMULFactorTable.1
-                0x0800ca90       0x10 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+                0x0800c6c8       0x10 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
  .rodata.aPredivFactorTable.0
-                0x0800caa0        0x2 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
- *fill*         0x0800caa2        0x2 
+                0x0800c6d8        0x2 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+ *fill*         0x0800c6da        0x2 
  .rodata.AHBPrescTable
-                0x0800caa4       0x10 CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
-                0x0800caa4                AHBPrescTable
+                0x0800c6dc       0x10 CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
+                0x0800c6dc                AHBPrescTable
  .rodata.APBPrescTable
-                0x0800cab4        0x8 CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
-                0x0800cab4                APBPrescTable
+                0x0800c6ec        0x8 CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
+                0x0800c6ec                APBPrescTable
  .rodata._svfprintf_r.str1.1
-                0x0800cabc       0x11 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
- *fill*         0x0800cabc        0x4 
+                0x0800c6f4       0x11 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
+ *fill*         0x0800c6f4        0x4 
  .rodata.atanlo
-                0x0800cac0       0x20 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_atan.o)
+                0x0800c6f8       0x20 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_atan.o)
  .rodata.atanhi
-                0x0800cae0       0x20 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_atan.o)
+                0x0800c718       0x20 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_atan.o)
  .rodata.CSWTCH.9
-                0x0800cb00       0x18 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_atan2.o)
+                0x0800c738       0x18 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_atan2.o)
  .rodata.CSWTCH.8
-                0x0800cb18       0x18 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_atan2.o)
+                0x0800c750       0x18 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_atan2.o)
  .rodata.npio2_hw
-                0x0800cb30       0x80 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_rem_pio2.o)
+                0x0800c768       0x80 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_rem_pio2.o)
  .rodata.two_over_pi
-                0x0800cbb0      0x108 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_rem_pio2.o)
- .rodata.PIo2   0x0800ccb8       0x40 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_rem_pio2.o)
+                0x0800c7e8      0x108 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_rem_pio2.o)
+ .rodata.PIo2   0x0800c8f0       0x40 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_rem_pio2.o)
  .rodata.init_jk
-                0x0800ccf8       0x10 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_rem_pio2.o)
-                0x0800cd08                        . = ALIGN (0x4)
+                0x0800c930       0x10 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_rem_pio2.o)
+                0x0800c940                        . = ALIGN (0x4)
 
 .ARM.extab
  *(.ARM.extab* .gnu.linkonce.armextab.*)
 
-.ARM            0x0800cd08        0x8
-                0x0800cd08                        __exidx_start = .
+.ARM            0x0800c940        0x8
+                0x0800c940                        __exidx_start = .
  *(.ARM.exidx*)
- .ARM.exidx     0x0800cd08        0x8 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-strlen.o)
-                0x0800cd10                        __exidx_end = .
+ .ARM.exidx     0x0800c940        0x8 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-strlen.o)
+                0x0800c948                        __exidx_end = .
 
-.rel.dyn        0x0800cd10        0x0
- .rel.iplt      0x0800cd10        0x0 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtbegin.o
+.rel.dyn        0x0800c948        0x0
+ .rel.iplt      0x0800c948        0x0 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtbegin.o
 
-.preinit_array  0x0800cd10        0x0
-                0x0800cd10                        PROVIDE (__preinit_array_start = .)
+.preinit_array  0x0800c948        0x0
+                0x0800c948                        PROVIDE (__preinit_array_start = .)
  *(.preinit_array*)
-                0x0800cd10                        PROVIDE (__preinit_array_end = .)
+                0x0800c948                        PROVIDE (__preinit_array_end = .)
 
-.init_array     0x0800cd10        0x4
-                0x0800cd10                        PROVIDE (__init_array_start = .)
+.init_array     0x0800c948        0x4
+                0x0800c948                        PROVIDE (__init_array_start = .)
  *(SORT_BY_NAME(.init_array.*))
  *(.init_array*)
- .init_array    0x0800cd10        0x4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtbegin.o
-                0x0800cd14                        PROVIDE (__init_array_end = .)
+ .init_array    0x0800c948        0x4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtbegin.o
+                0x0800c94c                        PROVIDE (__init_array_end = .)
 
-.fini_array     0x0800cd14        0x4
+.fini_array     0x0800c94c        0x4
                 [!provide]                        PROVIDE (__fini_array_start = .)
  *(SORT_BY_NAME(.fini_array.*))
  *(.fini_array*)
- .fini_array    0x0800cd14        0x4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtbegin.o
+ .fini_array    0x0800c94c        0x4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtbegin.o
                 [!provide]                        PROVIDE (__fini_array_end = .)
-                0x0800cd18                        _sidata = LOADADDR (.data)
+                0x0800c950                        _sidata = LOADADDR (.data)
 
-.data           0x20000000      0x2a0 load address 0x0800cd18
+.data           0x20000000      0x2a0 load address 0x0800c950
                 0x20000000                        . = ALIGN (0x4)
                 0x20000000                        _sdata = .
  *(.data)
@@ -4658,11 +4661,11 @@ LOAD C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/
                 0x200002a0                        . = ALIGN (0x4)
                 0x200002a0                        _edata = .
 
-.igot.plt       0x200002a0        0x0 load address 0x0800cfb8
+.igot.plt       0x200002a0        0x0 load address 0x0800cbf0
  .igot.plt      0x200002a0        0x0 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp/crtbegin.o
                 0x200002a0                        . = ALIGN (0x4)
 
-.bss            0x200002a0      0x4c8 load address 0x0800cfb8
+.bss            0x200002a0      0x888 load address 0x0800cbf0
                 0x200002a0                        _sbss = .
                 0x200002a0                        __bss_start__ = _sbss
  *(.bss)
@@ -4708,72 +4711,64 @@ LOAD C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/
  *fill*         0x20000489        0x3 
  .bss.kf        0x2000048c       0x18 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
                 0x2000048c                kf
- .bss.IsCalibrated
-                0x200004a4        0x4 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
-                0x200004a4                IsCalibrated
- .bss.Roll_Offset
-                0x200004a8        0x8 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
-                0x200004a8                Roll_Offset
- .bss.Pitch_Offset
-                0x200004b0        0x8 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
-                0x200004b0                Pitch_Offset
- .bss.Gz_Offset
-                0x200004b8        0x8 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
-                0x200004b8                Gz_Offset
- .bss.Az_Offset
-                0x200004c0        0x8 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
-                0x200004c0                Az_Offset
- .bss.Vz_Offset
-                0x200004c8        0x8 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
-                0x200004c8                Vz_Offset
- .bss.hi2c1     0x200004d0       0x54 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x200004d0                hi2c1
- .bss.hspi1     0x20000524       0x58 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x20000524                hspi1
- .bss.htim1     0x2000057c       0x48 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x2000057c                htim1
- .bss.htim2     0x200005c4       0x48 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x200005c4                htim2
- .bss.htim3     0x2000060c       0x48 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x2000060c                htim3
- .bss.htim4     0x20000654       0x48 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x20000654                htim4
- .bss.huart1    0x2000069c       0x48 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x2000069c                huart1
- .bss.rx_data   0x200006e4        0x8 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x200006e4                rx_data
- *fill*         0x200006ec        0x4 
+ .bss.hi2c1     0x200004a4       0x54 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x200004a4                hi2c1
+ .bss.hspi1     0x200004f8       0x58 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x200004f8                hspi1
+ .bss.htim1     0x20000550       0x48 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x20000550                htim1
+ .bss.htim2     0x20000598       0x48 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x20000598                htim2
+ .bss.htim3     0x200005e0       0x48 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x200005e0                htim3
+ .bss.htim4     0x20000628       0x48 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x20000628                htim4
+ .bss.huart1    0x20000670       0x48 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x20000670                huart1
+ .bss.USART_ReceivedByte
+                0x200006b8        0x1 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x200006b8                USART_ReceivedByte
+ *fill*         0x200006b9        0x3 
+ .bss.USART_Buffer
+                0x200006bc      0x3e8 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x200006bc                USART_Buffer
+ .bss.USART_dataIndex
+                0x20000aa4        0x2 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x20000aa4                USART_dataIndex
+ *fill*         0x20000aa6        0x2 
+ .bss.rx_data   0x20000aa8        0x8 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x20000aa8                rx_data
  .bss.Motors_PID_Adj
-                0x200006f0       0x20 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x200006f0                Motors_PID_Adj
- .bss.pid_roll  0x20000710       0x14 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x20000710                pid_roll
+                0x20000ab0       0x20 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x20000ab0                Motors_PID_Adj
+ .bss.pid_roll  0x20000ad0       0x14 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x20000ad0                pid_roll
  .bss.pid_pitch
-                0x20000724       0x14 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x20000724                pid_pitch
- .bss.pid_yaw   0x20000738       0x14 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x20000738                pid_yaw
- .bss.pid_Vz    0x2000074c       0x14 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                0x2000074c                pid_Vz
- .bss.uwTick    0x20000760        0x4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
-                0x20000760                uwTick
+                0x20000ae4       0x14 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x20000ae4                pid_pitch
+ .bss.pid_yaw   0x20000af8       0x14 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x20000af8                pid_yaw
+ .bss.pid_Vz    0x20000b0c       0x14 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x20000b0c                pid_Vz
+ .bss.uwTick    0x20000b20        0x4 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
+                0x20000b20                uwTick
  .bss.__sbrk_heap_end
-                0x20000764        0x4 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
+                0x20000b24        0x4 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
  *(COMMON)
-                0x20000768                        . = ALIGN (0x4)
-                0x20000768                        _ebss = .
-                0x20000768                        __bss_end__ = _ebss
+                0x20000b28                        . = ALIGN (0x4)
+                0x20000b28                        _ebss = .
+                0x20000b28                        __bss_end__ = _ebss
 
 ._user_heap_stack
-                0x20000768      0x600 load address 0x0800cfb8
-                0x20000768                        . = ALIGN (0x8)
+                0x20000b28      0x600 load address 0x0800cbf0
+                0x20000b28                        . = ALIGN (0x8)
                 [!provide]                        PROVIDE (end = .)
-                0x20000768                        PROVIDE (_end = .)
-                0x20000968                        . = (. + _Min_Heap_Size)
- *fill*         0x20000768      0x200 
-                0x20000d68                        . = (. + _Min_Stack_Size)
- *fill*         0x20000968      0x400 
-                0x20000d68                        . = ALIGN (0x8)
+                0x20000b28                        PROVIDE (_end = .)
+                0x20000d28                        . = (. + _Min_Heap_Size)
+ *fill*         0x20000b28      0x200 
+                0x20001128                        . = (. + _Min_Stack_Size)
+ *fill*         0x20000d28      0x400 
+                0x20001128                        . = ALIGN (0x8)
 
 /DISCARD/
  libc.a(*)
@@ -4981,7 +4976,7 @@ LOAD C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/
 LOAD C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a
 LOAD C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a
 
-.debug_frame    0x00000000     0x6874
+.debug_frame    0x00000000     0x68b8
  .debug_frame   0x00000000       0x90 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-nano-vfprintf_float.o)
  .debug_frame   0x00000090       0x60 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-nano-vfprintf_i.o)
  .debug_frame   0x000000f0      0x144 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-findfp.o)
@@ -5024,220 +5019,220 @@ LOAD C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/
  .debug_frame   0x00000e38       0x2c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-fstatr.o)
  .debug_frame   0x00000e64       0x2c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-isattyr.o)
  .debug_frame   0x00000e90       0x20 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(libc_a-msizer.o)
- .debug_frame   0x00000eb0      0x10c CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_frame   0x00000fbc       0x7c CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
- .debug_frame   0x00001038      0x124 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
- .debug_frame   0x0000115c      0x55c CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
- .debug_frame   0x000016b8       0x60 CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
- .debug_frame   0x00001718       0x60 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
- .debug_frame   0x00001778      0x1a8 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
- .debug_frame   0x00001920      0x13c CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
- .debug_frame   0x00001a5c      0x184 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
- .debug_frame   0x00001be0      0xc84 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
- .debug_frame   0x00002864      0x334 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
- .debug_frame   0x00002b98      0x218 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
- .debug_frame   0x00002db0      0x14c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
- .debug_frame   0x00002efc      0x208 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
- .debug_frame   0x00003104      0x428 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
- .debug_frame   0x0000352c      0x824 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
- .debug_frame   0x00003d50     0x11bc CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
- .debug_frame   0x00004f0c      0x638 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
- .debug_frame   0x00005544      0x944 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
- .debug_frame   0x00005e88       0x58 CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
- .debug_frame   0x00005ee0       0x34 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
- .debug_frame   0x00005f14      0x2ac CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_frame   0x000061c0       0xac C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_addsubdf3.o)
- .debug_frame   0x0000626c       0x50 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_muldivdf3.o)
- .debug_frame   0x000062bc       0xc4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_cmpdf2.o)
- .debug_frame   0x00006380       0x20 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_unorddf2.o)
- .debug_frame   0x000063a0       0x24 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_fixdfsi.o)
- .debug_frame   0x000063c4       0x24 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_fixunsdfsi.o)
- .debug_frame   0x000063e8       0x24 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_truncdfsf2.o)
- .debug_frame   0x0000640c       0x4c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_addsubsf3.o)
- .debug_frame   0x00006458       0x38 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_muldivsf3.o)
- .debug_frame   0x00006490       0x6c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
- .debug_frame   0x000064fc       0x20 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
- .debug_frame   0x0000651c       0x90 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
- .debug_frame   0x000065ac       0x20 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-w_atan2.o)
- .debug_frame   0x000065cc       0x30 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-w_sqrt.o)
- .debug_frame   0x000065fc       0x38 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_atan.o)
- .debug_frame   0x00006634       0x40 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_cos.o)
- .debug_frame   0x00006674       0x20 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_fabs.o)
- .debug_frame   0x00006694       0x38 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_sqrt.o)
- .debug_frame   0x000066cc       0x3c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_cos.o)
- .debug_frame   0x00006708       0x40 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_sin.o)
- .debug_frame   0x00006748       0x48 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_atan2.o)
- .debug_frame   0x00006790       0x40 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_rem_pio2.o)
- .debug_frame   0x000067d0       0x44 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_rem_pio2.o)
- .debug_frame   0x00006814       0x30 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_scalbn.o)
- .debug_frame   0x00006844       0x30 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_floor.o)
+ .debug_frame   0x00000eb0      0x130 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_frame   0x00000fe0       0x7c CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
+ .debug_frame   0x0000105c      0x120 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .debug_frame   0x0000117c      0x55c CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .debug_frame   0x000016d8       0x60 CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
+ .debug_frame   0x00001738       0x60 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
+ .debug_frame   0x00001798      0x1cc CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+ .debug_frame   0x00001964      0x13c CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+ .debug_frame   0x00001aa0      0x184 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
+ .debug_frame   0x00001c24      0xc84 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+ .debug_frame   0x000028a8      0x334 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
+ .debug_frame   0x00002bdc      0x218 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+ .debug_frame   0x00002df4      0x14c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
+ .debug_frame   0x00002f40      0x208 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
+ .debug_frame   0x00003148      0x428 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+ .debug_frame   0x00003570      0x824 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
+ .debug_frame   0x00003d94     0x11bc CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+ .debug_frame   0x00004f50      0x638 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
+ .debug_frame   0x00005588      0x944 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+ .debug_frame   0x00005ecc       0x58 CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
+ .debug_frame   0x00005f24       0x34 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
+ .debug_frame   0x00005f58      0x2ac CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_frame   0x00006204       0xac C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_addsubdf3.o)
+ .debug_frame   0x000062b0       0x50 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_muldivdf3.o)
+ .debug_frame   0x00006300       0xc4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_cmpdf2.o)
+ .debug_frame   0x000063c4       0x20 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_unorddf2.o)
+ .debug_frame   0x000063e4       0x24 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_fixdfsi.o)
+ .debug_frame   0x00006408       0x24 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_fixunsdfsi.o)
+ .debug_frame   0x0000642c       0x24 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_truncdfsf2.o)
+ .debug_frame   0x00006450       0x4c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_addsubsf3.o)
+ .debug_frame   0x0000649c       0x38 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7-m/nofp\libgcc.a(_arm_muldivsf3.o)
+ .debug_frame   0x000064d4       0x6c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
+ .debug_frame   0x00006540       0x20 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
+ .debug_frame   0x00006560       0x90 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
+ .debug_frame   0x000065f0       0x20 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-w_atan2.o)
+ .debug_frame   0x00006610       0x30 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-w_sqrt.o)
+ .debug_frame   0x00006640       0x38 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_atan.o)
+ .debug_frame   0x00006678       0x40 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_cos.o)
+ .debug_frame   0x000066b8       0x20 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_fabs.o)
+ .debug_frame   0x000066d8       0x38 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_sqrt.o)
+ .debug_frame   0x00006710       0x3c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_cos.o)
+ .debug_frame   0x0000674c       0x40 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_sin.o)
+ .debug_frame   0x0000678c       0x48 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_atan2.o)
+ .debug_frame   0x000067d4       0x40 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-e_rem_pio2.o)
+ .debug_frame   0x00006814       0x44 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-k_rem_pio2.o)
+ .debug_frame   0x00006858       0x30 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_scalbn.o)
+ .debug_frame   0x00006888       0x30 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libm.a(libm_a-s_floor.o)
 
-.debug_info     0x00000000    0x15e5c
- .debug_info    0x00000000      0x7aa CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_info    0x000007aa      0x755 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
- .debug_info    0x00000eff      0xd69 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
- .debug_info    0x00001c68     0x1118 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
- .debug_info    0x00002d80      0x141 CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
- .debug_info    0x00002ec1      0x117 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
- .debug_info    0x00002fd8     0x1beb CMakeFiles/FlightController.dir/Core/Src/main.c.obj
- .debug_info    0x00004bc3      0x60d CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
- .debug_info    0x000051d0     0x147b CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
- .debug_info    0x0000664b     0x2515 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
- .debug_info    0x00008b60      0x704 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
- .debug_info    0x00009264      0x7d5 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
- .debug_info    0x00009a39      0x5ab CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
- .debug_info    0x00009fe4      0x6d2 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
- .debug_info    0x0000a6b6      0xa87 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
- .debug_info    0x0000b13d     0x1503 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
- .debug_info    0x0000c640     0x293b CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
- .debug_info    0x0000ef7b     0x149b CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
- .debug_info    0x00010416     0x2fa8 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
- .debug_info    0x000133be      0x222 CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
- .debug_info    0x000135e0      0x168 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
- .debug_info    0x00013748      0x6a3 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_info    0x00013deb       0x30 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
- .debug_info    0x00013e1b      0x87f C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
- .debug_info    0x0001469a      0x6fb C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
- .debug_info    0x00014d95     0x10c7 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
+.debug_info     0x00000000    0x15ef8
+ .debug_info    0x00000000      0x846 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_info    0x00000846      0x755 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
+ .debug_info    0x00000f9b      0xcfa CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .debug_info    0x00001c95     0x1118 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .debug_info    0x00002dad      0x141 CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
+ .debug_info    0x00002eee      0x117 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
+ .debug_info    0x00003005     0x1c5a CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+ .debug_info    0x00004c5f      0x60d CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+ .debug_info    0x0000526c     0x147b CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
+ .debug_info    0x000066e7     0x2515 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+ .debug_info    0x00008bfc      0x704 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
+ .debug_info    0x00009300      0x7d5 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+ .debug_info    0x00009ad5      0x5ab CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
+ .debug_info    0x0000a080      0x6d2 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
+ .debug_info    0x0000a752      0xa87 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+ .debug_info    0x0000b1d9     0x1503 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
+ .debug_info    0x0000c6dc     0x293b CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+ .debug_info    0x0000f017     0x149b CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
+ .debug_info    0x000104b2     0x2fa8 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+ .debug_info    0x0001345a      0x222 CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
+ .debug_info    0x0001367c      0x168 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
+ .debug_info    0x000137e4      0x6a3 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_info    0x00013e87       0x30 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
+ .debug_info    0x00013eb7      0x87f C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
+ .debug_info    0x00014736      0x6fb C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
+ .debug_info    0x00014e31     0x10c7 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
 
-.debug_abbrev   0x00000000     0x355a
- .debug_abbrev  0x00000000      0x1f8 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_abbrev  0x000001f8      0x1cf CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
- .debug_abbrev  0x000003c7      0x2d5 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
- .debug_abbrev  0x0000069c      0x34c CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
- .debug_abbrev  0x000009e8       0xdc CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
- .debug_abbrev  0x00000ac4       0xc7 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
- .debug_abbrev  0x00000b8b      0x2e9 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
- .debug_abbrev  0x00000e74      0x18b CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
- .debug_abbrev  0x00000fff      0x255 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
- .debug_abbrev  0x00001254      0x2a3 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
- .debug_abbrev  0x000014f7      0x201 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
- .debug_abbrev  0x000016f8      0x2b3 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
- .debug_abbrev  0x000019ab      0x1ca CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
- .debug_abbrev  0x00001b75      0x20b CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
- .debug_abbrev  0x00001d80      0x2f8 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
- .debug_abbrev  0x00002078      0x284 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
- .debug_abbrev  0x000022fc      0x277 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
- .debug_abbrev  0x00002573      0x282 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
- .debug_abbrev  0x000027f5      0x2f8 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
- .debug_abbrev  0x00002aed      0x13f CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
- .debug_abbrev  0x00002c2c       0xbc CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
- .debug_abbrev  0x00002ce8      0x1b6 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_abbrev  0x00002e9e       0x24 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
- .debug_abbrev  0x00002ec2      0x21c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
- .debug_abbrev  0x000030de      0x15e C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
- .debug_abbrev  0x0000323c      0x31e C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
+.debug_abbrev   0x00000000     0x353e
+ .debug_abbrev  0x00000000      0x217 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_abbrev  0x00000217      0x1cf CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
+ .debug_abbrev  0x000003e6      0x299 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .debug_abbrev  0x0000067f      0x34c CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .debug_abbrev  0x000009cb       0xdc CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
+ .debug_abbrev  0x00000aa7       0xc7 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
+ .debug_abbrev  0x00000b6e      0x2ea CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+ .debug_abbrev  0x00000e58      0x18b CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+ .debug_abbrev  0x00000fe3      0x255 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
+ .debug_abbrev  0x00001238      0x2a3 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+ .debug_abbrev  0x000014db      0x201 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
+ .debug_abbrev  0x000016dc      0x2b3 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+ .debug_abbrev  0x0000198f      0x1ca CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
+ .debug_abbrev  0x00001b59      0x20b CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
+ .debug_abbrev  0x00001d64      0x2f8 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+ .debug_abbrev  0x0000205c      0x284 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
+ .debug_abbrev  0x000022e0      0x277 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+ .debug_abbrev  0x00002557      0x282 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
+ .debug_abbrev  0x000027d9      0x2f8 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+ .debug_abbrev  0x00002ad1      0x13f CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
+ .debug_abbrev  0x00002c10       0xbc CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
+ .debug_abbrev  0x00002ccc      0x1b6 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_abbrev  0x00002e82       0x24 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
+ .debug_abbrev  0x00002ea6      0x21c C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
+ .debug_abbrev  0x000030c2      0x15e C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
+ .debug_abbrev  0x00003220      0x31e C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
 
-.debug_aranges  0x00000000     0x1450
+.debug_aranges  0x00000000     0x1460
  .debug_aranges
-                0x00000000       0x50 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+                0x00000000       0x58 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
  .debug_aranges
-                0x00000050       0x30 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
+                0x00000058       0x30 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
  .debug_aranges
-                0x00000080       0x50 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+                0x00000088       0x50 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
  .debug_aranges
-                0x000000d0      0x150 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+                0x000000d8      0x150 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .debug_aranges
-                0x00000220       0x28 CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
+                0x00000228       0x28 CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
  .debug_aranges
-                0x00000248       0x28 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
+                0x00000250       0x28 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
  .debug_aranges
-                0x00000270       0x78 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x00000278       0x80 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  .debug_aranges
-                0x000002e8       0x70 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+                0x000002f8       0x70 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
  .debug_aranges
-                0x00000358       0x68 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
+                0x00000368       0x68 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
  .debug_aranges
-                0x000003c0      0x2a8 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+                0x000003d0      0x2a8 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
  .debug_aranges
-                0x00000668       0xe0 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
+                0x00000678       0xe0 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
  .debug_aranges
-                0x00000748       0x90 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+                0x00000758       0x90 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
  .debug_aranges
-                0x000007d8       0x58 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
+                0x000007e8       0x58 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
  .debug_aranges
-                0x00000830       0x80 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
+                0x00000840       0x80 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
  .debug_aranges
-                0x000008b0      0x100 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+                0x000008c0      0x100 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
  .debug_aranges
-                0x000009b0      0x1d0 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
+                0x000009c0      0x1d0 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
  .debug_aranges
-                0x00000b80      0x3d0 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+                0x00000b90      0x3d0 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
  .debug_aranges
-                0x00000f50      0x168 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
+                0x00000f60      0x168 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
  .debug_aranges
-                0x000010b8      0x208 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x000010c8      0x208 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
  .debug_aranges
-                0x000012c0       0x28 CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
+                0x000012d0       0x28 CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
  .debug_aranges
-                0x000012e8       0x20 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
+                0x000012f8       0x20 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
  .debug_aranges
-                0x00001308       0xa8 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+                0x00001318       0xa8 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
  .debug_aranges
-                0x000013b0       0x28 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
+                0x000013c0       0x28 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
  .debug_aranges
-                0x000013d8       0x28 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
+                0x000013e8       0x28 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
  .debug_aranges
-                0x00001400       0x20 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
+                0x00001410       0x20 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
  .debug_aranges
-                0x00001420       0x30 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
+                0x00001430       0x30 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
 
 .debug_rnglists
-                0x00000000     0x100d
+                0x00000000     0x1019
  .debug_rnglists
-                0x00000000       0x37 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+                0x00000000       0x3e CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
  .debug_rnglists
-                0x00000037       0x20 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
+                0x0000003e       0x20 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
  .debug_rnglists
-                0x00000057       0x4b CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+                0x0000005e       0x4a CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
  .debug_rnglists
-                0x000000a2       0xf8 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+                0x000000a8       0xf8 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
  .debug_rnglists
-                0x0000019a       0x1a CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
+                0x000001a0       0x1a CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
  .debug_rnglists
-                0x000001b4       0x1a CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
+                0x000001ba       0x1a CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
  .debug_rnglists
-                0x000001ce       0x5c CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                0x000001d4       0x62 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
  .debug_rnglists
-                0x0000022a       0x4f CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+                0x00000236       0x4f CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
  .debug_rnglists
-                0x00000279       0x4f CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
+                0x00000285       0x4f CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
  .debug_rnglists
-                0x000002c8      0x23c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+                0x000002d4      0x23c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
  .debug_rnglists
-                0x00000504       0xa3 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
+                0x00000510       0xa3 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
  .debug_rnglists
-                0x000005a7       0x6c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+                0x000005b3       0x6c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
  .debug_rnglists
-                0x00000613       0x3f CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
+                0x0000061f       0x3f CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
  .debug_rnglists
-                0x00000652       0x64 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
+                0x0000065e       0x64 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
  .debug_rnglists
-                0x000006b6       0xbb CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+                0x000006c2       0xbb CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
  .debug_rnglists
-                0x00000771      0x16e CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
+                0x0000077d      0x16e CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
  .debug_rnglists
-                0x000008df      0x31a CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+                0x000008eb      0x31a CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
  .debug_rnglists
-                0x00000bf9      0x125 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
+                0x00000c05      0x125 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
  .debug_rnglists
-                0x00000d1e      0x1bc CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+                0x00000d2a      0x1bc CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
  .debug_rnglists
-                0x00000eda       0x1a CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
+                0x00000ee6       0x1a CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
  .debug_rnglists
-                0x00000ef4       0x13 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
+                0x00000f00       0x13 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
  .debug_rnglists
-                0x00000f07       0x79 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+                0x00000f13       0x79 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
  .debug_rnglists
-                0x00000f80       0x19 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
+                0x00000f8c       0x19 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
  .debug_rnglists
-                0x00000f99       0x19 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
+                0x00000fa5       0x19 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
  .debug_rnglists
-                0x00000fb2       0x13 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
+                0x00000fbe       0x13 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
  .debug_rnglists
-                0x00000fc5       0x48 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
+                0x00000fd1       0x48 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
 
-.debug_macro    0x00000000    0x19e5f
+.debug_macro    0x00000000    0x19e71
  .debug_macro   0x00000000      0x2fd CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
  .debug_macro   0x000002fd      0xaa8 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
  .debug_macro   0x00000da5      0x227 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
@@ -5277,161 +5272,161 @@ LOAD C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/
  .debug_macro   0x0001535f      0x8ed CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
  .debug_macro   0x00015c4c      0x28e CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
  .debug_macro   0x00015eda       0x83 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x00015f5d       0x4c CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x00015fa9       0x74 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x0001601d       0x24 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x00016041       0x3c CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x0001607d       0x34 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x000160b1       0x16 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x000160c7       0x35 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x000160fc      0x369 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x00016465       0x10 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x00016475       0x16 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x0001648b       0x43 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x000164ce       0x34 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x00016502       0x10 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x00016512       0x58 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x0001656a      0x1de CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x00016748       0x16 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x0001675e       0x16 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x00016774      0x170 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x000168e4       0x16 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x000168fa       0x20 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x0001691a       0x16 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x00016930       0x16 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x00016946       0x29 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_macro   0x0001696f      0x1da CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
- .debug_macro   0x00016b49      0x27f CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
- .debug_macro   0x00016dc8       0x52 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
- .debug_macro   0x00016e1a      0x19b CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
- .debug_macro   0x00016fb5      0x1e8 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
- .debug_macro   0x0001719d      0x12a CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
- .debug_macro   0x000172c7       0x58 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
- .debug_macro   0x0001731f       0x15 CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
- .debug_macro   0x00017334       0x15 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
- .debug_macro   0x00017349      0x2ed CMakeFiles/FlightController.dir/Core/Src/main.c.obj
- .debug_macro   0x00017636      0x130 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
- .debug_macro   0x00017766      0x1d0 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
- .debug_macro   0x00017936      0x1c6 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
- .debug_macro   0x00017afc      0x205 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
- .debug_macro   0x00017d01      0x1db CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
- .debug_macro   0x00017edc      0x1c9 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
- .debug_macro   0x000180a5      0x222 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
- .debug_macro   0x000182c7      0x1b7 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
- .debug_macro   0x0001847e      0x1b7 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
- .debug_macro   0x00018635      0x1bf CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
- .debug_macro   0x000187f4      0x1b8 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
- .debug_macro   0x000189ac      0x1b7 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
- .debug_macro   0x00018b63      0x1b8 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
- .debug_macro   0x00018d1b      0x1b7 CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
- .debug_macro   0x00018ed2       0xec CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
- .debug_macro   0x00018fbe       0x10 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
- .debug_macro   0x00018fce       0x6e CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
- .debug_macro   0x0001903c       0x94 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
- .debug_macro   0x000190d0       0x57 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
- .debug_macro   0x00019127      0x23c CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
- .debug_macro   0x00019363      0x265 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x000195c8       0x10 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x000195d8       0x10 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x000195e8       0x10 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x000195f8       0x10 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x00019608       0x1c CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x00019624       0x52 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x00019676       0x22 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x00019698       0x10 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x000196a8       0x52 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x000196fa       0xcf CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x000197c9       0x1c CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x000197e5       0x3d CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x00019822       0x35 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x00019857      0x12c CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x00019983      0x242 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x00019bc5       0x1c CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x00019be1       0x10 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x00019bf1      0x18a CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x00019d7b       0x16 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_macro   0x00019d91       0xce CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x00015f5d       0x5e CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x00015fbb       0x74 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x0001602f       0x24 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x00016053       0x3c CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x0001608f       0x34 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x000160c3       0x16 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x000160d9       0x35 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x0001610e      0x369 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x00016477       0x10 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x00016487       0x16 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x0001649d       0x43 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x000164e0       0x34 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x00016514       0x10 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x00016524       0x58 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x0001657c      0x1de CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x0001675a       0x16 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x00016770       0x16 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x00016786      0x170 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x000168f6       0x16 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x0001690c       0x20 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x0001692c       0x16 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x00016942       0x16 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x00016958       0x29 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_macro   0x00016981      0x1da CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
+ .debug_macro   0x00016b5b      0x27f CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .debug_macro   0x00016dda       0x52 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .debug_macro   0x00016e2c      0x19b CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .debug_macro   0x00016fc7      0x1e8 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .debug_macro   0x000171af      0x12a CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .debug_macro   0x000172d9       0x58 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .debug_macro   0x00017331       0x15 CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
+ .debug_macro   0x00017346       0x15 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
+ .debug_macro   0x0001735b      0x2ed CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+ .debug_macro   0x00017648      0x130 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+ .debug_macro   0x00017778      0x1d0 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+ .debug_macro   0x00017948      0x1c6 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
+ .debug_macro   0x00017b0e      0x205 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+ .debug_macro   0x00017d13      0x1db CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
+ .debug_macro   0x00017eee      0x1c9 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+ .debug_macro   0x000180b7      0x222 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
+ .debug_macro   0x000182d9      0x1b7 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
+ .debug_macro   0x00018490      0x1b7 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+ .debug_macro   0x00018647      0x1bf CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
+ .debug_macro   0x00018806      0x1b8 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+ .debug_macro   0x000189be      0x1b7 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
+ .debug_macro   0x00018b75      0x1b8 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+ .debug_macro   0x00018d2d      0x1b7 CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
+ .debug_macro   0x00018ee4       0xec CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
+ .debug_macro   0x00018fd0       0x10 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
+ .debug_macro   0x00018fe0       0x6e CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
+ .debug_macro   0x0001904e       0x94 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
+ .debug_macro   0x000190e2       0x57 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
+ .debug_macro   0x00019139      0x23c CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
+ .debug_macro   0x00019375      0x265 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x000195da       0x10 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x000195ea       0x10 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x000195fa       0x10 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x0001960a       0x10 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x0001961a       0x1c CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x00019636       0x52 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x00019688       0x22 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x000196aa       0x10 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x000196ba       0x52 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x0001970c       0xcf CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x000197db       0x1c CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x000197f7       0x3d CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x00019834       0x35 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x00019869      0x12c CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x00019995      0x242 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x00019bd7       0x1c CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x00019bf3       0x10 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x00019c03      0x18a CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x00019d8d       0x16 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_macro   0x00019da3       0xce CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
 
-.debug_line     0x00000000    0x17e5a
- .debug_line    0x00000000      0x963 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
- .debug_line    0x00000963      0x823 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
- .debug_line    0x00001186      0xda9 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
- .debug_line    0x00001f2f      0xca3 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
- .debug_line    0x00002bd2      0x14d CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
- .debug_line    0x00002d1f      0x168 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
- .debug_line    0x00002e87      0xd70 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
- .debug_line    0x00003bf7      0x894 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
- .debug_line    0x0000448b      0x9ae CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
- .debug_line    0x00004e39     0x3cb9 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
- .debug_line    0x00008af2      0xa4c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
- .debug_line    0x0000953e      0xe55 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
- .debug_line    0x0000a393      0xae5 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
- .debug_line    0x0000ae78      0xea5 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
- .debug_line    0x0000bd1d      0xc38 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
- .debug_line    0x0000c955     0x1cfe CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
- .debug_line    0x0000e653     0x3556 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
- .debug_line    0x00011ba9     0x19ab CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
- .debug_line    0x00013554     0x2995 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
- .debug_line    0x00015ee9      0x81f CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
- .debug_line    0x00016708      0x360 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
- .debug_line    0x00016a68      0x68f CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
- .debug_line    0x000170f7       0x78 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
- .debug_line    0x0001716f      0x2ba C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
- .debug_line    0x00017429      0x185 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
- .debug_line    0x000175ae      0x8ac C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
+.debug_line     0x00000000    0x17e95
+ .debug_line    0x00000000      0xa0c CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+ .debug_line    0x00000a0c      0x821 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
+ .debug_line    0x0000122d      0xcfe CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+ .debug_line    0x00001f2b      0xca3 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+ .debug_line    0x00002bce      0x14d CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
+ .debug_line    0x00002d1b      0x168 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
+ .debug_line    0x00002e83      0xdaf CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+ .debug_line    0x00003c32      0x894 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+ .debug_line    0x000044c6      0x9ae CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
+ .debug_line    0x00004e74     0x3cb9 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+ .debug_line    0x00008b2d      0xa4c CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
+ .debug_line    0x00009579      0xe55 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+ .debug_line    0x0000a3ce      0xae5 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
+ .debug_line    0x0000aeb3      0xea5 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
+ .debug_line    0x0000bd58      0xc38 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+ .debug_line    0x0000c990     0x1cfe CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
+ .debug_line    0x0000e68e     0x3556 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+ .debug_line    0x00011be4     0x19ab CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
+ .debug_line    0x0001358f     0x2995 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+ .debug_line    0x00015f24      0x81f CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
+ .debug_line    0x00016743      0x360 CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
+ .debug_line    0x00016aa3      0x68f CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_line    0x00017132       0x78 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
+ .debug_line    0x000171aa      0x2ba C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
+ .debug_line    0x00017464      0x185 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
+ .debug_line    0x000175e9      0x8ac C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
 
-.debug_str      0x00000000    0x922d3
- .debug_str     0x00000000    0x8989a CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
-                              0x89c62 (size before relaxing)
- .debug_str     0x0008989a      0x378 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
-                              0x86a1d (size before relaxing)
- .debug_str     0x00089c12      0xf19 CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
-                              0x8a0ef (size before relaxing)
- .debug_str     0x0008ab2b      0xbd1 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
-                              0x87604 (size before relaxing)
- .debug_str     0x0008b6fc       0xae CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
+.debug_str      0x00000000    0x92309
+ .debug_str     0x00000000    0x898f9 CMakeFiles/FlightController.dir/Core/Src/Tools.c.obj
+                              0x89cc7 (size before relaxing)
+ .debug_str     0x000898f9      0x378 CMakeFiles/FlightController.dir/Core/Src/MotorControl.c.obj
+                              0x86a51 (size before relaxing)
+ .debug_str     0x00089c71      0xebb CMakeFiles/FlightController.dir/Core/Src/MPU6050.c.obj
+                              0x8a0c5 (size before relaxing)
+ .debug_str     0x0008ab2c      0xbd1 CMakeFiles/FlightController.dir/Core/Src/NRF24L01P.c.obj
+                              0x87638 (size before relaxing)
+ .debug_str     0x0008b6fd       0xae CMakeFiles/FlightController.dir/Core/Src/PID.c.obj
                                0x2e55 (size before relaxing)
- .debug_str     0x0008b7aa       0x64 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
+ .debug_str     0x0008b7ab       0x64 CMakeFiles/FlightController.dir/Core/Src/KalmanFilter.c.obj
                                0x2e44 (size before relaxing)
- .debug_str     0x0008b80e      0x7fc CMakeFiles/FlightController.dir/Core/Src/main.c.obj
-                              0x8b312 (size before relaxing)
- .debug_str     0x0008c00a      0x160 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
-                              0x8695c (size before relaxing)
- .debug_str     0x0008c16a      0x16f CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
-                              0x873ed (size before relaxing)
- .debug_str     0x0008c2d9      0xbe9 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
+ .debug_str     0x0008b80f      0x863 CMakeFiles/FlightController.dir/Core/Src/main.c.obj
+                              0x8b391 (size before relaxing)
+ .debug_str     0x0008c072      0x160 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_it.c.obj
+                              0x86990 (size before relaxing)
+ .debug_str     0x0008c1d2      0x169 CMakeFiles/FlightController.dir/Core/Src/stm32f1xx_hal_msp.c.obj
+                              0x87421 (size before relaxing)
+ .debug_str     0x0008c33b      0xbe9 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c.obj
                               0x874ab (size before relaxing)
- .debug_str     0x0008cec2      0x3ac CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
+ .debug_str     0x0008cf24      0x3ac CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c.obj
                               0x86b17 (size before relaxing)
- .debug_str     0x0008d26e      0x268 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
+ .debug_str     0x0008d2d0      0x268 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c.obj
                               0x86813 (size before relaxing)
- .debug_str     0x0008d4d6      0x2eb CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
+ .debug_str     0x0008d538      0x2eb CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c.obj
                               0x8676a (size before relaxing)
- .debug_str     0x0008d7c1      0x240 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
+ .debug_str     0x0008d823      0x240 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c.obj
                               0x8678d (size before relaxing)
- .debug_str     0x0008da01      0x2d7 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
+ .debug_str     0x0008da63      0x2d7 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c.obj
                               0x86a63 (size before relaxing)
- .debug_str     0x0008dcd8      0x52b CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
+ .debug_str     0x0008dd3a      0x52b CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c.obj
                               0x86d10 (size before relaxing)
- .debug_str     0x0008e203      0xd8f CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
+ .debug_str     0x0008e265      0xd8f CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj
                               0x87805 (size before relaxing)
- .debug_str     0x0008ef92      0x424 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
+ .debug_str     0x0008eff4      0x424 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj
                               0x87021 (size before relaxing)
- .debug_str     0x0008f3b6      0x619 CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
+ .debug_str     0x0008f418      0x5ed CMakeFiles/FlightController.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c.obj
                               0x86e84 (size before relaxing)
- .debug_str     0x0008f9cf       0x95 CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
+ .debug_str     0x0008fa05       0x95 CMakeFiles/FlightController.dir/Core/Src/system_stm32f1xx.c.obj
                               0x863e4 (size before relaxing)
- .debug_str     0x0008fa64      0x51f CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
+ .debug_str     0x0008fa9a      0x51f CMakeFiles/FlightController.dir/Core/Src/sysmem.c.obj
                                0x5ac1 (size before relaxing)
- .debug_str     0x0008ff83     0x1b98 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
+ .debug_str     0x0008ffb9     0x1b98 CMakeFiles/FlightController.dir/Core/Src/syscalls.c.obj
                                0x934e (size before relaxing)
- .debug_str     0x00091b1b       0x78 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
+ .debug_str     0x00091b51       0x78 CMakeFiles/FlightController.dir/startup_stm32f103xb.s.obj
                                  0xca (size before relaxing)
- .debug_str     0x00091b93      0x434 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
+ .debug_str     0x00091bc9      0x434 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-sprintf.o)
                                 0x568 (size before relaxing)
- .debug_str     0x00091fc7       0x58 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
+ .debug_str     0x00091ffd       0x58 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-errno.o)
                                 0x523 (size before relaxing)
- .debug_str     0x0009201f      0x2b4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
+ .debug_str     0x00092055      0x2b4 C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libg_nano.a(libc_a-nano-svfprintf.o)
                                 0x872 (size before relaxing)
 
 .comment        0x00000000       0x43
