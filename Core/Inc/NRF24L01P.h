@@ -1,33 +1,33 @@
-  
+
 /*
  *  nrf24l01_plus.h
  *
  *  Created on: 2021. 7. 20.
  *      Author: mokhwasomssi
- * 
+ *
  */
 #ifndef __NRF24L01P_H
 #define __NRF24L01P_H
 
 #include "main.h"
 
-extern SPI_HandleTypeDef hspi1;
+extern SPI_HandleTypeDef hspi2;
 extern UART_HandleTypeDef huart1;
 
 /* User Configurations */
-#define NRF24L01P_UART					  				(&huart1)
-#define NRF24L01P_SPI                     (&hspi1)
+#define NRF24L01P_UART (&huart1)
+#define NRF24L01P_SPI (&hspi2)
 
-#define NRF24L01P_SPI_CS_PIN_PORT         GPIOA
-#define NRF24L01P_SPI_CS_PIN_NUMBER       GPIO_PIN_15
+#define NRF24L01P_SPI_CS_PIN_PORT GPIOB
+#define NRF24L01P_SPI_CS_PIN_NUMBER GPIO_PIN_0
 
-#define NRF24L01P_CE_PIN_PORT             GPIOB
-#define NRF24L01P_CE_PIN_NUMBER           GPIO_PIN_7
+#define NRF24L01P_CE_PIN_PORT GPIOB
+#define NRF24L01P_CE_PIN_NUMBER GPIO_PIN_1
 
-#define NRF24L01P_IRQ_PIN_PORT            GPIOA
-#define NRF24L01P_IRQ_PIN_NUMBER          GPIO_PIN_12
+#define NRF24L01P_IRQ_PIN_PORT GPIOB
+#define NRF24L01P_IRQ_PIN_NUMBER GPIO_PIN_2
 
-#define NRF24L01P_PAYLOAD_LENGTH          8     // 1 - 32bytes
+#define NRF24L01P_PAYLOAD_LENGTH 32 // 1 - 32bytes
 
 
 /* nRF24L01+ typedefs */
@@ -39,6 +39,7 @@ typedef uint16_t channel;
 
 typedef enum
 {
+    _250kbps = 2,
     _1Mbps   = 0,
     _2Mbps   = 1
 } air_data_rate;
@@ -53,15 +54,13 @@ typedef enum
 
 
 /* Main Functions */
-void NRF24L01P_Rx_Init(channel MHz, air_data_rate bps);
-void nrf24l01p_tx_init(channel MHz, air_data_rate bps);
+void nrf24l01p_init(channel MHz, air_data_rate bps);
 
 void nrf24l01p_rx_receive(uint8_t* rx_payload);
 void nrf24l01p_tx_transmit(uint8_t* tx_payload);
 
 // Check tx_ds or max_rt
 void nrf24l01p_tx_irq();  
-
 
 /* Sub Functions */
 void nrf24l01p_reset();
@@ -74,11 +73,9 @@ void nrf24l01p_power_down();
 
 uint8_t nrf24l01p_get_status();
 uint8_t nrf24l01p_get_fifo_status();
-uint8_t read_register(uint8_t reg);
-uint8_t* read_adress_register();
 
 // Static payload lengths
-void nrf24l01p_rx_set_payload_widths(widths bytes);
+void nrf24l01p_rx_set_payload_widths(uint8_t bytes, uint8_t Pipe);
 
 uint8_t nrf24l01p_read_rx_fifo(uint8_t* rx_payload);
 uint8_t nrf24l01p_write_tx_fifo(uint8_t* tx_payload);
@@ -100,8 +97,20 @@ void nrf24l01p_set_address_widths(widths bytes);
 void nrf24l01p_auto_retransmit_count(count cnt);
 void nrf24l01p_auto_retransmit_delay(delay us);
 
-void nRF24L01_Set_Rx_Addr(uint8_t addr[5]);
+void nRF24L01_Set_Rx_Addr(uint8_t ddr[5], uint8_t Pipe);
 void nRF24L01_Set_Tx_Addr(uint8_t addr[5]);
+
+uint8_t nrf24l01p_is_initialized();
+void nrf24l01p_read_all_registers(void);
+void read_tx_address_register(uint8_t* buffer, uint8_t length) ;
+void read_rx_address_register(uint8_t pipe, uint8_t* buffer, uint8_t length);
+
+/* nRF24L01+ Flags */
+#define NRF24L01P_RX_DR                             0b01000000
+#define NRF24L01P_TX_DS                             0b00100000
+#define NRF24L01P_MAX_RT                            0b00010000
+#define NRF24L01P_PWR_UP_BIT                        0b00000010
+
 
 /* nRF24L01+ Commands */
 #define NRF24L01P_CMD_R_REGISTER                  0b00000000
@@ -143,6 +152,5 @@ void nRF24L01_Set_Tx_Addr(uint8_t addr[5]);
 #define NRF24L01P_REG_FIFO_STATUS       0x17
 #define NRF24L01P_REG_DYNPD             0x1C
 #define NRF24L01P_REG_FEATURE           0x1D
-
 
 #endif /* __NRF24L01P_H__ */

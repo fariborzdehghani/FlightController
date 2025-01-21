@@ -31,6 +31,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "PID.h"
 
 /* USER CODE END Includes */
 
@@ -59,23 +60,45 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define I2C1_INT_Pin GPIO_PIN_11
-#define I2C1_INT_GPIO_Port GPIOB
-#define I2C1_INT_EXTI_IRQn EXTI15_10_IRQn
-#define SPI1_IRQ_Pin GPIO_PIN_12
-#define SPI1_IRQ_GPIO_Port GPIOA
-#define SPI1_IRQ_EXTI_IRQn EXTI15_10_IRQn
-#define SPI1_CSN_Pin GPIO_PIN_15
-#define SPI1_CSN_GPIO_Port GPIOA
-#define SPI1_CE_Pin GPIO_PIN_7
+#define I2C1_INT_Pin GPIO_PIN_1
+#define I2C1_INT_GPIO_Port GPIOA
+#define SPI1_CSN_Pin GPIO_PIN_0
+#define SPI1_CSN_GPIO_Port GPIOB
+#define SPI1_CE_Pin GPIO_PIN_1
 #define SPI1_CE_GPIO_Port GPIOB
+#define SPI1_IRQ_Pin GPIO_PIN_2
+#define SPI1_IRQ_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 #define LOOP_TIME             0.01
-#define MIN_MOTORS_SPEED      0
-#define MAX_MOTORS_SPEED      60
-#define BaseSpeed             20
-#define TempTarget            0
+
+extern double Motors_Speed[4];
+
+extern PID_t pid_roll;
+extern PID_t pid_pitch;
+extern PID_t pid_yaw;
+extern PID_t pid_Vz;
+
+extern float Config_BaseSpeed;
+extern float Config_MinSpeed;
+extern float Config_MaxSpeed;
+extern float Config_MaxAngle;
+extern float Config_TargetPitch;
+extern float Config_TargetRoll;
+extern float Config_TargetYaw;
+extern float Config_TargetVz;
+extern float Config_PitchKp;
+extern float Config_Pitchki;
+extern float Config_PitchKd;
+extern float Config_RollKp;
+extern float Config_RollKi;
+extern float Config_RollKd;
+extern float Config_YawKp;
+extern float Config_YawKi;
+extern float Config_YawKd;
+extern float Config_VzKp;
+extern float Config_VzKi;
+extern float Config_VzKd;
 
 /* USER CODE END Private defines */
 

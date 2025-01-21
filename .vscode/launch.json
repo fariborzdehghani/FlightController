@@ -9,6 +9,9 @@
             "type": "cortex-debug",
             "request": "launch",
             "servertype": "openocd",
+            // "openOCDLaunchCommands": [
+            //     "hla_serial 16004A002933353739303541"
+            // ],
             "cwd": "${workspaceFolder}",
             "executable": "${command:cmake.launchTargetPath}",
             "device": "STM32F103C8", // Change this to match your MCU

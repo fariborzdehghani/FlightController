@@ -9,7 +9,8 @@
         "kalmanfilter.h": "c",
         "pid.h": "c",
         "stm32f1xx_it.h": "c",
-        "general.h": "c"
+        "general.h": "c",
+        "nrf24l01p.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": true
 }

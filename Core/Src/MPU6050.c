@@ -208,7 +208,7 @@ void MPU6050_ReadAll(MPU6050_t *DataStruct)
 			DataStruct->Az_ms = (DataStruct->Az - 1 * cos(Roll_RAD) * cos(Pitch_RAD)) * 9.81 * -1;
 
 			// Calculate Vertical Velocity
-			KalmanFilter_Update(&kf, DataStruct->Az_ms, LOOP_TIME);
+			KalmanFilter_Update(&kf, DataStruct->Az_ms, dt);
 			DataStruct->Vz = kf.state.v;
 		}
 
@@ -255,33 +255,33 @@ double Kalman_GetAngle(Kalman_t *Kalman, double newAngle, double newRate, double
 
 void MPU6050_Calibrate()
 {
-	// int i = 0;
-	// int Calibration_Cycles = 200;
+	int i = 0;
+	int Calibration_Cycles = 200;
 
-	// double Roll_Offset_Sum = 0;
-	// double Pitch_Offset_Sum = 0;
-	// double Gz_Offset_Sum = 0;
-	// double Az_Offset_Sum = 0;
-	// double Vz_Offset_Sum = 0;
+	double Roll_Offset_Sum = 0;
+	double Pitch_Offset_Sum = 0;
+	double Gz_Offset_Sum = 0;
+	double Az_Offset_Sum = 0;
+	double Vz_Offset_Sum = 0;
 
-	// for (i = 0; i < Calibration_Cycles; i++)
-	// {
-	// 	MPU6050_ReadAll(&MPU6050);
+	for (i = 0; i < Calibration_Cycles; i++)
+	{
+		MPU6050_ReadAll(&MPU6050);
 
-	// 	Roll_Offset_Sum += MPU6050.KalmanAngleX;
-	// 	Pitch_Offset_Sum += MPU6050.KalmanAngleY;
-	// 	Gz_Offset_Sum += MPU6050.Gz;
-	// 	Az_Offset_Sum += MPU6050.Az_ms;
-	// 	Vz_Offset_Sum += MPU6050.Vz;
+		Roll_Offset_Sum += MPU6050.KalmanAngleX;
+		Pitch_Offset_Sum += MPU6050.KalmanAngleY;
+		Gz_Offset_Sum += MPU6050.Gz;
+		Az_Offset_Sum += MPU6050.Az_ms;
+		Vz_Offset_Sum += MPU6050.Vz;
 
-	// 	HAL_Delay(LOOP_TIME * 1000);
-	// }
+		HAL_Delay(LOOP_TIME * 1000);
+	}
 
-	// Roll_Offset = Roll_Offset_Sum / Calibration_Cycles;
-	// Pitch_Offset = Pitch_Offset_Sum / Calibration_Cycles;
-	// Gz_Offset = Gz_Offset_Sum / Calibration_Cycles;
-	// Az_Offset = Az_Offset_Sum / Calibration_Cycles;
-	// Vz_Offset = Vz_Offset_Sum / Calibration_Cycles;
+	Roll_Offset = Roll_Offset_Sum / Calibration_Cycles;
+	Pitch_Offset = Pitch_Offset_Sum / Calibration_Cycles;
+	Gz_Offset = Gz_Offset_Sum / Calibration_Cycles;
+	Az_Offset = Az_Offset_Sum / Calibration_Cycles;
+	Vz_Offset = Vz_Offset_Sum / Calibration_Cycles;
 
 	IsCalibrated = 1;
 }

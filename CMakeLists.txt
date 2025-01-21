@@ -54,6 +54,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/NRF24L01P.c    
     Core/Src/PID.c
     Core/Src/KalmanFilter.c
+    Core/Src/General.c
 )
 
 # Add include paths
