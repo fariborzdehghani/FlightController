@@ -861,7 +861,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
     if (!(status & NRF24L01P_RX_DR))
     {
-      LogStringToPC("Packet responded!");
+      LogStringToPC("Packet response Sent!");
     }
   }
 }
