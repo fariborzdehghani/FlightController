@@ -62,12 +62,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 /* Private defines -----------------------------------------------------------*/
 #define I2C1_INT_Pin GPIO_PIN_1
 #define I2C1_INT_GPIO_Port GPIOA
-#define SPI1_CSN_Pin GPIO_PIN_0
-#define SPI1_CSN_GPIO_Port GPIOB
-#define SPI1_CE_Pin GPIO_PIN_1
-#define SPI1_CE_GPIO_Port GPIOB
-#define SPI1_IRQ_Pin GPIO_PIN_2
-#define SPI1_IRQ_GPIO_Port GPIOB
+#define SPI2_CSN_Pin GPIO_PIN_0
+#define SPI2_CSN_GPIO_Port GPIOB
+#define SPI2_CE_Pin GPIO_PIN_1
+#define SPI2_CE_GPIO_Port GPIOB
+#define SPI2_IRQ_Pin GPIO_PIN_2
+#define SPI2_IRQ_GPIO_Port GPIOB
+#define SPI2_IRQ_EXTI_IRQn EXTI2_IRQn
 
 /* USER CODE BEGIN Private defines */
 #define LOOP_TIME             0.01

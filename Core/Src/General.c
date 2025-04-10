@@ -52,22 +52,18 @@ void HandlePackage(uint8_t *data)
     {
         if (data[1] == 1)
         {
-            // Motors_Speed[0] = Config_BaseSpeed;
-            // Motors_Speed[1] = Config_BaseSpeed;
-            // Motors_Speed[2] = Config_BaseSpeed;
-            // Motors_Speed[3] = Config_BaseSpeed;
-            
             isDroneStarted = 1;
             LogInformation(1001, "DRONE STARTED");
             ReplyPackage(DroneStarted);
         }
         else if (data[1] == 2)
         {
-            // Motors_Speed[0] = 0;
-            // Motors_Speed[1] = 0;
-            // Motors_Speed[2] = 0;
-            // Motors_Speed[3] = 0;
-            // Motors_SetSpeed(Motors_Speed);
+            Motors_Speed[0] = 0;
+            Motors_Speed[1] = 0;
+            Motors_Speed[2] = 0;
+            Motors_Speed[3] = 0;
+            Motors_SetSpeed(Motors_Speed);
+
             isDroneStarted = 0;
             LogInformation(1001, "DRONE STOPPED");
             ReplyPackage(DroneStopped);
@@ -102,22 +98,13 @@ void ReplyPackage(enum ResponseType responseType)
     nrf24l01p_tx_irq();
 
     nrf24l01p_ptx_mode();
+    HAL_Delay(5);
     nrf24l01p_tx_transmit(tx_data);
 
-    uint16_t timer = HAL_GetTick();
+    HAL_Delay(1);
 
-    while (HAL_GetTick() - timer < 5)
-    {
-        uint8_t status = nrf24l01p_get_status();
-
-        if (status & NRF24L01P_TX_DS || status & NRF24L01P_MAX_RT)
-        {
-            break;
-        }
-    }
-    
     nrf24l01p_flush_tx_fifo();
     nrf24l01p_tx_irq();
-    
+
     nrf24l01p_prx_mode();
 }
