@@ -27,6 +27,7 @@
 #include "Tools.h"
 #include "MPU6050.h"
 #include "NRF24L01P.h"
+#include "BMPXX80.h"
 #include "MotorControl.h"
 #include "stdbool.h"
 /* USER CODE END Includes */
@@ -97,6 +98,9 @@ uint8_t rx_data[32];
 extern MPU6050_t MPU6050;
 extern uint8_t MPU6050_readystatus;
 
+// BMP280
+float altitude = 0.0f; 
+
 // Motors Control
 double Motors_Speed[4];
 double Motors_PID_Adj[4] = {0, 0, 0, 0};
@@ -106,6 +110,12 @@ PID_t pid_roll = {0.0, 0.0, 0.0, 0.0, 0.0};
 PID_t pid_pitch = {0.0, 0.0, 0.0, 0.0, 0.0};
 PID_t pid_yaw = {0.0, 0.0, 0.0, 0.0, 0.0};
 PID_t pid_Vz = {0.0, 0.0, 0.0, 0.0, 0.0};
+
+//temp variables
+double angle_x = 0.0f;
+double angle_y = 0.0f;
+double angle_z = 0.0f;
+double vertical_velocity = 0.0f;
 
 /* USER CODE END PV */
 
@@ -174,11 +184,15 @@ int main(void)
   HAL_UART_Receive_IT(&huart1, &USART_ReceivedByte, 1);
 
   // Init Motors
-  Motors_Init(&htim1, &htim2, &htim3, &htim4);
+  // Motors_Init(&htim1, &htim2, &htim3, &htim4);
 
   // Init MPU6050
   MPU6050_Init(&hi2c1);
   // MPU6050_Calibrate();
+
+  // Init BMP280
+  BMP280_Init(&hi2c2, BMP280_TEMPERATURE_16BIT, BMP280_STANDARD, BMP280_FORCEDMODE);
+  HAL_Delay(3000);
 
   // Init NRF24L01
   nrf24l01p_init(2500, _250kbps);
@@ -219,6 +233,7 @@ int main(void)
     uint8_t status = nrf24l01p_get_status();
 
     if (status & NRF24L01P_RX_DR)
+    
     {
       nrf24l01p_clear_rx_dr();
 
@@ -233,8 +248,13 @@ int main(void)
       LogInformation(1001, "New Command Handled");
     }
 
-    // Enable_MPU6050();
     HAL_Delay(1);
+
+    MPU6050_ReadAll(&MPU6050);
+    altitude = BMP280_ReadAltitude();
+    angle_x = MPU6050.KalmanAngleX;
+    angle_y = MPU6050.KalmanAngleY;
+    vertical_velocity = MPU6050.Vz;
 
     if (isConfigurationSet == 1)
     {
@@ -256,12 +276,12 @@ int main(void)
             double dt = (HAL_GetTick() - LastSamplingTime) / 1000.0f;
             LastSamplingTime = HAL_GetTick();
 
-            Motors_Speed[0] = Config_BaseSpeed;
-            Motors_Speed[1] = Config_BaseSpeed;
-            Motors_Speed[2] = Config_BaseSpeed;
-            Motors_Speed[3] = Config_BaseSpeed;
+            // Motors_Speed[0] = Config_BaseSpeed;
+            // Motors_Speed[1] = Config_BaseSpeed;
+            // Motors_Speed[2] = Config_BaseSpeed;
+            // Motors_Speed[3] = Config_BaseSpeed;
 
-            Motors_SetSpeed(Motors_Speed);
+            // Motors_SetSpeed(Motors_Speed);
 
             // Calculating PID Values
             // double pid_roll_Adj = 0;

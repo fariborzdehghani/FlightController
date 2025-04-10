@@ -19,6 +19,10 @@
                 "interface/stlink.cfg",
                 "target/stm32f1x.cfg" // Change this to match your target
             ],
+            "liveWatch": {
+                "enabled": true,
+                "samplesPerSecond": 4
+            },
             "svdFile": "${config:STM32VSCodeExtension.cubeCLT.path}/STMicroelectronics_CMSIS_SVD/STM32F103.svd",
             //"runToMain": true,
             //"preLaunchTask": "build" // Ensure you have a corresponding build task defined
