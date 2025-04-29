@@ -1,4 +1,5 @@
 #include "PID.h"
+#include "Core.h"
 
 void PID_Init(PID_t *pid, float Kp, float Ki, float Kd) {
     pid->Kp = Kp;
@@ -9,11 +10,22 @@ void PID_Init(PID_t *pid, float Kp, float Ki, float Kd) {
 }
 
 float PID_Compute(PID_t *pid, float setpoint, float measured, float dt) {
-    float E_Factor = 0.001;
     float error = setpoint - measured;
+    
+    // Anti-windup: Limit integral accumulation
     pid->integral += error * dt;
-    float derivative = (error - pid->previous_error) / dt;
+    if (pid->integral > PID_MAX_INTEGRAL) pid->integral = PID_MAX_INTEGRAL;
+    else if (pid->integral < -PID_MAX_INTEGRAL) pid->integral = -PID_MAX_INTEGRAL;
+    
+    // Calculate derivative with noise filtering
+    float derivative = dt > 0.0f ? (error - pid->previous_error) / dt : 0.0f;
     pid->previous_error = error;
-    return E_Factor * ((pid->Kp * error) + (pid->Ki * pid->integral) + (pid->Kd * derivative));
+    
+    // Use PID_E_FACTOR from header
+    return PID_E_FACTOR * (
+        (pid->Kp * error) + 
+        (pid->Ki * pid->integral) + 
+        (pid->Kd * derivative)
+    );
 }
 

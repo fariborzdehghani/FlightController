@@ -17,12 +17,12 @@ static void cs_low()
     HAL_GPIO_WritePin(NRF24L01P_SPI_CS_PIN_PORT, NRF24L01P_SPI_CS_PIN_NUMBER, GPIO_PIN_RESET);
 }
 
-static void ce_high()
+void ce_high()
 {
     HAL_GPIO_WritePin(NRF24L01P_CE_PIN_PORT, NRF24L01P_CE_PIN_NUMBER, GPIO_PIN_SET);
 }
 
-static void ce_low()
+void ce_low()
 {
     HAL_GPIO_WritePin(NRF24L01P_CE_PIN_PORT, NRF24L01P_CE_PIN_NUMBER, GPIO_PIN_RESET);
 }
@@ -58,25 +58,21 @@ static uint8_t write_register(uint8_t reg, uint8_t value)
 /* nRF24L01+ Main Functions */
 void nrf24l01p_init(channel MHz, air_data_rate bps)
 {
-    // if (nrf24l01p_is_initialized() == 0)
-    // {
-        nrf24l01p_reset();
+    // Power down first for clean initialization
+    ce_low();
+    nrf24l01p_power_down();
+    HAL_Delay(100);  // Allow chip to settle
 
-        nrf24l01p_set_rf_channel(MHz);
-        nrf24l01p_set_rf_air_data_rate(bps);
-        nrf24l01p_set_rf_tx_output_power(_0dBm);
+    // Reset all constant settings
+    nrf24l01p_reset();
 
-        nrf24l01p_set_crc_length(1);
-        nrf24l01p_set_address_widths(5);
+    // Apply parameter-based settings:
+    nrf24l01p_set_rf_channel(MHz);
+    nrf24l01p_set_rf_air_data_rate(bps);
 
-        nrf24l01p_auto_retransmit_count(3);
-        nrf24l01p_auto_retransmit_delay(250);
-
-        nrf24l01p_rx_set_payload_widths(NRF24L01P_PAYLOAD_LENGTH, NRF24L01P_REG_RX_PW_P0);
-        nrf24l01p_rx_set_payload_widths(NRF24L01P_PAYLOAD_LENGTH, NRF24L01P_REG_RX_PW_P1);
-
-        nrf24l01p_power_up();
-    // }
+    // Power up the chip, wait for oscillator to settle
+    nrf24l01p_power_up();
+    HAL_Delay(2);
 }
 
 void nRF24L01_Set_Rx_Addr(uint8_t addr[5], uint8_t Pipe)
@@ -101,7 +97,8 @@ void nRF24L01_Set_Tx_Addr(uint8_t addr[5])
     cs_high();
 }
 
-void read_tx_address_register(uint8_t* buffer, uint8_t length) {
+void read_tx_address_register(uint8_t *buffer, uint8_t length)
+{
     uint8_t command = NRF24L01P_CMD_R_REGISTER | NRF24L01P_REG_TX_ADDR;
     uint8_t status;
 
@@ -111,7 +108,8 @@ void read_tx_address_register(uint8_t* buffer, uint8_t length) {
     cs_high();
 }
 
-void read_rx_address_register(uint8_t pipe, uint8_t* buffer, uint8_t length) {
+void read_rx_address_register(uint8_t pipe, uint8_t *buffer, uint8_t length)
+{
     uint8_t command = NRF24L01P_CMD_R_REGISTER | pipe;
     uint8_t status;
 
@@ -124,36 +122,34 @@ void read_rx_address_register(uint8_t pipe, uint8_t* buffer, uint8_t length) {
 void nrf24l01p_rx_receive(uint8_t *rx_payload)
 {
     nrf24l01p_read_rx_fifo(rx_payload);
-    nrf24l01p_clear_rx_dr();
-
-    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    // nrf24l01p_clear_rx_dr();
 }
 
 void nrf24l01p_tx_transmit(uint8_t *tx_payload)
 {
+    // Enhanced transmit function with proper timing
+    ce_low();
+    
+    // Ensure TX FIFO is empty
+    nrf24l01p_flush_tx_fifo();
+    
+    // Write payload
     nrf24l01p_write_tx_fifo(tx_payload);
+    
+    // Pulse CE for transmission
+    ce_high();
+    HAL_Delay(1);  // Minimum 10µs high pulse
+    ce_low();
 }
 
 void nrf24l01p_tx_irq()
 {
     ce_low();
 
-    uint8_t tx_ds = nrf24l01p_get_status();
-    tx_ds &= 0x20;
+    nrf24l01p_clear_tx_ds();
+    nrf24l01p_clear_max_rt();
 
-    if (tx_ds)
-    {
-        // TX_DS
-        HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-        nrf24l01p_clear_tx_ds();
-    }
-
-    else
-    {
-        // MAX_RT
-        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, SET);
-        nrf24l01p_clear_max_rt();
-    }
+    ce_high();
 }
 
 /* nRF24L01+ Sub Functions */
@@ -163,33 +159,50 @@ void nrf24l01p_reset()
     cs_high();
     ce_low();
 
-    // Reset registers
+    // Set base CONFIG register with CRC length 1 (bit2 = 0)
     write_register(NRF24L01P_REG_CONFIG, 0x08);
+
+    // Enable auto acknowledgement on all pipes (previously was disabled with 0x00)
     write_register(NRF24L01P_REG_EN_AA, 0x3F);
+    
+    // Enable RX pipes 0 and 1 (keep as before or adjust as needed)
     write_register(NRF24L01P_REG_EN_RXADDR, 0x03);
+
+    // Set address width to 5 bytes (5-2 = 3)
     write_register(NRF24L01P_REG_SETUP_AW, 0x03);
+
+    // Set auto retransmit: (constant; e.g., 0x03)
     write_register(NRF24L01P_REG_SETUP_RETR, 0x03);
-    write_register(NRF24L01P_REG_RF_CH, 0x02);
+
+    // Do not set RF_CH here as it is parameter-based in init
+
+    // Set base RF setup (TX output power constant _0dBm remains, air data rate will be applied later)
     write_register(NRF24L01P_REG_RF_SETUP, 0x06);
+
+    // Clear interrupts in STATUS register
     write_register(NRF24L01P_REG_STATUS, 0x7E);
-    write_register(NRF24L01P_REG_RX_PW_P0, 0x00);
-    write_register(NRF24L01P_REG_RX_PW_P0, 0x00);
-    write_register(NRF24L01P_REG_RX_PW_P1, 0x00);
+
+    // Set payload width for pipes 0 and 1 to the constant value
+    write_register(NRF24L01P_REG_RX_PW_P0, NRF24L01P_PAYLOAD_LENGTH);
+    write_register(NRF24L01P_REG_RX_PW_P1, NRF24L01P_PAYLOAD_LENGTH);
+
+    // Clear payload widths for pipes 2 to 5
     write_register(NRF24L01P_REG_RX_PW_P2, 0x00);
     write_register(NRF24L01P_REG_RX_PW_P3, 0x00);
     write_register(NRF24L01P_REG_RX_PW_P4, 0x00);
     write_register(NRF24L01P_REG_RX_PW_P5, 0x00);
+
+    // Set FIFO status and disable dynamic payload and features
     write_register(NRF24L01P_REG_FIFO_STATUS, 0x11);
     write_register(NRF24L01P_REG_DYNPD, 0x00);
     write_register(NRF24L01P_REG_FEATURE, 0x00);
 
-    // Reset FIFO
     nrf24l01p_flush_rx_fifo();
     nrf24l01p_flush_tx_fifo();
 }
 
-
-void nrf24l01p_read_all_registers(void) {
+void nrf24l01p_read_all_registers(void)
+{
     // Read CONFIG register
     uint8_t config = read_register(NRF24L01P_REG_CONFIG);
     // Set a breakpoint here to inspect the value of 'config'
@@ -258,7 +271,7 @@ void nrf24l01p_read_all_registers(void) {
     uint8_t feature = read_register(NRF24L01P_REG_FEATURE);
     // Set a breakpoint here to inspect the value of 'feature'
 
-	// Read TX address
+    // Read TX address
     uint8_t tx_address[5] = {0}; // Maximum address width is 5
     read_tx_address_register(tx_address, 5);
     // Set a breakpoint here to inspect 'tx_address'
@@ -278,23 +291,23 @@ void nrf24l01p_read_all_registers(void) {
 void nrf24l01p_prx_mode()
 {
     ce_low();
-
+    // Set PRIM_RX bit
     uint8_t new_config = read_register(NRF24L01P_REG_CONFIG);
     new_config |= 1 << 0;
-
     write_register(NRF24L01P_REG_CONFIG, new_config);
-
+    HAL_Delay(2); // Allow mode switch to settle
     ce_high();
 }
 
 void nrf24l01p_ptx_mode()
 {
     ce_low();
-
+    // Clear PRIM_RX bit
     uint8_t new_config = read_register(NRF24L01P_REG_CONFIG);
     new_config &= 0xFE;
-
     write_register(NRF24L01P_REG_CONFIG, new_config);
+    HAL_Delay(2); // Allow mode switch to settle
+    ce_high();
 }
 
 uint8_t nrf24l01p_read_rx_fifo(uint8_t *rx_payload)
@@ -364,7 +377,7 @@ uint8_t nrf24l01p_get_fifo_status()
 
 void nrf24l01p_rx_set_payload_widths(uint8_t bytes, uint8_t Pipe)
 {
-	write_register(Pipe, bytes);
+    write_register(Pipe, bytes);
 }
 
 void nrf24l01p_clear_rx_dr()

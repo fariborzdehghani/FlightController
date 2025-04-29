@@ -18,6 +18,9 @@ char* escape_quotes(const char* input);
 char* doubleToString(double value, int precision);
 void Disable_MPU6050();
 void Enable_MPU6050();
+float parse_scaled_float(uint8_t byte, float scale);
+float parse_scaled_float_16bit(uint8_t msb, uint8_t lsb, float scale);
+
 #ifdef __cplusplus
 }
 #endif

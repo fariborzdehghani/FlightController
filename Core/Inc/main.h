@@ -73,34 +73,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 /* USER CODE BEGIN Private defines */
 #define LOOP_TIME             0.01
 
-extern double Motors_Speed[4];
-
-extern PID_t pid_roll;
-extern PID_t pid_pitch;
-extern PID_t pid_yaw;
-extern PID_t pid_Vz;
-
-extern float Config_BaseSpeed;
-extern float Config_MinSpeed;
-extern float Config_MaxSpeed;
-extern float Config_MaxAngle;
-extern float Config_TargetPitch;
-extern float Config_TargetRoll;
-extern float Config_TargetYaw;
-extern float Config_TargetVz;
-extern float Config_PitchKp;
-extern float Config_Pitchki;
-extern float Config_PitchKd;
-extern float Config_RollKp;
-extern float Config_RollKi;
-extern float Config_RollKd;
-extern float Config_YawKp;
-extern float Config_YawKi;
-extern float Config_YawKd;
-extern float Config_VzKp;
-extern float Config_VzKi;
-extern float Config_VzKd;
-
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

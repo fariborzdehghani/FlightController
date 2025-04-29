@@ -32,7 +32,7 @@
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 72,
+				"line" : 73,
 				"parent" : 0
 			},
 			{
@@ -130,7 +130,8 @@
 				26,
 				27,
 				28,
-				29
+				29,
+				30
 			]
 		},
 		{
@@ -181,7 +182,7 @@
 			"language" : "ASM",
 			"sourceIndexes" : 
 			[
-				30
+				31
 			]
 		}
 	],
@@ -243,14 +244,15 @@
 				26,
 				27,
 				28,
-				29
+				29,
+				30
 			]
 		},
 		{
 			"name" : "",
 			"sourceIndexes" : 
 			[
-				30
+				31
 			]
 		}
 	],
@@ -301,7 +303,13 @@
 		{
 			"backtrace" : 3,
 			"compileGroupIndex" : 0,
-			"path" : "Core/Src/General.c",
+			"path" : "Core/Src/Core.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "Core/Src/FlightControl.c",
 			"sourceGroupIndex" : 0
 		},
 		{

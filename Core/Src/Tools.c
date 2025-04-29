@@ -125,3 +125,11 @@ void Enable_MPU6050()
 {
     RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
 }
+
+float parse_scaled_float(uint8_t byte, float scale) {
+    return (float)byte / scale;
+}
+
+float parse_scaled_float_16bit(uint8_t msb, uint8_t lsb, float scale) {
+    return (float)((msb << 8) | lsb) / scale;
+}
