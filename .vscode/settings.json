@@ -1,0 +1,24 @@
+{
+    "stm32-for-vscode.makePath": false,
+    "files.associations": {
+        "mpu6050.h": "c"
+    },
+    "cmake.cmakePath": "cube-cmake",
+    "cmake.configureArgs": [
+        "-DCMAKE_COMMAND=cube-cmake"
+    ],
+    "cmake.preferredGenerators": [
+        "Ninja"
+    ],
+    "stm32cube-ide-clangd.path": "cube",
+    "stm32cube-ide-clangd.arguments": [
+        "starm-clangd",
+        "--query-driver=${env:CUBE_BUNDLE_PATH}/gnu-tools-for-stm32/13.3.1+st.9/bin/arm-none-eabi-gcc.exe",
+        "--query-driver=${env:CUBE_BUNDLE_PATH}/gnu-tools-for-stm32/13.3.1+st.9/bin/arm-none-eabi-g++.exe"
+    ],
+    "STM32VSCodeExtension.cubeCLT.path": "C:\\ST\\STM32CubeCLT_1.22.0",
+    "stm32-for-vscode.openOCDPath": "C:\\ST\\OpenOCD-20260302-0.12.0\\bin\\openocd.exe",
+    "stm32-for-vscode.armToolchainPath": false,
+    "cortex-debug.armToolchainPath": "C:\\Users\\fariborz\\AppData\\Local\\stm32cube\\bundles\\gnu-tools-for-stm32\\13.3.1+st.9\\bin",
+    "cortex-debug.openocdPath": "C:\\ST\\OpenOCD-20260302-0.12.0\\bin\\openocd.exe"
+}
