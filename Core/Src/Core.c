@@ -7,12 +7,14 @@
 #include "MotorControl.h"
 #include "PID.h"
 #include "QMC5883.h"
+#include "SensorAcquisition.h"
 #include "SensorConfig.h"
 #include "Tools.h"
 #include "srf05.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_uart.h"
 #include "sx127x.h"
+#include <math.h>
 #include <string.h>
 
 extern UART_HandleTypeDef huart1;
@@ -72,16 +74,23 @@ static uint32_t last_command_time;
 static volatile double average_dt;
 static uint32_t dt_sample_count;
 static uint8_t hardware_ready;
+static uint8_t remote_commands_enabled;
+static uint8_t core_initialization_complete;
+static uint8_t fault_recoverable;
 static uint8_t watchdog_started;
 static uint32_t takeoff_started_time;
 static uint8_t takeoff_altitude_acquired;
+static DroneState_t led_displayed_state = DRONE_STATE_INIT;
+static uint8_t led_display_initialized;
+static uint8_t led_displayed_command_ready;
 static IWDG_HandleTypeDef hiwdg;
 
 static HAL_StatusTypeDef Core_StartWatchdog(void)
 {
   hiwdg.Instance = IWDG;
-  hiwdg.Init.Prescaler = IWDG_PRESCALER_64;
-  // About four seconds at the nominal 32 kHz LSI, covering arm-time settling.
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_128;
+  // About eight seconds at the nominal 32 kHz LSI, leaving margin for
+  // foreground I/O and fault-reporting paths.
   hiwdg.Init.Reload = 1999u;
   HAL_StatusTypeDef status = HAL_IWDG_Init(&hiwdg);
   if (status == HAL_OK)
@@ -93,6 +102,7 @@ static HAL_StatusTypeDef Core_StartWatchdog(void)
 
 static void Core_EnterFault(const char *message)
 {
+  fault_recoverable = core_initialization_complete;
   takeoff_started_time = 0U;
   takeoff_altitude_acquired = 0U;
   FlightControl_Stop();
@@ -101,9 +111,36 @@ static void Core_EnterFault(const char *message)
   LogError(2003, message);
 }
 
+static void Core_ResetRuntimeFault(void)
+{
+  const uint32_t reset_time = HAL_GetTick();
+
+  FlightControl_Stop();
+  AppError_Clear();
+
+  takeoff_started_time = 0U;
+  takeoff_altitude_acquired = 0U;
+  average_dt = 0.0;
+  dt_sample_count = 0U;
+  last_command_time = reset_time;
+  last_update_time = reset_time;
+
+  droneState.lastLedUpdate = reset_time;
+  droneState.ledBlinkCounter = 0U;
+  droneState.ledIsOn = 0U;
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
+
+  hardware_ready = 1U;
+  fault_recoverable = 0U;
+  droneState.state = DRONE_STATE_CONFIGURED;
+}
+
 void Core_init(void)
 {
-  hardware_ready = 1u;
+  core_initialization_complete = 0U;
+  fault_recoverable = 0U;
+  hardware_ready = 0U;
+  remote_commands_enabled = 0U;
   takeoff_started_time = 0U;
   average_dt = 0.0;
   dt_sample_count = 0U;
@@ -179,6 +216,20 @@ void Core_init(void)
     LogInformation(1003, "MPU6050 disabled by sensor configuration");
   }
 
+  /* Sensor acquisition belongs to the device runtime, not the armed flight
+   * session. Calibrate and warm the estimators once at boot, then keep their
+   * cached data current from Core_loop(). */
+  SensorAcquisition_Init();
+  const SensorAcquisitionResult_t sensor_start_result =
+      SensorAcquisition_Start();
+  if (AppError_SetSensorAcquisitionResult(sensor_start_result) != HAL_OK)
+  {
+    Core_EnterFault(AppError_GetMessage());
+    return;
+  }
+  flightData = SensorAcquisition_GetFlightData();
+  hardware_ready = 1U;
+
   // Start UART interrupt receive for PACKET_LENGTH byte packets
   if (HAL_UART_Receive_IT(&huart1, uart_buffer, PACKET_LENGTH) != HAL_OK)
   {
@@ -197,7 +248,16 @@ void Core_init(void)
   if (Core_StartWatchdog() != HAL_OK)
   {
     Core_EnterFault("Watchdog initialization failed");
+    return;
   }
+
+  /* Discard packets that may have arrived while calibration/startup was
+   * blocking so a stale ARM or configuration command cannot execute as soon
+   * as the gate opens. */
+  uart_data_ready = 0U;
+  SX127X_ClearIrqFlags();
+  core_initialization_complete = 1U;
+  remote_commands_enabled = 1U;
 }
 
 void Core_loop(void)
@@ -213,6 +273,17 @@ void Core_loop(void)
   }
 
   UpdateLEDState();
+
+  if (hardware_ready)
+  {
+    const SensorAcquisitionResult_t sensor_result =
+        SensorAcquisition_Update(dt);
+    flightData = SensorAcquisition_GetFlightData();
+    if (AppError_SetSensorAcquisitionResult(sensor_result) != HAL_OK)
+    {
+      Core_EnterFault(AppError_GetMessage());
+    }
+  }
 
   if (droneState.state == DRONE_STATE_ARMED ||
       droneState.state == DRONE_STATE_TAKEOFF ||
@@ -241,10 +312,10 @@ void Core_loop(void)
           {
             takeoff_altitude_acquired = 1U;
             LogInformation(1001,
-                           "SRF05 acquired: continuing takeoff toward 50 cm");
+                           "SRF05 acquired: continuing toward takeoff target");
           }
 
-          if (flightData.takeoff_altitude >= TAKEOFF_TARGET_ALTITUDE_CM)
+          if (flightData.takeoff_altitude >= Config.takeoffAltitudeCm)
           {
             takeoff_started_time = 0U;
             takeoff_altitude_acquired = 0U;
@@ -310,6 +381,14 @@ void HandlePackage(const uint8_t *data, uint8_t length)
     return;
   }
 
+  /* Both UART and radio packets pass through this function. Keep every
+   * remote command locked out until the startup IMU calibration and sensor
+   * warm-up have completed successfully. */
+  if (!remote_commands_enabled)
+  {
+    return;
+  }
+
   switch (data[0])
   {
   case PACKET_TYPE_CONFIGURATION:
@@ -329,16 +408,30 @@ void HandlePackage(const uint8_t *data, uint8_t length)
 
     DroneConfig_t candidate = Config;
     candidate.armThrottle = data[1];
-    candidate.minSpeed = data[2];
-    candidate.maxSpeed = data[3];
+    candidate.minThrottle = data[2];
+    candidate.maxThrottle = data[3];
     candidate.maxAngle = data[4];
+
+    /* Byte 43 optionally carries the measured hover throttle. A zero keeps
+     * older senders working by choosing a reasonable first estimate halfway
+     * between armed idle and maximum throttle. */
+    candidate.hoverThrottle =
+        length >= 44u && data[43] != 0U
+            ? (double)data[43]
+            : candidate.armThrottle +
+                  0.5 * (candidate.maxThrottle - candidate.armThrottle);
 
     // Parse Target values as signed 16-bit
     candidate.pitch.target = (int16_t)(data[5] | (data[6] << 8));
     candidate.roll.target = (int16_t)(data[7] | (data[8] << 8));
     candidate.yaw.target = (int16_t)(data[9] | (data[10] << 8));
     candidate.Gz.target = (int16_t)(data[11] | (data[12] << 8));
-    // Bytes 13-14 are reserved. Takeoff and altitude hold use a fixed 50 cm.
+    const uint16_t takeoff_altitude_cm =
+        (uint16_t)((uint16_t)data[13] | ((uint16_t)data[14] << 8));
+    candidate.takeoffAltitudeCm =
+        takeoff_altitude_cm == 0U
+            ? TAKEOFF_ALTITUDE_DEFAULT_CM
+            : (double)takeoff_altitude_cm;
 
     // Parse Pitch PID
     candidate.pitch.Kp = (double)data[15] / 100.0;
@@ -381,13 +474,31 @@ void HandlePackage(const uint8_t *data, uint8_t length)
       return;
     }
 
+    const uint8_t recovering_from_fault =
+        droneState.state == DRONE_STATE_FAULT;
+    if (recovering_from_fault && !fault_recoverable)
+    {
+      LogError(2005,
+               "Initialization fault cannot be reset by configuration");
+      return;
+    }
+
     Config = candidate;
+
+    if (recovering_from_fault)
+    {
+      Core_ResetRuntimeFault();
+    }
 
     apply_pid_config();
     last_command_time = HAL_GetTick();
 
-    // Only change state if currently in INIT state
-    if (droneState.state == DRONE_STATE_INIT)
+    if (recovering_from_fault)
+    {
+      LogInformation(1001,
+                     "Configuration set: runtime fault cleared");
+    }
+    else if (droneState.state == DRONE_STATE_INIT)
     {
       if (hardware_ready)
       {
@@ -434,6 +545,26 @@ void HandlePackage(const uint8_t *data, uint8_t length)
       if (droneState.state != DRONE_STATE_ARMED)
       {
         LogError(2002, "ARM the drone before TAKEOFF");
+        break;
+      }
+
+      const double takeoff_tilt_limit =
+          fmin(Config.maxAngle, TAKEOFF_MAX_TILT_DEG);
+      if (!isfinite(flightData.roll_deg) ||
+          !isfinite(flightData.pitch_deg) ||
+          fabs(flightData.roll_deg) > takeoff_tilt_limit ||
+          fabs(flightData.pitch_deg) > takeoff_tilt_limit)
+      {
+        LogError(2002, "TAKEOFF rejected: place the drone nearly level");
+        break;
+      }
+
+      if (flightData.takeoff_altitude_valid &&
+          Config.takeoffAltitudeCm <
+              flightData.takeoff_altitude + TAKEOFF_MIN_CLIMB_CM)
+      {
+        LogError(2002,
+                 "TAKEOFF rejected: altitude target is too close");
         break;
       }
 
@@ -487,6 +618,13 @@ void HandlePackage(const uint8_t *data, uint8_t length)
       last_update_time = armed_time;
       LogInformation(1001, "DRONE ARMED: motors at configured arm throttle");
     }
+    else if (AppError_GetCode() == APP_ERROR_MPU6050_CALIBRATION)
+    {
+      /* Calibration failure is recoverable. Motors remain stopped and the
+       * pilot can place the aircraft still before sending ARM again. */
+      FlightControl_Stop();
+      LogError(2002, AppError_GetMessage());
+    }
     else
     {
       Core_EnterFault(AppError_GetMessage());
@@ -513,68 +651,87 @@ void apply_pid_config()
            Config.altitude.Kd);
 }
 
+static void UpdateLEDBlinkPattern(uint32_t currentTime, uint8_t blinkCount)
+{
+  if (droneState.ledIsOn)
+  {
+    if ((currentTime - droneState.lastLedUpdate) < LED_SHORT_DELAY)
+    {
+      return;
+    }
+
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
+    droneState.ledIsOn = 0U;
+    droneState.ledBlinkCounter++;
+    droneState.lastLedUpdate = currentTime;
+    return;
+  }
+
+  const uint32_t offDelay =
+      droneState.ledBlinkCounter >= blinkCount ? LED_LONG_DELAY
+                                               : LED_SHORT_DELAY;
+  if ((currentTime - droneState.lastLedUpdate) < offDelay)
+  {
+    return;
+  }
+
+  if (droneState.ledBlinkCounter >= blinkCount)
+  {
+    droneState.ledBlinkCounter = 0U;
+  }
+
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_SET);
+  droneState.ledIsOn = 1U;
+  droneState.lastLedUpdate = currentTime;
+}
+
 void UpdateLEDState(void)
 {
   uint32_t currentTime = HAL_GetTick();
 
+  if (!led_display_initialized ||
+      droneState.state != led_displayed_state ||
+      remote_commands_enabled != led_displayed_command_ready)
+  {
+    led_display_initialized = 1U;
+    led_displayed_state = droneState.state;
+    led_displayed_command_ready = remote_commands_enabled;
+    droneState.lastLedUpdate = currentTime;
+    droneState.ledBlinkCounter = 0U;
+    droneState.ledIsOn = droneState.state == DRONE_STATE_INIT ? 1U : 0U;
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6,
+                      droneState.ledIsOn ? GPIO_PIN_SET : GPIO_PIN_RESET);
+  }
+
   switch (droneState.state)
   {
   case DRONE_STATE_INIT:
-    // Simple 1Hz blink
-    if (currentTime - droneState.lastLedUpdate >= 1000)
+    if (remote_commands_enabled)
     {
-      HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
+      // Five short blinks: calibration complete and commands are accepted.
+      UpdateLEDBlinkPattern(currentTime, LED_READY_BLINKS);
+    }
+    else if (currentTime - droneState.lastLedUpdate >= LED_LONG_DELAY)
+    {
+      // Startup/calibration still in progress: one second on/off.
+      droneState.ledIsOn = !droneState.ledIsOn;
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6,
+                        droneState.ledIsOn ? GPIO_PIN_SET : GPIO_PIN_RESET);
       droneState.lastLedUpdate = currentTime;
     }
     break;
 
   case DRONE_STATE_CONFIGURED:
+    UpdateLEDBlinkPattern(currentTime, LED_CONFIG_BLINKS);
+    break;
+
   case DRONE_STATE_ARMED:
-    if (currentTime - droneState.lastLedUpdate >=
-        (droneState.ledIsOn ? LED_SHORT_DELAY
-                            : (droneState.ledBlinkCounter >= LED_CONFIG_BLINKS
-                                   ? LED_LONG_DELAY
-                                   : LED_SHORT_DELAY)))
-    {
-      if (droneState.ledBlinkCounter >= LED_CONFIG_BLINKS)
-      {
-        droneState.ledBlinkCounter = 0;
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
-      }
-      else
-      {
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
-        if (droneState.ledIsOn)
-          droneState.ledBlinkCounter++;
-      }
-      droneState.ledIsOn = !droneState.ledIsOn;
-      droneState.lastLedUpdate = currentTime;
-    }
+    UpdateLEDBlinkPattern(currentTime, LED_ARMED_BLINKS);
     break;
 
   case DRONE_STATE_TAKEOFF:
   case DRONE_STATE_FLYING:
-    if (currentTime - droneState.lastLedUpdate >=
-        (droneState.ledIsOn ? LED_SHORT_DELAY
-                            : (droneState.ledBlinkCounter >= LED_STARTED_BLINKS
-                                   ? LED_LONG_DELAY
-                                   : LED_SHORT_DELAY)))
-    {
-
-      if (droneState.ledBlinkCounter >= LED_STARTED_BLINKS)
-      {
-        droneState.ledBlinkCounter = 0;
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
-      }
-      else
-      {
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
-        if (droneState.ledIsOn)
-          droneState.ledBlinkCounter++;
-      }
-      droneState.ledIsOn = !droneState.ledIsOn;
-      droneState.lastLedUpdate = currentTime;
-    }
+    UpdateLEDBlinkPattern(currentTime, LED_FLIGHT_BLINKS);
     break;
 
   case DRONE_STATE_FAULT:

@@ -35,10 +35,10 @@ HAL_StatusTypeDef Motors_Init(TIM_HandleTypeDef *motor1_timer,
   // Motors_FinishCalibration();
   // HAL_Delay(2000);
 
-  if (Motors_UpdateDutyCycle(Motor1, MOTOR_ABSOLUTE_MIN_SPEED) != HAL_OK ||
-      Motors_UpdateDutyCycle(Motor2, MOTOR_ABSOLUTE_MIN_SPEED) != HAL_OK ||
-      Motors_UpdateDutyCycle(Motor3, MOTOR_ABSOLUTE_MIN_SPEED) != HAL_OK ||
-      Motors_UpdateDutyCycle(Motor4, MOTOR_ABSOLUTE_MIN_SPEED) != HAL_OK) {
+  if (Motors_UpdateDutyCycle(Motor1, MOTOR_ABSOLUTE_MIN_THROTTLE) != HAL_OK ||
+      Motors_UpdateDutyCycle(Motor2, MOTOR_ABSOLUTE_MIN_THROTTLE) != HAL_OK ||
+      Motors_UpdateDutyCycle(Motor3, MOTOR_ABSOLUTE_MIN_THROTTLE) != HAL_OK ||
+      Motors_UpdateDutyCycle(Motor4, MOTOR_ABSOLUTE_MIN_THROTTLE) != HAL_OK) {
     return HAL_ERROR;
   }
 
@@ -47,19 +47,19 @@ HAL_StatusTypeDef Motors_Init(TIM_HandleTypeDef *motor1_timer,
 }
 
 void Motors_StartCalibration(void) {
-  // Set Max Speed using constant
-  (void)Motors_UpdateDutyCycle(Motor1, MOTOR_ABSOLUTE_MAX_SPEED);
-  (void)Motors_UpdateDutyCycle(Motor2, MOTOR_ABSOLUTE_MAX_SPEED);
-  (void)Motors_UpdateDutyCycle(Motor3, MOTOR_ABSOLUTE_MAX_SPEED);
-  (void)Motors_UpdateDutyCycle(Motor4, MOTOR_ABSOLUTE_MAX_SPEED);
+  // Set maximum throttle using constant
+  (void)Motors_UpdateDutyCycle(Motor1, MOTOR_ABSOLUTE_MAX_THROTTLE);
+  (void)Motors_UpdateDutyCycle(Motor2, MOTOR_ABSOLUTE_MAX_THROTTLE);
+  (void)Motors_UpdateDutyCycle(Motor3, MOTOR_ABSOLUTE_MAX_THROTTLE);
+  (void)Motors_UpdateDutyCycle(Motor4, MOTOR_ABSOLUTE_MAX_THROTTLE);
 }
 
 void Motors_FinishCalibration(void) {
-  // Set Min Speed using constant
-  (void)Motors_UpdateDutyCycle(Motor1, MOTOR_ABSOLUTE_MIN_SPEED);
-  (void)Motors_UpdateDutyCycle(Motor2, MOTOR_ABSOLUTE_MIN_SPEED);
-  (void)Motors_UpdateDutyCycle(Motor3, MOTOR_ABSOLUTE_MIN_SPEED);
-  (void)Motors_UpdateDutyCycle(Motor4, MOTOR_ABSOLUTE_MIN_SPEED);
+  // Set minimum throttle using constant
+  (void)Motors_UpdateDutyCycle(Motor1, MOTOR_ABSOLUTE_MIN_THROTTLE);
+  (void)Motors_UpdateDutyCycle(Motor2, MOTOR_ABSOLUTE_MIN_THROTTLE);
+  (void)Motors_UpdateDutyCycle(Motor3, MOTOR_ABSOLUTE_MIN_THROTTLE);
+  (void)Motors_UpdateDutyCycle(Motor4, MOTOR_ABSOLUTE_MIN_THROTTLE);
 
   LogInformation(1001, "Motors Calibrated!");
 }
@@ -69,10 +69,10 @@ HAL_StatusTypeDef Motors_SetSpeed(MotorSpeeds_t speeds) {
       Motors_UpdateDutyCycle(Motor2, speeds.front_right) != HAL_OK ||
       Motors_UpdateDutyCycle(Motor3, speeds.back_right) != HAL_OK ||
       Motors_UpdateDutyCycle(Motor4, speeds.back_left) != HAL_OK) {
-    (void)Motors_UpdateDutyCycle(Motor1, MOTOR_ABSOLUTE_MIN_SPEED);
-    (void)Motors_UpdateDutyCycle(Motor2, MOTOR_ABSOLUTE_MIN_SPEED);
-    (void)Motors_UpdateDutyCycle(Motor3, MOTOR_ABSOLUTE_MIN_SPEED);
-    (void)Motors_UpdateDutyCycle(Motor4, MOTOR_ABSOLUTE_MIN_SPEED);
+    (void)Motors_UpdateDutyCycle(Motor1, MOTOR_ABSOLUTE_MIN_THROTTLE);
+    (void)Motors_UpdateDutyCycle(Motor2, MOTOR_ABSOLUTE_MIN_THROTTLE);
+    (void)Motors_UpdateDutyCycle(Motor3, MOTOR_ABSOLUTE_MIN_THROTTLE);
+    (void)Motors_UpdateDutyCycle(Motor4, MOTOR_ABSOLUTE_MIN_THROTTLE);
     return HAL_ERROR;
   }
   return HAL_OK;
@@ -86,8 +86,9 @@ void Motors_Reset(MotorSpeeds_t *speeds) {
 }
 
 HAL_StatusTypeDef Motors_UpdateDutyCycle(TIM_HandleTypeDef *htim, double speed) {
-  if (htim == NULL || !isfinite(speed) || speed < MOTOR_ABSOLUTE_MIN_SPEED ||
-      speed > MOTOR_ABSOLUTE_MAX_SPEED) {
+  if (htim == NULL || !isfinite(speed) ||
+      speed < MOTOR_ABSOLUTE_MIN_THROTTLE ||
+      speed > MOTOR_ABSOLUTE_MAX_THROTTLE) {
     return HAL_ERROR;
   }
 

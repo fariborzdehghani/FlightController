@@ -9,7 +9,8 @@ HAL_StatusTypeDef FlightControl_Init(void);
 HAL_StatusTypeDef FlightControl_Update(double dt);
 void FlightControl_Stop(void);
 HAL_StatusTypeDef FlightControl_Start(void);
-void FlightControl_ClampSpeeds(MotorSpeeds_t* speeds, float minSpeed, float maxSpeed);
+void FlightControl_DesaturateSpeeds(MotorSpeeds_t *speeds, float minThrottle,
+                                    float maxThrottle);
 HAL_StatusTypeDef FlightControl_UpdateFlightData(double dt);
 
 #endif /* __FLIGHT_CONTROL_H */

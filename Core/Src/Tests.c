@@ -71,7 +71,10 @@ void test_init(void)
   if (SENSOR_MPU6050_ENABLED)
   {
     // Initialize MPU6050
-    (void)MPU6050_Init(&hi2c1);
+    if (MPU6050_Init(&hi2c1) == HAL_OK)
+    {
+      (void)MPU6050_Calibrate();
+    }
   }
     
 }

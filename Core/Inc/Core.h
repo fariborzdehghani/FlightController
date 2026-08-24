@@ -19,8 +19,10 @@ extern TIM_HandleTypeDef htim4;
 #define PACKET_LENGTH      64
 #define LED_SHORT_DELAY    200
 #define LED_LONG_DELAY     1000
-#define LED_STARTED_BLINKS 3
+#define LED_READY_BLINKS   5
 #define LED_CONFIG_BLINKS  2
+#define LED_ARMED_BLINKS   3
+#define LED_FLIGHT_BLINKS  4
 #define COMMAND_FAILSAFE_TIMEOUT_MS 1000u
 
 /* Set to 0 (or override with -DHEARTBEAT_FAILSAFE_ENABLED=0) to disable
@@ -40,14 +42,18 @@ extern TIM_HandleTypeDef htim4;
 #define CONTROL_COMMAND_DISARM    0u
 #define CONTROL_COMMAND_ARM       1u
 #define CONTROL_COMMAND_TAKEOFF   2u
-#define TAKEOFF_TARGET_ALTITUDE_CM 50.0
+#define TAKEOFF_ALTITUDE_DEFAULT_CM 50.0
+#define TAKEOFF_ALTITUDE_MIN_CM     20.0
+#define TAKEOFF_ALTITUDE_MAX_CM     300.0
+#define TAKEOFF_MIN_CLIMB_CM        5.0
 #define TAKEOFF_THROTTLE_RAMP_DEFAULT_PER_SECOND 10.0
 #define TAKEOFF_THROTTLE_RAMP_MIN_PER_SECOND      1.0
 #define TAKEOFF_THROTTLE_RAMP_MAX_PER_SECOND     30.0
+#define TAKEOFF_MAX_TILT_DEG                      15.0
 
 // Safety constants
-#define MOTOR_ABSOLUTE_MIN_SPEED 0.0f
-#define MOTOR_ABSOLUTE_MAX_SPEED 100.0f
+#define MOTOR_ABSOLUTE_MIN_THROTTLE 0.0f
+#define MOTOR_ABSOLUTE_MAX_THROTTLE 100.0f
 
 // State Manager
 typedef struct {
@@ -98,18 +104,20 @@ typedef struct {
 } PIDConfig_t;
 
 typedef struct {
-    double minSpeed;
-    double maxSpeed;
+    double minThrottle;
+    double maxThrottle;
     double maxAngle;
     double armThrottle;
+    double hoverThrottle;
     double takeoffThrottleRampPerSecond;
+    double takeoffAltitudeCm;
     double pidMaxIPart;
     double pidMaxOutput;    // Add this new field
     PIDConfig_t pitch;
     PIDConfig_t roll;
     PIDConfig_t yaw;
     PIDConfig_t Gz;       // PID config for yaw control based on gyroscope Z-axis
-    PIDConfig_t altitude;   // Altitude PID gains; target is fixed at 50 cm
+    PIDConfig_t altitude;   // Altitude PID gains
 } DroneConfig_t;
 
 void Core_init(void);

@@ -17,6 +17,7 @@
 #define SENSOR_ACQUISITION_PI 3.14159265358979323846
 
 static FlightData_t sensor_data;
+static uint8_t sensor_acquisition_ready;
 
 static uint8_t srf05_measurement_pending;
 static uint8_t srf05_have_success;
@@ -191,6 +192,7 @@ static SensorAcquisitionResult_t SensorAcquisition_WaitForYawStable(void)
 
 void SensorAcquisition_Init(void)
 {
+  sensor_acquisition_ready = 0U;
   sensor_data.roll_deg = 0.0;
   sensor_data.pitch_deg = 0.0;
   sensor_data.yaw_deg = 0.0;
@@ -216,8 +218,21 @@ void SensorAcquisition_Init(void)
 
 SensorAcquisitionResult_t SensorAcquisition_Start(void)
 {
+  sensor_acquisition_ready = 0U;
+
   if (SENSOR_MPU6050_ENABLED)
   {
+    if (!MPU6050_IsReady())
+    {
+      const HAL_StatusTypeDef calibration_status = MPU6050_Calibrate();
+      if (calibration_status != HAL_OK)
+      {
+        return SensorAcquisition_Result(
+            SENSOR_ACQUISITION_ERROR_MPU6050_CALIBRATION,
+            calibration_status);
+      }
+    }
+
     for (uint8_t sample = 0U;
          sample < VELOCITY_ESTIMATOR_ACCEL_BIAS_SAMPLE_COUNT; sample++)
     {
@@ -249,11 +264,18 @@ SensorAcquisitionResult_t SensorAcquisition_Start(void)
     srf05_monitor_started_ms = started_ms;
   }
 
+  sensor_acquisition_ready = 1U;
   return SensorAcquisition_Result(SENSOR_ACQUISITION_ERROR_NONE, HAL_OK);
 }
 
 SensorAcquisitionResult_t SensorAcquisition_Update(double dt)
 {
+  if (!sensor_acquisition_ready)
+  {
+    return SensorAcquisition_Result(SENSOR_ACQUISITION_ERROR_NONE,
+                                    HAL_BUSY);
+  }
+
   SensorAcquisitionResult_t result = SensorAcquisition_UpdateAttitude();
   if (result.hal_status != HAL_OK)
   {
@@ -347,6 +369,7 @@ SensorAcquisitionResult_t SensorAcquisition_Update(double dt)
 
 void SensorAcquisition_Stop(void)
 {
+  sensor_acquisition_ready = 0U;
   if (SENSOR_SRF05_ENABLED)
   {
     SRF05_CancelMeasurement();
@@ -354,6 +377,11 @@ void SensorAcquisition_Stop(void)
   }
   VelocityEstimator_ResetVertical();
   SensorAcquisition_ApplyVelocityEstimate();
+}
+
+uint8_t SensorAcquisition_IsReady(void)
+{
+  return sensor_acquisition_ready;
 }
 
 FlightData_t SensorAcquisition_GetFlightData(void)

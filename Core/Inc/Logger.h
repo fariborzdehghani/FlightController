@@ -19,9 +19,11 @@ typedef struct {
     float roll_p;
     float roll_i;
     float roll_d;
+    float roll_total;
     float pitch_p;
     float pitch_i;
     float pitch_d;
+    float pitch_total;
     float Gz_p;
     float Gz_i;
     float Gz_d;

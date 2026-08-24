@@ -18,7 +18,8 @@ void PID_Init(PID_t *pid, double Kp, double Ki, double Kd) {
     pid->min_output = -Config.pidMaxOutput;       // Use negative max output from config
 }
 
-double PID_Calculate(PID_t *pid, double error, double dt) {
+double PID_Calculate(PID_t *pid, double error, double dt,
+                     uint8_t integral_enabled) {
     if (pid == NULL || !isfinite(error) || !isfinite(dt) || dt <= 0.0) {
         return 0.0;
     }
@@ -35,8 +36,12 @@ double PID_Calculate(PID_t *pid, double error, double dt) {
         pid->previous_error_valid = 1U;
     }
     
-    // Integral term with anti-windup
-    if (pid->Ki == 0.0) {
+    /*
+     * Do not retain an I term while the aircraft is still in its takeoff
+     * ramp. The ground can prevent the requested attitude correction and
+     * would otherwise let the integral build up before liftoff.
+     */
+    if (!integral_enabled || pid->Ki == 0.0) {
         pid->integral = 0.0;
         pid->i_term = 0.0;
     } else {

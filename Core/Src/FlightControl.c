@@ -10,13 +10,31 @@
 
 static double current_throttle_command;
 
+static double FlightControl_SlewThrottle(double current, double target,
+                                         double max_step)
+{
+  if (current < target)
+  {
+    return fmin(current + max_step, target);
+  }
+  if (current > target)
+  {
+    return fmax(current - max_step, target);
+  }
+  return current;
+}
+
 HAL_StatusTypeDef FlightControl_Init(void)
 {
   LogInformation(1002, "Initializing Flight Control...");
 
   AppError_Clear();
-  SensorAcquisition_Init();
   flightData = SensorAcquisition_GetFlightData();
+
+  if (!SensorAcquisition_IsReady())
+  {
+    return AppError_Set(APP_ERROR_SENSOR_ACQUISITION, HAL_BUSY);
+  }
 
   // Reset all motor speeds
   Motors_Reset(&Motors_Speed);
@@ -31,16 +49,6 @@ HAL_StatusTypeDef FlightControl_Init(void)
   PID_Reset(&pid_Gz);
   PID_Reset(&pid_altitude);
   current_throttle_command = 0.0;
-
-  const SensorAcquisitionResult_t sensor_result =
-      SensorAcquisition_Start();
-  flightData = SensorAcquisition_GetFlightData();
-  const HAL_StatusTypeDef status =
-      AppError_SetSensorAcquisitionResult(sensor_result);
-  if (status != HAL_OK)
-  {
-    return status;
-  }
 
   // Set initial target yaw from current yaw reading when available.
   if (SENSOR_QMC5883_ENABLED)
@@ -65,12 +73,9 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
     return AppError_Set(APP_ERROR_INVALID_FLIGHT_TIMESTEP, HAL_ERROR);
   }
 
-  // Update flightData from sensors each cycle
-  HAL_StatusTypeDef status = FlightControl_UpdateFlightData(dt);
-  if (status != HAL_OK)
-  {
-    return status;
-  }
+  // Sensor acquisition runs continuously in Core_loop(). Consume its latest
+  // cached snapshot without touching the sensor buses from flight control.
+  flightData = SensorAcquisition_GetFlightData();
 
   PID_ClearTerms(&pid_roll);
   PID_ClearTerms(&pid_pitch);
@@ -120,17 +125,42 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
       const double roll_error = Config.roll.target - flightData.roll_deg;
       const double pitch_error = Config.pitch.target - flightData.pitch_deg;
       const double gz_error = Config.Gz.target - flightData.Gz;
+      /*
+       * P and D keep stabilizing during TAKEOFF, but I remains zero until the
+       * configured takeoff phase is complete. This prevents ground-constrained
+       * attitude error from being stored and released at liftoff.
+       */
+      const uint8_t attitude_integral_enabled =
+          droneState.state == DRONE_STATE_FLYING;
 
-      roll_modifier = PID_Calculate(&pid_roll, roll_error, dt);
-      pitch_modifier = PID_Calculate(&pid_pitch, pitch_error, dt);
-      Gz_modifier = PID_Calculate(&pid_Gz, gz_error, dt);
+      roll_modifier = PID_Calculate(&pid_roll, roll_error, dt,
+                                    attitude_integral_enabled);
+      pitch_modifier = PID_Calculate(&pid_pitch, pitch_error, dt,
+                                     attitude_integral_enabled);
+      Gz_modifier = PID_Calculate(&pid_Gz, gz_error, dt,
+                                  attitude_integral_enabled);
     }
 
-    if (SENSOR_SRF05_ENABLED &&
-        droneState.state == DRONE_STATE_FLYING)
+    if (SENSOR_SRF05_ENABLED && flightData.takeoff_altitude_valid &&
+        (droneState.state == DRONE_STATE_TAKEOFF ||
+         droneState.state == DRONE_STATE_FLYING))
     {
-      const double altitude_error = TAKEOFF_TARGET_ALTITUDE_CM - flightData.takeoff_altitude;
-      altitude_modifier = PID_Calculate(&pid_altitude, altitude_error, dt);
+      const double altitude_error =
+          Config.takeoffAltitudeCm - flightData.takeoff_altitude;
+
+      if (droneState.state == DRONE_STATE_FLYING)
+      {
+        altitude_modifier =
+            PID_Calculate(&pid_altitude, altitude_error, dt, 1U);
+      }
+      else
+      {
+        /* Remember the approach error without running the altitude PID. On
+         * the first FLYING update, D can therefore react to upward motion
+         * instead of being forced to zero by an uninitialized history. */
+        pid_altitude.previous_error = altitude_error;
+        pid_altitude.previous_error_valid = 1U;
+      }
     }
 
     if (droneState.state == DRONE_STATE_ARMED)
@@ -140,18 +170,28 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
     }
     else if (droneState.state == DRONE_STATE_TAKEOFF)
     {
-      /* Search upward for the throttle needed to reach 50 cm. FLYING
-       * preserves the achieved command by no longer changing it. */
+      /* Search upward for liftoff, but do not add another ramp step on the
+       * sample that has already reached the target altitude. */
       const double throttle_step = Config.takeoffThrottleRampPerSecond * dt;
 
-      if (current_throttle_command < Config.maxSpeed)
+      if ((!flightData.takeoff_altitude_valid ||
+           flightData.takeoff_altitude < Config.takeoffAltitudeCm) &&
+          current_throttle_command < Config.maxThrottle)
       {
         current_throttle_command += throttle_step;
-        if (current_throttle_command > Config.maxSpeed)
+        if (current_throttle_command > Config.maxThrottle)
         {
-          current_throttle_command = Config.maxSpeed;
+          current_throttle_command = Config.maxThrottle;
         }
       }
+    }
+    else if (droneState.state == DRONE_STATE_FLYING)
+    {
+      /* Preserve output continuity at the state change, then remove the
+       * takeoff-ramp bias gradually while the altitude PID takes control. */
+      const double throttle_step = Config.takeoffThrottleRampPerSecond * dt;
+      current_throttle_command = FlightControl_SlewThrottle(
+          current_throttle_command, Config.hoverThrottle, throttle_step);
     }
 
     const double collective = current_throttle_command + altitude_modifier;
@@ -168,7 +208,8 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
     Motors_Speed.back_right = collective + m3_pid;
     Motors_Speed.back_left = collective + m4_pid;
 
-    FlightControl_ClampSpeeds(&Motors_Speed, Config.minSpeed, Config.maxSpeed);
+    FlightControl_DesaturateSpeeds(&Motors_Speed, Config.minThrottle,
+                                   Config.maxThrottle);
   }
   else
   {
@@ -199,9 +240,11 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
                               .roll_p = pid_roll.p_term,
                               .roll_i = pid_roll.i_term,
                               .roll_d = pid_roll.d_term,
+                              .roll_total = roll_modifier,
                               .pitch_p = pid_pitch.p_term,
                               .pitch_i = pid_pitch.i_term,
                               .pitch_d = pid_pitch.d_term,
+                              .pitch_total = pitch_modifier,
                               .Gz_p = pid_Gz.p_term,
                               .Gz_i = pid_Gz.i_term,
                               .Gz_d = pid_Gz.d_term,
@@ -212,28 +255,82 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
   return HAL_OK;
 }
 
-void FlightControl_ClampSpeeds(MotorSpeeds_t *speeds, float minSpeed, float maxSpeed)
+void FlightControl_DesaturateSpeeds(MotorSpeeds_t *speeds, float minThrottle,
+                                    float maxThrottle)
 {
-  // Ensure speeds are within absolute limits first
-  if (minSpeed < MOTOR_ABSOLUTE_MIN_SPEED)
-    minSpeed = MOTOR_ABSOLUTE_MIN_SPEED;
-  if (maxSpeed > MOTOR_ABSOLUTE_MAX_SPEED)
-    maxSpeed = MOTOR_ABSOLUTE_MAX_SPEED;
+  if (speeds == NULL)
+  {
+    return;
+  }
 
-  // Clamp all motor speeds
-  speeds->front_left = (speeds->front_left < minSpeed)   ? minSpeed
-                       : (speeds->front_left > maxSpeed) ? maxSpeed
-                                                         : speeds->front_left;
-  speeds->front_right = (speeds->front_right < minSpeed) ? minSpeed
-                        : (speeds->front_right > maxSpeed)
-                            ? maxSpeed
-                            : speeds->front_right;
-  speeds->back_left = (speeds->back_left < minSpeed)   ? minSpeed
-                      : (speeds->back_left > maxSpeed) ? maxSpeed
-                                                       : speeds->back_left;
-  speeds->back_right = (speeds->back_right < minSpeed)   ? minSpeed
-                       : (speeds->back_right > maxSpeed) ? maxSpeed
-                                                         : speeds->back_right;
+  if (minThrottle < MOTOR_ABSOLUTE_MIN_THROTTLE)
+  {
+    minThrottle = MOTOR_ABSOLUTE_MIN_THROTTLE;
+  }
+  if (maxThrottle > MOTOR_ABSOLUTE_MAX_THROTTLE)
+  {
+    maxThrottle = MOTOR_ABSOLUTE_MAX_THROTTLE;
+  }
+
+  if (minThrottle > maxThrottle)
+  {
+    minThrottle = maxThrottle;
+  }
+
+  double *motor[4] = {&speeds->front_left, &speeds->front_right,
+                      &speeds->back_right, &speeds->back_left};
+  double minimum = *motor[0];
+  double maximum = *motor[0];
+  double center = 0.0;
+
+  for (uint8_t index = 0U; index < 4U; index++)
+  {
+    center += *motor[index];
+    minimum = fmin(minimum, *motor[index]);
+    maximum = fmax(maximum, *motor[index]);
+  }
+  center *= 0.25;
+
+  /*
+   * If the requested attitude correction is wider than the available motor
+   * range, scale all four corrections equally around their collective.
+   */
+  const double available_range =
+      (double)maxThrottle - (double)minThrottle;
+  const double requested_range = maximum - minimum;
+  if (requested_range > available_range && requested_range > 0.0)
+  {
+    const double scale = available_range / requested_range;
+    minimum = center;
+    maximum = center;
+    for (uint8_t index = 0U; index < 4U; index++)
+    {
+      *motor[index] = center + (*motor[index] - center) * scale;
+      minimum = fmin(minimum, *motor[index]);
+      maximum = fmax(maximum, *motor[index]);
+    }
+  }
+
+  /*
+   * Shift collective as one block. Unlike independent clipping, this keeps
+   * the relative roll/pitch/yaw correction intact.
+   */
+  double shift = 0.0;
+  if (maximum > maxThrottle)
+  {
+    shift = (double)maxThrottle - maximum;
+  }
+  if (minimum + shift < minThrottle)
+  {
+    shift += (double)minThrottle - (minimum + shift);
+  }
+
+  for (uint8_t index = 0U; index < 4U; index++)
+  {
+    const double shifted = *motor[index] + shift;
+    *motor[index] = fmin((double)maxThrottle,
+                         fmax((double)minThrottle, shifted));
+  }
 }
 
 void FlightControl_Stop(void)
@@ -245,7 +342,6 @@ void FlightControl_Stop(void)
   PID_Reset(&pid_altitude);
   Motors_Reset(&Motors_Speed);
   (void)Motors_SetSpeed(Motors_Speed);
-  SensorAcquisition_Stop();
   flightData = SensorAcquisition_GetFlightData();
 }
 
@@ -256,8 +352,11 @@ HAL_StatusTypeDef FlightControl_Start(void)
 
 HAL_StatusTypeDef FlightControl_UpdateFlightData(double dt)
 {
-  const SensorAcquisitionResult_t result =
-      SensorAcquisition_Update(dt);
+  (void)dt;
   flightData = SensorAcquisition_GetFlightData();
-  return AppError_SetSensorAcquisitionResult(result);
+  if (!SensorAcquisition_IsReady())
+  {
+    return AppError_Set(APP_ERROR_SENSOR_ACQUISITION, HAL_BUSY);
+  }
+  return HAL_OK;
 }

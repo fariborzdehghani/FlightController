@@ -20,7 +20,8 @@ typedef struct {
 } PID_t;
 
 void PID_Init(PID_t* pid, double kp, double ki, double kd);
-double PID_Calculate(PID_t* pid, double error, double dt);
+double PID_Calculate(PID_t* pid, double error, double dt,
+                     uint8_t integral_enabled);
 void PID_Reset(PID_t* pid);
 void PID_ClearTerms(PID_t* pid);  // Add this line
 

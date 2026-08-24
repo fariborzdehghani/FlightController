@@ -57,6 +57,8 @@ typedef struct
 #define RAD_TO_DEG 57.295779513082320876798154814105
 
 HAL_StatusTypeDef MPU6050_Init(I2C_HandleTypeDef *i2c);
+HAL_StatusTypeDef MPU6050_Calibrate(void);
+uint8_t MPU6050_IsReady(void);
 HAL_StatusTypeDef MPU6050_ReadAll(MPU6050_t *data);
 double Kalman_GetAngle(Kalman_t *Kalman, double newAngle, double newRate, double dt);
 #endif /* __MPU6050_H */

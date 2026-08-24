@@ -42,6 +42,9 @@ HAL_StatusTypeDef AppError_SetSensorAcquisitionResult(
 
   switch (result.error)
   {
+  case SENSOR_ACQUISITION_ERROR_MPU6050_CALIBRATION:
+    return AppError_Set(APP_ERROR_MPU6050_CALIBRATION,
+                        result.hal_status);
   case SENSOR_ACQUISITION_ERROR_MPU6050_READ:
     return AppError_Set(APP_ERROR_MPU6050_READ, result.hal_status);
   case SENSOR_ACQUISITION_ERROR_QMC5883_READ:
@@ -74,6 +77,11 @@ const char *AppError_GetMessage(void)
   {
   case APP_ERROR_INVALID_FLIGHT_TIMESTEP:
     return "Flight loop timing is invalid or exceeded 250 ms";
+  case APP_ERROR_MPU6050_CALIBRATION:
+    return AppError_SensorMessage(
+        "MPU6050 calibration timed out: keep the aircraft stationary and retry",
+        "MPU6050 calibration could not read sensor: I2C bus busy",
+        "MPU6050 calibration failed");
   case APP_ERROR_MPU6050_READ:
     return AppError_SensorMessage(
         "MPU6050 attitude read timed out",
