@@ -42,6 +42,8 @@ void VelocityEstimator_UpdateImu(
 void VelocityEstimator_Predict(double dt, uint32_t now_ms);
 VelocityEstimatorSrf05Result_t VelocityEstimator_CorrectSrf05Altitude(
     double altitude_m, uint32_t sample_time_ms);
+/* Invalidates output but preserves the tracking reference, so repeated false
+ * echoes cannot establish a new altitude. ResetVertical explicitly reacquires. */
 void VelocityEstimator_HandleSrf05Timeout(void);
 void VelocityEstimator_CorrectBmp280Altitude(double altitude_m,
                                              uint32_t sample_time_ms);

@@ -81,6 +81,8 @@ void SX127X_SetSignalBandwidth(uint32_t sbw);
 void SX127X_SetCodingRate4(uint8_t denominator);
 void SX127X_SetPreambleLength(uint16_t length);
 bool SX127X_Send(uint8_t *buf, uint8_t len);
+bool SX127X_StartSend(const uint8_t *buf, uint8_t len);
+bool SX127X_PollSend(void); /* true when finished or timed out; returns to RX */
 bool SX127X_Receive(uint8_t *buf, uint8_t capacity, uint8_t *len);
 int16_t SX127X_GetPacketRssi(void);
 float SX127X_GetPacketSnr(void);

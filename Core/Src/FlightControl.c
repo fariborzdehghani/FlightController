@@ -1,6 +1,7 @@
 #include "FlightControl.h"
 #include "AppError.h"
 #include "Core.h"
+#include "CoreHelpers.h"
 #include "Logger.h"
 #include "MotorControl.h"
 #include "SensorAcquisition.h"
@@ -9,9 +10,27 @@
 #include <math.h>
 
 static double current_throttle_command;
+static uint32_t takeoff_started_ms;
+static uint8_t takeoff_baseline_valid;
+static double takeoff_baseline_cm;
+static double liftoff_confirm_s;
+static uint8_t altitude_control_active;
+static double altitude_target_cm;
+static double takeoff_settled_s;
 
-static double FlightControl_SlewThrottle(double current, double target,
-                                         double max_step)
+static void FlightControl_ResetTakeoff(void)
+{
+  takeoff_started_ms = 0U;
+  takeoff_baseline_valid = 0U;
+  takeoff_baseline_cm = 0.0;
+  liftoff_confirm_s = 0.0;
+  altitude_control_active = 0U;
+  altitude_target_cm = 0.0;
+  takeoff_settled_s = 0.0;
+}
+
+static double FlightControl_SlewValue(double current, double target,
+                                      double max_step)
 {
   if (current < target)
   {
@@ -22,6 +41,31 @@ static double FlightControl_SlewThrottle(double current, double target,
     return fmax(current - max_step, target);
   }
   return current;
+}
+
+void FlightControl_BeginTakeoff(void)
+{
+  FlightControl_ResetTakeoff();
+  PID_Reset(&pid_roll);
+  PID_Reset(&pid_pitch);
+  PID_Reset(&pid_Gz);
+  PID_Reset(&pid_altitude);
+  /* Also handles ARM and TAKEOFF received before the first armed update. */
+  current_throttle_command = Config.armThrottle;
+  takeoff_started_ms = HAL_GetTick();
+  flightData = SensorAcquisition_GetFlightData();
+  if (flightData.takeoff_altitude_valid &&
+      isfinite(flightData.takeoff_altitude))
+  {
+    takeoff_baseline_cm = flightData.takeoff_altitude;
+    takeoff_baseline_valid = 1U;
+  }
+}
+
+uint8_t FlightControl_IsTakeoffComplete(void)
+{
+  return altitude_control_active &&
+         takeoff_settled_s >= TAKEOFF_SETTLE_TIME_S;
 }
 
 HAL_StatusTypeDef FlightControl_Init(void)
@@ -49,6 +93,7 @@ HAL_StatusTypeDef FlightControl_Init(void)
   PID_Reset(&pid_Gz);
   PID_Reset(&pid_altitude);
   current_throttle_command = 0.0;
+  FlightControl_ResetTakeoff();
 
   // Set initial target yaw from current yaw reading when available.
   if (SENSOR_QMC5883_ENABLED)
@@ -91,6 +136,7 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
   double pitch_modifier = 0;
   double Gz_modifier = 0;
   double altitude_modifier = 0;
+  uint8_t mixer_limited = 0u;
 
   const uint8_t motors_running =
       droneState.state == DRONE_STATE_ARMED ||
@@ -110,11 +156,31 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
     return AppError_Set(APP_ERROR_MAXIMUM_FLIGHT_ANGLE, HAL_ERROR);
   }
 
-  if (droneState.state == DRONE_STATE_FLYING &&
-      !flightData.takeoff_altitude_valid)
+  /* Sensor acquisition already tolerates brief echo gaps (300 ms). Once a
+   * baseline is known, never resume a blind ramp after losing the sensor. */
+  if ((droneState.state == DRONE_STATE_FLYING ||
+       (droneState.state == DRONE_STATE_TAKEOFF && takeoff_baseline_valid)) &&
+      (!flightData.takeoff_altitude_valid ||
+       !isfinite(flightData.takeoff_altitude)))
   {
     FlightControl_Stop();
     return AppError_Set(APP_ERROR_ALTITUDE_UNAVAILABLE, HAL_ERROR);
+  }
+
+  if (droneState.state == DRONE_STATE_TAKEOFF)
+  {
+    const uint32_t elapsed_ms = HAL_GetTick() - takeoff_started_ms;
+    if (!altitude_control_active &&
+        elapsed_ms >= CoreHelpers_GetTakeoffLiftoffTimeoutMs(&Config))
+    {
+      FlightControl_Stop();
+      return AppError_Set(APP_ERROR_TAKEOFF_LIFTOFF_TIMEOUT, HAL_ERROR);
+    }
+    if (elapsed_ms >= CoreHelpers_GetTakeoffTargetTimeoutMs(&Config))
+    {
+      FlightControl_Stop();
+      return AppError_Set(APP_ERROR_TAKEOFF_TARGET_TIMEOUT, HAL_ERROR);
+    }
   }
 
   if (motors_running)
@@ -141,57 +207,83 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
                                   attitude_integral_enabled);
     }
 
-    if (SENSOR_SRF05_ENABLED && flightData.takeoff_altitude_valid &&
-        (droneState.state == DRONE_STATE_TAKEOFF ||
-         droneState.state == DRONE_STATE_FLYING))
-    {
-      const double altitude_error =
-          Config.takeoffAltitudeCm - flightData.takeoff_altitude;
-
-      if (droneState.state == DRONE_STATE_FLYING)
-      {
-        altitude_modifier =
-            PID_Calculate(&pid_altitude, altitude_error, dt, 1U);
-      }
-      else
-      {
-        /* Remember the approach error without running the altitude PID. On
-         * the first FLYING update, D can therefore react to upward motion
-         * instead of being forced to zero by an uninitialized history. */
-        pid_altitude.previous_error = altitude_error;
-        pid_altitude.previous_error_valid = 1U;
-      }
-    }
-
     if (droneState.state == DRONE_STATE_ARMED)
     {
       // Arming starts every motor equally at the configured safe idle.
       current_throttle_command = Config.armThrottle;
     }
-    else if (droneState.state == DRONE_STATE_TAKEOFF)
+    else if (droneState.state == DRONE_STATE_TAKEOFF &&
+             !altitude_control_active)
     {
-      /* Search upward for liftoff, but do not add another ramp step on the
-       * sample that has already reached the target altitude. */
-      const double throttle_step = Config.takeoffThrottleRampPerSecond * dt;
-
-      if ((!flightData.takeoff_altitude_valid ||
-           flightData.takeoff_altitude < Config.takeoffAltitudeCm) &&
-          current_throttle_command < Config.maxThrottle)
+      if (flightData.takeoff_altitude_valid &&
+          isfinite(flightData.takeoff_altitude))
       {
-        current_throttle_command += throttle_step;
-        if (current_throttle_command > Config.maxThrottle)
+        if (!takeoff_baseline_valid)
         {
-          current_throttle_command = Config.maxThrottle;
+          /* Below the SRF05 range at startup: establish a baseline on the
+           * first usable reading, then require a further measured rise. */
+          takeoff_baseline_cm = flightData.takeoff_altitude;
+          takeoff_baseline_valid = 1U;
+        }
+        if (flightData.takeoff_altitude >=
+            takeoff_baseline_cm + TAKEOFF_MIN_CLIMB_CM)
+        {
+          liftoff_confirm_s += dt;
+        }
+        else
+        {
+          liftoff_confirm_s = 0.0;
         }
       }
+
+      if (liftoff_confirm_s >= TAKEOFF_LIFTOFF_CONFIRM_S)
+      {
+        altitude_control_active = 1U;
+        altitude_target_cm = flightData.takeoff_altitude;
+        LogInformation(1001, "Liftoff confirmed: beginning controlled climb");
+        /* Initial error is zero: keep the existing collective on this update. */
+      }
+      else if (liftoff_confirm_s == 0.0)
+      {
+        current_throttle_command = FlightControl_SlewValue(
+            current_throttle_command,
+            CoreHelpers_GetTakeoffThrottleLimit(&Config),
+            Config.takeoffThrottleRampPerSecond * dt);
+      }
     }
-    else if (droneState.state == DRONE_STATE_FLYING)
+    else if (altitude_control_active)
     {
-      /* Preserve output continuity at the state change, then remove the
-       * takeoff-ramp bias gradually while the altitude PID takes control. */
-      const double throttle_step = Config.takeoffThrottleRampPerSecond * dt;
-      current_throttle_command = FlightControl_SlewThrottle(
-          current_throttle_command, Config.hoverThrottle, throttle_step);
+      const double previous_target_cm = altitude_target_cm;
+      altitude_target_cm = FlightControl_SlewValue(
+          altitude_target_cm, Config.takeoffAltitudeCm,
+          TAKEOFF_CLIMB_RATE_CM_S * dt);
+      /* D should damp measured vertical motion, not the moving target. */
+      if (pid_altitude.previous_error_valid)
+      {
+        pid_altitude.previous_error += altitude_target_cm - previous_target_cm;
+      }
+      current_throttle_command = FlightControl_SlewValue(
+          current_throttle_command, Config.hoverThrottle,
+          Config.takeoffThrottleRampPerSecond * dt);
+    }
+
+    if (altitude_control_active)
+    {
+      altitude_modifier = PID_Calculate(
+          &pid_altitude, altitude_target_cm - flightData.takeoff_altitude,
+          dt, 1U);
+
+      if (droneState.state == DRONE_STATE_TAKEOFF)
+      {
+        const uint8_t near_target =
+            altitude_target_cm == Config.takeoffAltitudeCm &&
+            fabs(flightData.takeoff_altitude - Config.takeoffAltitudeCm) <=
+                TAKEOFF_SETTLE_TOLERANCE_CM &&
+            (!flightData.Vz_valid ||
+             (isfinite(flightData.Vz) &&
+              fabs(flightData.Vz) <= TAKEOFF_SETTLE_SPEED_MS));
+        takeoff_settled_s = near_target ? takeoff_settled_s + dt : 0.0;
+      }
     }
 
     const double collective = current_throttle_command + altitude_modifier;
@@ -208,8 +300,17 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
     Motors_Speed.back_right = collective + m3_pid;
     Motors_Speed.back_left = collective + m4_pid;
 
+    const double output_limit =
+        droneState.state == DRONE_STATE_TAKEOFF && !altitude_control_active
+            ? CoreHelpers_GetTakeoffThrottleLimit(&Config)
+            : Config.maxThrottle;
     FlightControl_DesaturateSpeeds(&Motors_Speed, Config.minThrottle,
-                                   Config.maxThrottle);
+                                   output_limit);
+    mixer_limited =
+        fabs(Motors_Speed.front_left - (collective + m1_pid)) > 0.001 ||
+        fabs(Motors_Speed.front_right - (collective + m2_pid)) > 0.001 ||
+        fabs(Motors_Speed.back_right - (collective + m3_pid)) > 0.001 ||
+        fabs(Motors_Speed.back_left - (collective + m4_pid)) > 0.001;
   }
   else
   {
@@ -229,6 +330,8 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
                               .pitch = flightData.pitch_deg,
                               .yaw = flightData.yaw_deg,
                               .Gz = flightData.Gz,
+                              .roll_rate_dps = flightData.roll_rate_dps,
+                              .pitch_rate_dps = flightData.pitch_rate_dps,
                               .Vz = flightData.Vz,
                               .Vz_valid = flightData.Vz_valid,
                               .altitude = flightData.takeoff_altitude,
@@ -250,7 +353,11 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
                               .Gz_d = pid_Gz.d_term,
                               .altitude_p = pid_altitude.p_term,
                               .altitude_i = pid_altitude.i_term,
-                              .altitude_d = pid_altitude.d_term};
+                              .altitude_d = pid_altitude.d_term,
+                              .loop_dt_ms = dt * 1000.0,
+                              .altitude_target = altitude_target_cm,
+                              .altitude_control_active = altitude_control_active,
+                              .mixer_limited = mixer_limited};
   Logger_LogFlightData(&log_data);
   return HAL_OK;
 }
@@ -336,6 +443,7 @@ void FlightControl_DesaturateSpeeds(MotorSpeeds_t *speeds, float minThrottle,
 void FlightControl_Stop(void)
 {
   current_throttle_command = 0.0;
+  FlightControl_ResetTakeoff();
   PID_Reset(&pid_roll);
   PID_Reset(&pid_pitch);
   PID_Reset(&pid_Gz);

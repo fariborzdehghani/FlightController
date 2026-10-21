@@ -50,6 +50,14 @@ extern TIM_HandleTypeDef htim4;
 #define TAKEOFF_THROTTLE_RAMP_MIN_PER_SECOND      1.0
 #define TAKEOFF_THROTTLE_RAMP_MAX_PER_SECOND     30.0
 #define TAKEOFF_MAX_TILT_DEG                      15.0
+/* Simple takeoff policy; these are firmware constants, not packet fields. */
+#define TAKEOFF_THROTTLE_MARGIN                   5.0
+#define TAKEOFF_LIFTOFF_CONFIRM_S                 0.15
+#define TAKEOFF_LIFTOFF_TIMEOUT_MAX_MS             10000U
+#define TAKEOFF_CLIMB_RATE_CM_S                   20.0
+#define TAKEOFF_SETTLE_TOLERANCE_CM               5.0
+#define TAKEOFF_SETTLE_SPEED_MS                   0.15
+#define TAKEOFF_SETTLE_TIME_S                     0.5
 
 // Safety constants
 #define MOTOR_ABSOLUTE_MIN_THROTTLE 0.0f
@@ -64,6 +72,8 @@ typedef struct {
     double pitch_rad;          // Current pitch angle in radians
     double yaw_rad;            // Current yaw angle in radians
     double Gz;                 // Gyroscope Z-axis from MPU6050
+    double roll_rate_dps;      // Gyroscope Y: same axis as roll_deg
+    double pitch_rate_dps;     // Gyroscope X: same axis as pitch_deg
     double Vz;                 // Estimated world Z-axis velocity in m/s (positive upward)
     uint8_t Vz_valid;          // 1 when the vertical-velocity estimate is usable
     double fly_altitude;       // Current altitude read from barometer

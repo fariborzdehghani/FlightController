@@ -5,6 +5,8 @@
 #define SX127X_TX_TIMEOUT_MS  2000u
 
 static SPI_HandleTypeDef *spi;
+static uint32_t async_tx_started;
+static bool async_tx_active;
 
 uint8_t SX127X_ReadRegister(uint8_t reg) {
   uint8_t txData = reg & 0x7F;
@@ -186,6 +188,7 @@ bool SX127X_Send(uint8_t *buf, uint8_t len) {
   }
 
   SX127X_SetModeStandby();
+  SX127X_ClearIrqFlags();
   SX127X_WriteRegister(REG_FIFO_ADDR_PTR, 0);
 
   // Write data to FIFO
@@ -235,7 +238,7 @@ bool SX127X_Receive(uint8_t *buf, uint8_t capacity, uint8_t *len) {
 
   // Check for CRC error
   if (SX127X_ReadRegister(REG_IRQ_FLAGS) & IRQ_PAYLOAD_CRC_ERROR_MASK) {
-    SX127X_WriteRegister(REG_IRQ_FLAGS, IRQ_PAYLOAD_CRC_ERROR_MASK);
+    SX127X_WriteRegister(REG_IRQ_FLAGS, IRQ_RX_DONE_MASK | IRQ_PAYLOAD_CRC_ERROR_MASK);
     return false;
   }
 
@@ -272,14 +275,47 @@ bool SX127X_Receive(uint8_t *buf, uint8_t capacity, uint8_t *len) {
 void SX127X_Sleep(void) { SX127X_WriteRegister(REG_OP_MODE, MODE_SLEEP); }
 
 void SX127X_SetModeStandby(void) {
-  SX127X_WriteRegister(REG_OP_MODE, MODE_STDBY);
+  SX127X_WriteRegister(REG_OP_MODE, 0x80u | MODE_STDBY);
 }
 
 void SX127X_SetModeRx(void) {
-  SX127X_WriteRegister(REG_OP_MODE, MODE_RX_CONTINUOUS);
+  SX127X_WriteRegister(REG_OP_MODE, 0x80u | MODE_RX_CONTINUOUS);
 }
 
-void SX127X_SetModeTx(void) { SX127X_WriteRegister(REG_OP_MODE, MODE_TX); }
+void SX127X_SetModeTx(void) { SX127X_WriteRegister(REG_OP_MODE, 0x80u | MODE_TX); }
+
+/* Log responses use nonblocking TX so the LED, UART and watchdog keep running.
+ * Core only calls this while disarmed. */
+bool SX127X_StartSend(const uint8_t *buf, uint8_t len)
+{
+  if (spi == NULL || buf == NULL || len == 0u || async_tx_active) return false;
+  SX127X_SetModeStandby();
+  SX127X_ClearIrqFlags();
+  SX127X_WriteRegister(REG_FIFO_ADDR_PTR, 0u);
+  HAL_GPIO_WritePin(SX127X_NSS_PORT, SX127X_NSS_PIN, GPIO_PIN_RESET);
+  uint8_t command = REG_FIFO | 0x80u;
+  HAL_StatusTypeDef status = HAL_SPI_Transmit(spi, &command, 1u, SX127X_SPI_TIMEOUT_MS);
+  if (status == HAL_OK)
+    status = HAL_SPI_Transmit(spi, (uint8_t *)buf, len, SX127X_SPI_TIMEOUT_MS);
+  HAL_GPIO_WritePin(SX127X_NSS_PORT, SX127X_NSS_PIN, GPIO_PIN_SET);
+  if (status != HAL_OK) { SX127X_SetModeRx(); return false; }
+  SX127X_WriteRegister(REG_PAYLOAD_LENGTH, len);
+  async_tx_started = HAL_GetTick();
+  async_tx_active = true;
+  SX127X_SetModeTx();
+  return true;
+}
+
+bool SX127X_PollSend(void)
+{
+  if (!async_tx_active) return true;
+  if ((SX127X_GetIrqFlags() & IRQ_TX_DONE_MASK) == 0u &&
+      HAL_GetTick() - async_tx_started < SX127X_TX_TIMEOUT_MS) return false;
+  async_tx_active = false;
+  SX127X_ClearIrqFlags();
+  SX127X_SetModeRx();
+  return true;
+}
 
 uint8_t SX127X_GetIrqFlags(void) {
   return SX127X_ReadRegister(REG_IRQ_FLAGS);

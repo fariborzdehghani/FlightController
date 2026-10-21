@@ -14,7 +14,6 @@
 #define VELOCITY_ESTIMATOR_SRF05_MEDIAN_GATE_M 0.08
 #define VELOCITY_ESTIMATOR_SRF05_MOTION_GATE_ACCEL_MS2 4.0
 #define VELOCITY_ESTIMATOR_SRF05_ACQUIRE_SAMPLES 8U
-#define VELOCITY_ESTIMATOR_SRF05_REACQUIRE_OUTLIERS 4U
 #define VELOCITY_ESTIMATOR_SRF05_MEASUREMENT_NOISE_M 0.01
 #define VELOCITY_ESTIMATOR_SRF05_MIN_INNOVATION_GATE_M 0.08
 #define VELOCITY_ESTIMATOR_SRF05_INNOVATION_SIGMA 5.0
@@ -68,7 +67,6 @@ static uint8_t srf05_median_count;
 static uint8_t srf05_median_index;
 static uint8_t srf05_filter_initialized;
 static uint8_t srf05_filter_inliers;
-static uint8_t srf05_filter_outliers;
 static uint32_t last_srf05_filter_update_ms;
 static uint32_t last_srf05_raw_sample_ms;
 
@@ -115,11 +113,11 @@ static void VelocityEstimator_ResetSrf05Filter(void)
   srf05_median_index = 0U;
   srf05_filter_initialized = 0U;
   srf05_filter_inliers = 0U;
-  srf05_filter_outliers = 0U;
   last_srf05_filter_update_ms = 0U;
   last_srf05_raw_sample_ms = 0U;
   estimate.vertical_velocity_ms = 0.0;
   estimate.vertical_velocity_valid = 0U;
+  estimate.srf05_altitude_valid = 0U;
 }
 
 void VelocityEstimator_ResetVertical(void)
@@ -312,9 +310,18 @@ static uint8_t VelocityEstimator_FilterSrf05Altitude(
   }
 
   uint32_t elapsed_ms = VELOCITY_ESTIMATOR_SRF05_SAMPLE_MS;
-  if (last_srf05_raw_sample_ms != 0U)
+  if (srf05_median_count != 0U)
   {
     elapsed_ms = sample_time_ms - last_srf05_raw_sample_ms;
+    if (elapsed_ms == 0U || elapsed_ms > INT32_MAX)
+    {
+      return 0U; /* Duplicate/out-of-order data cannot build confidence. */
+    }
+    if (elapsed_ms > VELOCITY_ESTIMATOR_SRF05_MAX_GAP_MS)
+    {
+      srf05_median_count = 0U;
+      srf05_median_index = 0U;
+    }
   }
   last_srf05_raw_sample_ms = sample_time_ms;
 
@@ -407,7 +414,6 @@ static void VelocityEstimator_InitializeSrf05Filter(
 
   srf05_filter_initialized = 1U;
   srf05_filter_inliers = 1U;
-  srf05_filter_outliers = 0U;
   last_srf05_filter_update_ms = sample_time_ms;
   estimate.vertical_velocity_ms = 0.0;
   estimate.vertical_velocity_valid = 0U;
@@ -425,7 +431,10 @@ static void VelocityEstimator_PredictSrf05(double dt, uint32_t now_ms)
   if ((now_ms - last_srf05_filter_update_ms) >
       VELOCITY_ESTIMATOR_SRF05_MAX_GAP_MS)
   {
-    VelocityEstimator_ResetSrf05Filter();
+    /* Keep the last tracking reference. Forgetting it would let a repeated
+     * false echo become a new, apparently valid altitude after a dropout. */
+    estimate.srf05_altitude_valid = 0U;
+    estimate.vertical_velocity_valid = 0U;
     return;
   }
 
@@ -558,13 +567,6 @@ static uint8_t VelocityEstimator_UpdateSrf05Filter(
     return 0U;
   }
 
-  if (srf05_filter_initialized &&
-      (sample_time_ms - last_srf05_filter_update_ms) >
-          VELOCITY_ESTIMATOR_SRF05_MAX_GAP_MS)
-  {
-    VelocityEstimator_ResetSrf05Filter();
-  }
-
   if (!srf05_filter_initialized)
   {
     VelocityEstimator_InitializeSrf05Filter(median_altitude_m,
@@ -588,24 +590,18 @@ static uint8_t VelocityEstimator_UpdateSrf05Filter(
     return 0U;
   }
 
-  const double innovation_gate = fmax(
-      VELOCITY_ESTIMATOR_SRF05_MIN_INNOVATION_GATE_M,
-      VELOCITY_ESTIMATOR_SRF05_INNOVATION_SIGMA *
-          sqrt(innovation_variance));
+  /* The initial velocity covariance is deliberately broad. Until tracking is
+   * established, it must not make a large jump look like a plausible echo. */
+  const double innovation_gate =
+      (srf05_filter_inliers < VELOCITY_ESTIMATOR_SRF05_ACQUIRE_SAMPLES)
+          ? VELOCITY_ESTIMATOR_SRF05_MIN_INNOVATION_GATE_M
+          : fmax(VELOCITY_ESTIMATOR_SRF05_MIN_INNOVATION_GATE_M,
+                 VELOCITY_ESTIMATOR_SRF05_INNOVATION_SIGMA *
+                     sqrt(innovation_variance));
   if (fabs(innovation) > innovation_gate)
   {
-    if (srf05_filter_outliers < UINT8_MAX)
-    {
-      srf05_filter_outliers++;
-    }
-    if (srf05_filter_outliers >=
-        VELOCITY_ESTIMATOR_SRF05_REACQUIRE_OUTLIERS)
-    {
-      VelocityEstimator_ResetSrf05Filter();
-      VelocityEstimator_InitializeSrf05Filter(median_altitude_m,
-                                              sample_time_ms);
-      return 1U;
-    }
+    /* Repetition does not make an implausible echo trustworthy. Keep rejecting
+     * it; prediction/acquisition mark altitude unavailable after 300 ms. */
     return 0U;
   }
 
@@ -700,9 +696,7 @@ static uint8_t VelocityEstimator_UpdateSrf05Filter(
   if (!filter_state_is_finite)
   {
     VelocityEstimator_ResetSrf05Filter();
-    VelocityEstimator_InitializeSrf05Filter(median_altitude_m,
-                                            sample_time_ms);
-    return 1U;
+    return 0U;
   }
 
   for (uint8_t row = 0U; row < VELOCITY_ESTIMATOR_STATE_COUNT; row++)
@@ -725,7 +719,6 @@ static uint8_t VelocityEstimator_UpdateSrf05Filter(
           -VELOCITY_ESTIMATOR_MAX_RESIDUAL_BIAS_MS2,
           VELOCITY_ESTIMATOR_MAX_RESIDUAL_BIAS_MS2);
 
-  srf05_filter_outliers = 0U;
   if (srf05_filter_inliers < UINT8_MAX)
   {
     srf05_filter_inliers++;
@@ -833,7 +826,8 @@ void VelocityEstimator_HandleSrf05Timeout(void)
   {
     estimate.srf05_altitude_valid = 0U;
     estimate.vertical_velocity_valid = 0U;
-    VelocityEstimator_ResetSrf05Filter();
+    /* Only an explicit vertical reset (stop/start) forgets the tracking
+     * reference. A sensor timeout must not authorize a jump to another echo. */
   }
 }
 

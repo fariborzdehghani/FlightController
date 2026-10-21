@@ -3,36 +3,49 @@
 #include <math.h>
 #include <stddef.h>
 
-#define TAKEOFF_ALTITUDE_ACQUIRE_TIMEOUT_AFTER_RAMP_MS 2000U
-#define TAKEOFF_CLIMB_TIMEOUT_AFTER_RAMP_MS 10000U
+#define TAKEOFF_LIFTOFF_MARGIN_MS 1000U
+#define TAKEOFF_SETTLE_MARGIN_MS 5000U
 
-uint32_t CoreHelpers_GetTakeoffRampTimeMs(
+double CoreHelpers_GetTakeoffThrottleLimit(
+    const DroneConfig_t *config)
+{
+  if (config == NULL)
+  {
+    return 0.0;
+  }
+  return fmin(config->maxThrottle,
+              config->hoverThrottle + TAKEOFF_THROTTLE_MARGIN);
+}
+
+uint32_t CoreHelpers_GetTakeoffLiftoffTimeoutMs(
+    const DroneConfig_t *config)
+{
+  if (config == NULL || !isfinite(config->takeoffThrottleRampPerSecond) ||
+      config->takeoffThrottleRampPerSecond <= 0.0)
+  {
+    return 0U;
+  }
+
+  const double ramp_range =
+      fmax(0.0, CoreHelpers_GetTakeoffThrottleLimit(config) -
+                    config->armThrottle);
+  const double ramp_time_ms =
+      1000.0 * ramp_range / config->takeoffThrottleRampPerSecond;
+  return (uint32_t)fmin(ramp_time_ms + TAKEOFF_LIFTOFF_MARGIN_MS,
+                        TAKEOFF_LIFTOFF_TIMEOUT_MAX_MS);
+}
+
+uint32_t CoreHelpers_GetTakeoffTargetTimeoutMs(
     const DroneConfig_t *config)
 {
   if (config == NULL)
   {
     return 0U;
   }
-
-  const double ramp_range =
-      fmax(0.0, config->maxThrottle - config->armThrottle);
-  const double ramp_time_ms =
-      1000.0 * ramp_range / config->takeoffThrottleRampPerSecond;
-  return (uint32_t)ramp_time_ms;
-}
-
-uint32_t CoreHelpers_GetTakeoffAltitudeAcquireTimeoutMs(
-    const DroneConfig_t *config)
-{
-  return CoreHelpers_GetTakeoffRampTimeMs(config) +
-         TAKEOFF_ALTITUDE_ACQUIRE_TIMEOUT_AFTER_RAMP_MS;
-}
-
-uint32_t CoreHelpers_GetTakeoffTargetTimeoutMs(
-    const DroneConfig_t *config)
-{
-  return CoreHelpers_GetTakeoffRampTimeMs(config) +
-         TAKEOFF_CLIMB_TIMEOUT_AFTER_RAMP_MS;
+  /* Budget the entire requested climb, including the maximum 300 cm target. */
+  return CoreHelpers_GetTakeoffLiftoffTimeoutMs(config) +
+         (uint32_t)(1000.0 * config->takeoffAltitudeCm /
+                    TAKEOFF_CLIMB_RATE_CM_S) + TAKEOFF_SETTLE_MARGIN_MS;
 }
 
 uint8_t CoreHelpers_IsConfigValid(const DroneConfig_t *config)

@@ -17,10 +17,9 @@ static SRF05_Config_t config;
 static uint8_t initialized;
 
 static volatile SRF05_CaptureState_t capture_state = SRF05_CAPTURE_IDLE;
-static volatile uint32_t rising_capture;
+static volatile uint64_t rising_capture;
 static volatile uint32_t timer_overflows;
-static volatile uint32_t pulse_ticks;
-static volatile uint8_t ignore_next_overflow;
+static volatile uint64_t pulse_ticks;
 static volatile uint32_t capture_complete_ms;
 
 static uint8_t has_triggered;
@@ -59,6 +58,21 @@ static uint32_t srf05_capture_flag(uint32_t channel) {
   }
 }
 
+static uint32_t srf05_overcapture_flag(uint32_t channel) {
+  switch (channel) {
+  case TIM_CHANNEL_1:
+    return TIM_FLAG_CC1OF;
+  case TIM_CHANNEL_2:
+    return TIM_FLAG_CC2OF;
+  case TIM_CHANNEL_3:
+    return TIM_FLAG_CC3OF;
+  case TIM_CHANNEL_4:
+    return TIM_FLAG_CC4OF;
+  default:
+    return 0u;
+  }
+}
+
 static void srf05_delay_us(uint32_t delay_us) {
 #if defined(DWT) && defined(CoreDebug) && \
     defined(CoreDebug_DEMCR_TRCENA_Msk) && defined(DWT_CTRL_CYCCNTENA_Msk)
@@ -88,20 +102,46 @@ static void srf05_stop_capture(void) {
                                 TIM_INPUTCHANNELPOLARITY_RISING);
 }
 
+static uint64_t srf05_capture_ticks(uint32_t captured) {
+  const uint64_t period =
+      (uint64_t)__HAL_TIM_GET_AUTORELOAD(config.timer) + 1u;
+  const uint32_t update_before =
+      __HAL_TIM_GET_FLAG(config.timer, TIM_FLAG_UPDATE);
+  uint32_t counter = __HAL_TIM_GET_COUNTER(config.timer);
+  const uint32_t update_after =
+      __HAL_TIM_GET_FLAG(config.timer, TIM_FLAG_UPDATE);
+
+  if (update_before != update_after) {
+    /* The counter wrapped while taking the snapshot. */
+    counter = __HAL_TIM_GET_COUNTER(config.timer);
+  }
+
+  uint64_t ticks =
+      ((uint64_t)timer_overflows + (update_after != RESET)) * period + captured;
+  if (captured > counter) {
+    /* The edge preceded the most recent wrap. That update may already have
+     * been serviced: HAL snapshots SR before dispatching its callbacks. */
+    ticks -= period;
+  }
+  return ticks;
+}
+
 static HAL_StatusTypeDef srf05_start_capture(void) {
-  const uint32_t capture_flag = srf05_capture_flag(config.captureChannel);
+  const uint32_t capture_flags =
+      srf05_capture_flag(config.captureChannel) |
+      srf05_overcapture_flag(config.captureChannel);
 
   capture_state = SRF05_CAPTURE_RISING;
   rising_capture = 0u;
   timer_overflows = 0u;
   pulse_ticks = 0u;
-  ignore_next_overflow = 0u;
   capture_complete_ms = 0u;
 
   __HAL_TIM_SET_CAPTUREPOLARITY(config.timer, config.captureChannel,
                                 TIM_INPUTCHANNELPOLARITY_RISING);
-  if (capture_flag != 0u) {
-    __HAL_TIM_CLEAR_FLAG(config.timer, capture_flag);
+  if (capture_flags != 0u) {
+    /* An overrun from the previous measurement must not poison the next one. */
+    __HAL_TIM_CLEAR_FLAG(config.timer, capture_flags);
   }
   __HAL_TIM_CLEAR_FLAG(config.timer, TIM_FLAG_UPDATE);
   __HAL_TIM_ENABLE_IT(config.timer, TIM_IT_UPDATE);
@@ -121,7 +161,9 @@ HAL_StatusTypeDef SRF05_Init(SRF05_Config_t new_config) {
   }
   initialized = 0u;
 
-  if (new_config.timer == NULL || new_config.triggerPort == NULL ||
+  if (new_config.timer == NULL || new_config.timer->Instance == NULL ||
+      new_config.triggerPort == NULL || new_config.triggerPin == 0u ||
+      (new_config.triggerPin & (new_config.triggerPin - 1u)) != 0u ||
       !isfinite(new_config.timer_tick_us) ||
       new_config.timer_tick_us <= 0.0f ||
       !srf05_channel_is_valid(new_config.captureChannel)) {
@@ -154,21 +196,31 @@ HAL_StatusTypeDef SRF05_StartMeasurement(void) {
 
   const uint32_t now = HAL_GetTick();
   if (has_triggered &&
-      (now - last_trigger_ms) < SRF05_MIN_TRIGGER_PERIOD_MS) {
+      (now - last_trigger_ms) <= SRF05_MIN_TRIGGER_PERIOD_MS) {
     return HAL_BUSY;
   }
 
+  const uint32_t interrupt_mask = __get_PRIMASK();
+  __disable_irq();
+  measurement_start_ms = HAL_GetTick();
   if (srf05_start_capture() != HAL_OK) {
+    if (interrupt_mask == 0u) {
+      __enable_irq();
+    }
     return HAL_ERROR;
   }
-
-  last_trigger_ms = now;
-  measurement_start_ms = now;
-  has_triggered = 1u;
 
   HAL_GPIO_WritePin(config.triggerPort, config.triggerPin, GPIO_PIN_SET);
   srf05_delay_us(SRF05_TRIGGER_PULSE_US);
   HAL_GPIO_WritePin(config.triggerPort, config.triggerPin, GPIO_PIN_RESET);
+
+  /* Include the pulse itself in the quiet time. The extra tick in the spacing
+   * check guarantees at least 50 ms despite HAL_GetTick's 1 ms quantization. */
+  last_trigger_ms = HAL_GetTick();
+  has_triggered = 1u;
+  if (interrupt_mask == 0u) {
+    __enable_irq();
+  }
 
   return HAL_OK;
 }
@@ -209,9 +261,15 @@ HAL_StatusTypeDef SRF05_ReadMeasurement(float *distance_cm,
 
 measurement_complete:
   ;
-  const uint32_t measured_ticks = pulse_ticks;
+  const uint64_t measured_ticks = pulse_ticks;
   const uint32_t completed_ms = capture_complete_ms;
   capture_state = SRF05_CAPTURE_IDLE;
+
+  /* Completion may have happened after the deadline while the foreground
+   * caller was busy. Judge the echo's completion time, not the read time. */
+  if ((completed_ms - measurement_start_ms) >= timeout_ms) {
+    return HAL_TIMEOUT;
+  }
 
   if (measured_ticks == 0u) {
     return HAL_ERROR;
@@ -250,7 +308,8 @@ void SRF05_CancelMeasurement(void) {
 
 HAL_StatusTypeDef SRF05_MeasureDistance(float *distance_cm) {
   if (distance_cm == NULL || __get_IPSR() != 0u ||
-      __get_PRIMASK() != 0u) {
+      __get_PRIMASK() != 0u || __get_BASEPRI() != 0u ||
+      __get_FAULTMASK() != 0u) {
     return HAL_ERROR;
   }
 
@@ -269,61 +328,56 @@ HAL_StatusTypeDef SRF05_MeasureDistance(float *distance_cm) {
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
   if (!initialized || htim != config.timer ||
-      !srf05_is_active_channel(htim->Channel, config.captureChannel)) {
+      !srf05_is_active_channel(htim->Channel, config.captureChannel) ||
+      (capture_state != SRF05_CAPTURE_RISING &&
+       capture_state != SRF05_CAPTURE_FALLING)) {
     return;
   }
 
+  /* Freeze only this input while validating CCR and changing edge polarity.
+   * Do not stop/reset the shared counter or disturb its motor PWM channel. */
+  TIM_CCxChannelCmd(htim->Instance, config.captureChannel, TIM_CCx_DISABLE);
+
+  const uint32_t capture_flags = srf05_capture_flag(config.captureChannel) |
+                                 srf05_overcapture_flag(config.captureChannel);
+  const uint32_t pending_capture = __HAL_TIM_GET_FLAG(htim, capture_flags);
   const uint32_t captured =
       HAL_TIM_ReadCapturedValue(htim, config.captureChannel);
-  const uint32_t timer_period = __HAL_TIM_GET_AUTORELOAD(htim) + 1u;
+  /* HAL clears CCxIF before this callback. A new CCxIF means CCR was replaced
+   * after that clear; in that case hardware need not set CCxOF. */
+  if (pending_capture != RESET || __HAL_TIM_GET_FLAG(htim,
+                        srf05_overcapture_flag(config.captureChannel)) != RESET) {
+    srf05_stop_capture();
+    pulse_ticks = 0u;
+    capture_complete_ms = HAL_GetTick();
+    capture_state = SRF05_CAPTURE_COMPLETE;
+    return;
+  }
+  const uint64_t captured_ticks = srf05_capture_ticks(captured);
 
   if (capture_state == SRF05_CAPTURE_RISING) {
-    rising_capture = captured;
-    timer_overflows = 0u;
-
-    /* HAL handles capture before update when both flags are pending. */
-    if (__HAL_TIM_GET_FLAG(htim, TIM_FLAG_UPDATE) != RESET &&
-        captured < (timer_period / 2u)) {
-      ignore_next_overflow = 1u;
-    }
-
+    rising_capture = captured_ticks;
     capture_state = SRF05_CAPTURE_FALLING;
     __HAL_TIM_SET_CAPTUREPOLARITY(htim, config.captureChannel,
                                   TIM_INPUTCHANNELPOLARITY_FALLING);
+    TIM_CCxChannelCmd(htim->Instance, config.captureChannel, TIM_CCx_ENABLE);
     return;
   }
 
   if (capture_state == SRF05_CAPTURE_FALLING) {
-    uint32_t overflows = timer_overflows;
-
-    /* Include an update that occurred just before the falling edge. */
-    if (__HAL_TIM_GET_FLAG(htim, TIM_FLAG_UPDATE) != RESET &&
-        captured < (timer_period / 2u)) {
-      overflows++;
-    }
-
-    if (overflows == 0u && captured < rising_capture) {
-      pulse_ticks = 0u;
-    } else {
-      pulse_ticks =
-          (overflows * timer_period) + captured - rising_capture;
-    }
-
+    srf05_stop_capture();
+    pulse_ticks = captured_ticks - rising_capture;
     capture_complete_ms = HAL_GetTick();
     capture_state = SRF05_CAPTURE_COMPLETE;
-    srf05_stop_capture();
   }
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
   if (!initialized || htim != config.timer ||
-      capture_state != SRF05_CAPTURE_FALLING) {
+      (capture_state != SRF05_CAPTURE_RISING &&
+       capture_state != SRF05_CAPTURE_FALLING)) {
     return;
   }
 
-  if (ignore_next_overflow) {
-    ignore_next_overflow = 0u;
-  } else {
-    timer_overflows++;
-  }
+  timer_overflows++;
 }

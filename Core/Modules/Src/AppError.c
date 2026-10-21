@@ -102,6 +102,10 @@ const char *AppError_GetMessage(void)
     return "Motor output is invalid or could not be applied";
   case APP_ERROR_ALTITUDE_UNAVAILABLE:
     return "SRF05 altitude estimate was lost during flight";
+  case APP_ERROR_TAKEOFF_LIFTOFF_TIMEOUT:
+    return "TAKEOFF aborted: no confirmed liftoff; check SRF05 and hover throttle";
+  case APP_ERROR_TAKEOFF_TARGET_TIMEOUT:
+    return "TAKEOFF aborted: target height did not settle in time";
   case APP_ERROR_BMP280_READ:
     return AppError_SensorMessage(
         "BMP280 altitude read timed out",

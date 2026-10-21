@@ -7,6 +7,8 @@
 // Function declarations
 HAL_StatusTypeDef FlightControl_Init(void);
 HAL_StatusTypeDef FlightControl_Update(double dt);
+void FlightControl_BeginTakeoff(void);
+uint8_t FlightControl_IsTakeoffComplete(void);
 void FlightControl_Stop(void);
 HAL_StatusTypeDef FlightControl_Start(void);
 void FlightControl_DesaturateSpeeds(MotorSpeeds_t *speeds, float minThrottle,

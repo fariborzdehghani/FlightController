@@ -90,6 +90,8 @@ static SensorAcquisitionResult_t SensorAcquisition_UpdateAttitude(void)
 
     sensor_data.roll_deg = mpu_data.KalmanAngleY;
     sensor_data.pitch_deg = mpu_data.KalmanAngleX;
+    sensor_data.roll_rate_dps = mpu_data.Gy;
+    sensor_data.pitch_rate_dps = mpu_data.Gx;
     sensor_data.Gz =
         VelocityEstimator_CorrectGyroZ(mpu_data.Gz);
 
@@ -108,6 +110,8 @@ static SensorAcquisitionResult_t SensorAcquisition_UpdateAttitude(void)
   {
     sensor_data.roll_deg = 0.0;
     sensor_data.pitch_deg = 0.0;
+    sensor_data.roll_rate_dps = 0.0;
+    sensor_data.pitch_rate_dps = 0.0;
     sensor_data.Gz = 0.0;
   }
 
@@ -200,6 +204,8 @@ void SensorAcquisition_Init(void)
   sensor_data.pitch_rad = 0.0;
   sensor_data.yaw_rad = 0.0;
   sensor_data.Gz = 0.0;
+  sensor_data.roll_rate_dps = 0.0;
+  sensor_data.pitch_rate_dps = 0.0;
   sensor_data.Vz = 0.0;
   sensor_data.Vz_valid = 0U;
   sensor_data.fly_altitude = 0.0;

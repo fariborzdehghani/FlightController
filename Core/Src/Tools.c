@@ -1,4 +1,5 @@
 #include "Tools.h"
+#include "FlightRecorder.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -137,9 +138,11 @@ static bool Tools_LogWithLevel(const char *level, int code,
 }
 
 bool LogError(int code, const char *message) {
+  FlightRecorder_LogMessage(HAL_GetTick(), (uint16_t)code, true, message);
   return Tools_LogWithLevel("Error", code, message);
 }
 
 bool LogInformation(int code, const char *message) {
+  FlightRecorder_LogMessage(HAL_GetTick(), (uint16_t)code, false, message);
   return Tools_LogWithLevel("Information", code, message);
 }

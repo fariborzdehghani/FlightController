@@ -59,6 +59,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/BMPXX80.c
     Core/Src/Tests.c
     Core/Src/Logger.c
+    Core/Src/FlightRecorder.c
     Core/Src/Calibration.c
 )
 

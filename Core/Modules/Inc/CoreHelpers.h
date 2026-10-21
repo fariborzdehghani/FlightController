@@ -3,9 +3,9 @@
 
 #include "Core.h"
 
-uint32_t CoreHelpers_GetTakeoffRampTimeMs(
+double CoreHelpers_GetTakeoffThrottleLimit(
     const DroneConfig_t *config);
-uint32_t CoreHelpers_GetTakeoffAltitudeAcquireTimeoutMs(
+uint32_t CoreHelpers_GetTakeoffLiftoffTimeoutMs(
     const DroneConfig_t *config);
 uint32_t CoreHelpers_GetTakeoffTargetTimeoutMs(
     const DroneConfig_t *config);

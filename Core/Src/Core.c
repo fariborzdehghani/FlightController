@@ -3,6 +3,8 @@
 #include "BMPXX80.h"
 #include "CoreHelpers.h"
 #include "FlightControl.h"
+#include "FlightRecorder.h"
+#include "Logger.h"
 #include "MPU6050.h"
 #include "MotorControl.h"
 #include "PID.h"
@@ -15,6 +17,7 @@
 #include "stm32f4xx_hal_uart.h"
 #include "sx127x.h"
 #include <math.h>
+#include <stdio.h>
 #include <string.h>
 
 extern UART_HandleTypeDef huart1;
@@ -78,12 +81,51 @@ static uint8_t remote_commands_enabled;
 static uint8_t core_initialization_complete;
 static uint8_t fault_recoverable;
 static uint8_t watchdog_started;
-static uint32_t takeoff_started_time;
-static uint8_t takeoff_altitude_acquired;
 static DroneState_t led_displayed_state = DRONE_STATE_INIT;
 static uint8_t led_display_initialized;
 static uint8_t led_displayed_command_ready;
 static IWDG_HandleTypeDef hiwdg;
+static uint8_t packet_from_uart;
+static uint8_t log_response[64];
+static uint8_t log_response_pending, log_response_uart, log_radio_tx_active;
+static uint32_t log_response_queued_at;
+static uint8_t led_displayed_transfer;
+
+static uint8_t Core_MotorsActive(void)
+{
+  return droneState.state == DRONE_STATE_ARMED ||
+         droneState.state == DRONE_STATE_TAKEOFF ||
+         droneState.state == DRONE_STATE_FLYING;
+}
+
+static void Core_ProcessLogResponse(void)
+{
+  if (log_radio_tx_active)
+  {
+    if (SX127X_PollSend()) log_radio_tx_active = 0u;
+    return;
+  }
+  if (!log_response_pending || Core_MotorsActive()) return;
+  if (log_response_uart)
+  {
+    const char hex[] = "0123456789ABCDEF";
+    char line[139] = "FlightLog=";
+    for (unsigned i = 0; i < 64; i++)
+    {
+      line[10u + i * 2u] = hex[log_response[i] >> 4];
+      line[11u + i * 2u] = hex[log_response[i] & 15u];
+    }
+    line[138] = '\0';
+    if (LogStringToPC(line)) log_response_pending = 0u;
+  }
+  else if (HAL_GetTick() - log_response_queued_at >= 30u)
+  {
+    /* Give the bridge time to switch from transmitting to listening. */
+    if (SX127X_StartSend(log_response, sizeof(log_response)))
+      log_radio_tx_active = 1u;
+    log_response_pending = 0u; /* The desktop retries if TX fails. */
+  }
+}
 
 static HAL_StatusTypeDef Core_StartWatchdog(void)
 {
@@ -103,9 +145,9 @@ static HAL_StatusTypeDef Core_StartWatchdog(void)
 static void Core_EnterFault(const char *message)
 {
   fault_recoverable = core_initialization_complete;
-  takeoff_started_time = 0U;
-  takeoff_altitude_acquired = 0U;
   FlightControl_Stop();
+  Logger_EndFlight(FLIGHT_LOG_STOP_FAULT, AppError_GetCode(),
+                   AppError_GetHalStatus(), DRONE_STATE_FAULT);
   droneState.state = DRONE_STATE_FAULT;
   hardware_ready = 0u;
   LogError(2003, message);
@@ -118,8 +160,6 @@ static void Core_ResetRuntimeFault(void)
   FlightControl_Stop();
   AppError_Clear();
 
-  takeoff_started_time = 0U;
-  takeoff_altitude_acquired = 0U;
   average_dt = 0.0;
   dt_sample_count = 0U;
   last_command_time = reset_time;
@@ -141,7 +181,6 @@ void Core_init(void)
   fault_recoverable = 0U;
   hardware_ready = 0U;
   remote_commands_enabled = 0U;
-  takeoff_started_time = 0U;
   average_dt = 0.0;
   dt_sample_count = 0U;
 
@@ -265,6 +304,7 @@ void Core_loop(void)
   uint32_t currentTime = HAL_GetTick();
   double dt = (double)(currentTime - last_update_time) / 1000.0;
   last_update_time = currentTime;
+  Logger_SetLoopTiming((float)(dt * 1000.0));
 
   if (dt_sample_count < UINT32_MAX)
   {
@@ -292,9 +332,9 @@ void Core_loop(void)
     if (HEARTBEAT_FAILSAFE_ENABLED &&
         (currentTime - last_command_time) >= COMMAND_FAILSAFE_TIMEOUT_MS)
     {
-      takeoff_started_time = 0U;
-      takeoff_altitude_acquired = 0U;
       FlightControl_Stop();
+      Logger_EndFlight(FLIGHT_LOG_STOP_LINK_TIMEOUT, 0u, HAL_OK,
+                       DRONE_STATE_CONFIGURED);
       droneState.state = DRONE_STATE_CONFIGURED;
       LogError(2004, "Control link timeout: drone disarmed");
     }
@@ -304,47 +344,12 @@ void Core_loop(void)
       {
         Core_EnterFault(AppError_GetMessage());
       }
-      else if (droneState.state == DRONE_STATE_TAKEOFF)
+      else if (droneState.state == DRONE_STATE_TAKEOFF &&
+               FlightControl_IsTakeoffComplete())
       {
-        if (flightData.takeoff_altitude_valid)
-        {
-          if (!takeoff_altitude_acquired)
-          {
-            takeoff_altitude_acquired = 1U;
-            LogInformation(1001,
-                           "SRF05 acquired: continuing toward takeoff target");
-          }
-
-          if (flightData.takeoff_altitude >= Config.takeoffAltitudeCm)
-          {
-            takeoff_started_time = 0U;
-            takeoff_altitude_acquired = 0U;
-            droneState.state = DRONE_STATE_FLYING;
-            last_update_time = HAL_GetTick();
-            LogInformation(
-                1001,
-                "Takeoff target reached: altitude-hold PID active");
-          }
-        }
-        else if (takeoff_altitude_acquired)
-        {
-          Core_EnterFault("TAKEOFF aborted: SRF05 altitude was lost");
-        }
-        else if ((currentTime - takeoff_started_time) >=
-                 CoreHelpers_GetTakeoffAltitudeAcquireTimeoutMs(
-                     &Config))
-        {
-          Core_EnterFault("TAKEOFF aborted: SRF05 stayed below range or unavailable");
-        }
-
-        if (droneState.state == DRONE_STATE_TAKEOFF &&
-            takeoff_altitude_acquired &&
-            (currentTime - takeoff_started_time) >=
-                CoreHelpers_GetTakeoffTargetTimeoutMs(&Config))
-        {
-          Core_EnterFault(
-              "TAKEOFF aborted: target altitude was not reached");
-        }
+        /* The altitude controller continues unchanged through this transition. */
+        droneState.state = DRONE_STATE_FLYING;
+        LogInformation(1001, "Takeoff settled: holding configured altitude");
       }
     }
   }
@@ -352,20 +357,26 @@ void Core_loop(void)
   uint8_t radio_buffer[PACKET_LENGTH];
   uint8_t bytes_received;
 
-  if (SX127X_Receive(radio_buffer, sizeof(radio_buffer), &bytes_received))
+  if (!log_radio_tx_active &&
+      SX127X_Receive(radio_buffer, sizeof(radio_buffer), &bytes_received))
   {
     if (bytes_received == PACKET_LENGTH)
     {
+      packet_from_uart = 0u;
+      Logger_SetLiveSerial(0u);
       HandlePackage(radio_buffer, bytes_received);
     }
   }
 
   if (uart_data_ready)
   {
+    packet_from_uart = 1u;
+    Logger_SetLiveSerial(1u);
     HandlePackage(uart_data_buffer, PACKET_LENGTH);
     uart_data_ready = 0;
   }
 
+  Core_ProcessLogResponse();
   Tools_ProcessLogQueue();
   if (watchdog_started)
   {
@@ -391,6 +402,18 @@ void HandlePackage(const uint8_t *data, uint8_t length)
 
   switch (data[0])
   {
+  case PACKET_TYPE_LOG_REQUEST:
+    if (length != 64u || Core_MotorsActive() || log_radio_tx_active) return;
+    if (FlightLog_IsRequestValid(data) && data[1] == FLIGHT_LOG_BEGIN)
+      Logger_PrepareDownload();
+    if (FlightRecorder_Respond(data, log_response, HAL_GetTick(), false))
+    {
+      log_response_uart = packet_from_uart;
+      log_response_pending = 1u;
+      log_response_queued_at = HAL_GetTick();
+    }
+    break;
+
   case PACKET_TYPE_CONFIGURATION:
   {
     if (length < 41u)
@@ -484,6 +507,7 @@ void HandlePackage(const uint8_t *data, uint8_t length)
     }
 
     Config = candidate;
+    Logger_SetConfiguration(data, length);
 
     if (recovering_from_fault)
     {
@@ -523,9 +547,13 @@ void HandlePackage(const uint8_t *data, uint8_t length)
 
     if (data[1] == CONTROL_COMMAND_DISARM)
     {
-      takeoff_started_time = 0U;
-      takeoff_altitude_acquired = 0U;
       FlightControl_Stop();
+      Logger_EndFlight(length >= 3u && data[2] == CONTROL_DISARM_REASON_LINK_TIMEOUT
+                           ? FLIGHT_LOG_STOP_LINK_TIMEOUT : FLIGHT_LOG_STOP_OPERATOR,
+                       0u, HAL_OK,
+                       DRONE_STATE_CONFIGURED);
+      FlightRecorder_CancelTransfer();
+      log_response_pending = 0u;
       if (droneState.state != DRONE_STATE_FAULT)
       {
         droneState.state = DRONE_STATE_CONFIGURED;
@@ -555,7 +583,13 @@ void HandlePackage(const uint8_t *data, uint8_t length)
           fabs(flightData.roll_deg) > takeoff_tilt_limit ||
           fabs(flightData.pitch_deg) > takeoff_tilt_limit)
       {
-        LogError(2002, "TAKEOFF rejected: place the drone nearly level");
+        /* Fits the recorder's 96-byte message payload, including non-finite
+         * readings. These are the same values used by the check above. */
+        char message[97];
+        snprintf(message, sizeof(message),
+                 "TAKEOFF rejected: tilt; roll=%.6g pitch=%.6g limit=%.6g deg",
+                 flightData.roll_deg, flightData.pitch_deg, takeoff_tilt_limit);
+        LogError(2002, message);
         break;
       }
 
@@ -570,17 +604,13 @@ void HandlePackage(const uint8_t *data, uint8_t length)
 
       if (SENSOR_MPU6050_ENABLED && SENSOR_SRF05_ENABLED)
       {
-        PID_Reset(&pid_roll);
-        PID_Reset(&pid_pitch);
-        PID_Reset(&pid_Gz);
-        PID_Reset(&pid_altitude);
-        takeoff_started_time = HAL_GetTick();
-        takeoff_altitude_acquired = 0U;
-        last_update_time = takeoff_started_time;
+        FlightControl_BeginTakeoff();
+        last_update_time = HAL_GetTick();
         droneState.state = DRONE_STATE_TAKEOFF;
+        Logger_BeginFlight();
         LogInformation(
             1001,
-            "TAKEOFF started: applying configured throttle ramp");
+            "TAKEOFF started: bounded ramp, then gradual altitude climb");
       }
       else
       {
@@ -592,6 +622,13 @@ void HandlePackage(const uint8_t *data, uint8_t length)
     if (data[1] != CONTROL_COMMAND_ARM)
     {
       LogError(2005, "Unknown control command");
+      return;
+    }
+
+    if (FlightRecorder_IsTransferring(HAL_GetTick()) ||
+        log_response_pending || log_radio_tx_active)
+    {
+      LogError(2002, "Finish or cancel log download before arming");
       return;
     }
 
@@ -611,7 +648,6 @@ void HandlePackage(const uint8_t *data, uint8_t length)
 
     if (FlightControl_Start() == HAL_OK)
     {
-      takeoff_started_time = 0U;
       droneState.state = DRONE_STATE_ARMED;
       const uint32_t armed_time = HAL_GetTick();
       last_command_time = armed_time;
@@ -688,19 +724,32 @@ static void UpdateLEDBlinkPattern(uint32_t currentTime, uint8_t blinkCount)
 void UpdateLEDState(void)
 {
   uint32_t currentTime = HAL_GetTick();
+  uint8_t transferring = FlightRecorder_IsTransferring(currentTime) ||
+                         log_response_pending || log_radio_tx_active;
 
   if (!led_display_initialized ||
       droneState.state != led_displayed_state ||
-      remote_commands_enabled != led_displayed_command_ready)
+      remote_commands_enabled != led_displayed_command_ready ||
+      transferring != led_displayed_transfer)
   {
     led_display_initialized = 1U;
     led_displayed_state = droneState.state;
     led_displayed_command_ready = remote_commands_enabled;
+    led_displayed_transfer = transferring;
     droneState.lastLedUpdate = currentTime;
     droneState.ledBlinkCounter = 0U;
     droneState.ledIsOn = droneState.state == DRONE_STATE_INIT ? 1U : 0U;
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6,
                       droneState.ledIsOn ? GPIO_PIN_SET : GPIO_PIN_RESET);
+  }
+
+  if (transferring)
+  {
+    /* Distinct double flash: 80 ms on, 80 off, 80 on, then 760 off. */
+    uint32_t phase = (currentTime - droneState.lastLedUpdate) % 1000u;
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6,
+        (phase < 80u || (phase >= 160u && phase < 240u)) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    return;
   }
 
   switch (droneState.state)
