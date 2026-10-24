@@ -3,12 +3,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #define PACKET_TYPE_LOG_REQUEST 4u
 #define PACKET_TYPE_LOG_RESPONSE 5u
 #define FLIGHT_LOG_VERSION 1u
 /* Transport version stays 1. The opaque downloaded blob has its own version;
- * format 4 is the compact roll/pitch tuning download. */
+ * format 4 is compact; format 5 adds IMU trace; format 6 adds SRF05 freshness;
+ * format 7 adds raw SRF05 distance/filter result without increasing record size. */
 #define FLIGHT_LOG_BEGIN 1u
 #define FLIGHT_LOG_READ 2u
 #define FLIGHT_LOG_END 3u
@@ -59,7 +61,11 @@ static inline void FlightLog_Seal(uint8_t *packet)
 
 static inline bool FlightLog_IsRequestValid(const uint8_t *packet)
 {
-  if (packet[0] != PACKET_TYPE_LOG_REQUEST || packet[2] != FLIGHT_LOG_VERSION ||
+  /* Requests carry transfer ID at +4 and zero-based chunk index at +8.
+   * BEGIN/END sentinel sequences belong to responses only.
+   */
+  if (packet == NULL ||
+      packet[0] != PACKET_TYPE_LOG_REQUEST || packet[2] != FLIGHT_LOG_VERSION ||
       packet[1] < FLIGHT_LOG_BEGIN || packet[1] > FLIGHT_LOG_END ||
       FlightLog_Read32(packet + 4) == 0u ||
       FlightLog_Crc16(packet, 62u) != (uint16_t)(packet[62] | (packet[63] << 8)))
@@ -73,7 +79,7 @@ static inline bool FlightLog_IsRequestValid(const uint8_t *packet)
 
 static inline bool FlightLog_IsResponseValid(const uint8_t *packet)
 {
-  return packet[0] == PACKET_TYPE_LOG_RESPONSE &&
+  return packet != NULL && packet[0] == PACKET_TYPE_LOG_RESPONSE &&
          packet[2] == FLIGHT_LOG_VERSION && packet[1] <= FLIGHT_LOG_RANGE_ERROR &&
          packet[3] <= FLIGHT_LOG_PAYLOAD_SIZE &&
          FlightLog_Crc16(packet, 62u) == (uint16_t)(packet[62] | (packet[63] << 8));

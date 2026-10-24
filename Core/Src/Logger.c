@@ -3,6 +3,7 @@
 #include "Core.h"
 #include "FlightRecorder.h"
 #include "SensorConfig.h"
+#include "AppError.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -46,13 +47,16 @@ static FlightRecorderRecord_t make_record(const FlightLogData_t *d, uint8_t stat
                  (flightData.takeoff_altitude_valid ? 2u : 0u) |
                  (d->altitude_control_active ? 4u : 0u) |
                  (d->mixer_limited ? 8u : 0u) |
-                 (SENSOR_MPU6050_ENABLED ? 16u : 0u),
+                 (SENSOR_MPU6050_ENABLED ? 16u : 0u) |
+                 (d->landing_active ? 32u : 0u),
         .values = {d->roll, d->pitch, d->yaw, d->Gz, d->Vz, d->altitude,
             d->base_throttle, d->m1_speed, d->m2_speed, d->m3_speed, d->m4_speed,
             d->roll_p, d->roll_i, d->roll_d, d->roll_total,
             d->pitch_p, d->pitch_i, d->pitch_d, d->pitch_total,
             d->Gz_p, d->Gz_i, d->Gz_d, d->altitude_p, d->altitude_i, d->altitude_d,
-            d->loop_dt_ms, d->altitude_target, d->roll_rate_dps, d->pitch_rate_dps}
+            d->loop_dt_ms, d->altitude_target, d->roll_rate_dps, d->pitch_rate_dps},
+        .attitude_trace = d->attitude_trace,
+        .srf05_trace = d->srf05_trace
     };
     return record;
 }
@@ -65,6 +69,8 @@ static void update_sensor_snapshot(void)
     latest_data.Gz = flightData.Gz;
     latest_data.roll_rate_dps = flightData.roll_rate_dps;
     latest_data.pitch_rate_dps = flightData.pitch_rate_dps;
+    latest_data.attitude_trace = flightData.attitude_trace;
+    latest_data.srf05_trace = flightData.srf05_trace;
     latest_data.Vz = flightData.Vz;
     latest_data.Vz_valid = flightData.Vz_valid;
     latest_data.altitude = flightData.takeoff_altitude;
@@ -81,6 +87,7 @@ void Logger_PrepareDownload(void)
         (SENSOR_MPU6050_ENABLED ? 1u : 0u) | (SENSOR_QMC5883_ENABLED ? 2u : 0u) |
         (SENSOR_SRF05_ENABLED ? 4u : 0u) | (SENSOR_BMP280_ENABLED ? 8u : 0u);
     FlightRecorderRecord_t record = make_record(&latest_data, (uint8_t)droneState.state);
+    record.error = (uint16_t)AppError_GetCode();
     FlightRecorder_Snapshot(accepted_configuration, &record);
 }
 
@@ -107,6 +114,7 @@ void Logger_EndFlight(uint8_t reason, uint16_t error, uint8_t hal_status, uint8_
     update_sensor_snapshot();
     FlightRecorderRecord_t record = make_record(&latest_data, state);
     record.error = error;
+    record.flags &= (uint8_t)~32u; /* Final event is stopped, not actively landing. */
     /* Final event represents the stopped outputs. Keep the preceding PID terms
      * for diagnosis; no controller calculation is performed by the logger. */
     for (unsigned i = 6; i <= 10; i++) record.values[i] = 0.0f;

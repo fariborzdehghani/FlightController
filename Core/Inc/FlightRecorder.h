@@ -2,16 +2,18 @@
 #define FLIGHT_RECORDER_H
 
 #include "FlightLogProtocol.h"
+#include "AttitudeTrace.h"
+#include "Srf05Trace.h"
 
 #define FLIGHT_RECORDER_CAPACITY 512u
 /* Capture each typical 15 ms control update, with a 100 Hz upper bound. */
 #define FLIGHT_RECORDER_INTERVAL_MS 10u
 #define FLIGHT_RECORDER_HEADER_SIZE 64u
-#define FLIGHT_RECORDER_RECORD_SIZE 124u
+#define FLIGHT_RECORDER_RECORD_SIZE 208u
 #define FLIGHT_RECORDER_TRANSFER_TIMEOUT_MS 8000u
 #define FLIGHT_RECORDER_EVENT_CAPACITY 16u
 #define FLIGHT_RECORDER_EVENT_SIZE 104u
-#define FLIGHT_RECORDER_FORMAT_VERSION 3u
+#define FLIGHT_RECORDER_FORMAT_VERSION 7u
 #define FLIGHT_RECORDER_COMPACT_FORMAT_VERSION 4u
 #define FLIGHT_RECORDER_COMPACT_RECORD_SIZE 50u
 
@@ -24,9 +26,11 @@ typedef struct
 {
   uint32_t timestamp_ms;
   uint8_t state;
-  uint8_t flags; /* Vz valid, altitude valid, altitude control active, mixer limited, gyro rates valid */
+  uint8_t flags; /* Vz valid, altitude valid, altitude control, mixer limited, gyro rates, landing */
   uint16_t error;
   float values[29]; /* v2's 27 values, then roll/pitch gyro rates in deg/s */
+  AttitudeTrace_t attitude_trace; /* Format 5; compact format 4 omits this. */
+  Srf05Trace_t srf05_trace; /* Format 7; compact format 4 omits this. */
 } FlightRecorderRecord_t;
 
 void FlightRecorder_Begin(const uint8_t configuration[64], uint32_t now);

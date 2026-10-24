@@ -35,6 +35,10 @@ add_executable(${CMAKE_PROJECT_NAME})
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
 
+# Core.c starts the watchdog after sensor calibration, rather than in the
+# generated startup sequence. Keep its HAL driver enabled across regeneration.
+target_compile_definitions(stm32cubemx INTERFACE HAL_IWDG_MODULE_ENABLED)
+
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
@@ -72,6 +76,20 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined symbols
 )
+
+# Identify the estimator sources in downloaded traces, including uncommitted
+# edits. Filter overrides are recorded separately in the log header.
+set(imu_source_hashes "")
+foreach(imu_source Core/Src/MPU6050.c Core/Inc/MPU6050.h
+                   Core/Inc/AttitudeTrace.h Core/Inc/SensorConfig.h)
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${imu_source}")
+    file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/${imu_source}" imu_source_hash)
+    string(APPEND imu_source_hashes "${imu_source_hash}")
+endforeach()
+string(SHA256 imu_signature "${imu_source_hashes}")
+string(SUBSTRING "${imu_signature}" 0 8 imu_signature)
+target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
+    FLIGHT_LOG_ESTIMATOR_ID=0x${imu_signature}u)
 
 # Add linked libraries
 target_link_libraries(${CMAKE_PROJECT_NAME}

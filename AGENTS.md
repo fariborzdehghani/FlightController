@@ -34,3 +34,18 @@ projects synchronized, including desktop packet tests and radio validation.
   blocks so it survives regeneration. Do not bypass this rule by changing
   generated initialization code outside `USER CODE` blocks as a substitute
   for the required CubeMX configuration change.
+
+## Flight-log interpretation: SRF05 near-ground threshold
+
+- The user has established that, on this drone, the SRF05 only starts reporting
+  usable altitude once the drone reaches approximately **8 cm above the ground**.
+- During a takeoff attempt, if altitude reporting has not started, interpret
+  this as the drone not yet having reached that 8 cm threshold. Missing initial
+  reports, invalid-altitude flags, or an SRF05-unavailable message alone must
+  not be diagnosed as a sensor failure in this situation.
+- Distinguish this expected absence of initial reports from losing usable
+  altitude after reporting has already started; investigate that later loss
+  separately.
+- Invalid altitude and vertical-speed values can be stale cached numbers.
+  Do not interpret them as physical height or motion while their validity
+  flags are false.

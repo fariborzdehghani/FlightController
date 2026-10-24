@@ -1,4 +1,5 @@
 #include "sx127x.h"
+#include "RadioConfig.h"
 #include "stm32f4xx_hal.h"
 
 #define SX127X_SPI_TIMEOUT_MS 100u
@@ -73,18 +74,9 @@ bool SX127X_Init(SPI_HandleTypeDef *spi_port) {
   SX127X_SetTxPower(17, false); // Set PA boost
   SX127X_SetFrequency(915.0);   // Default to 915 MHz
 
-  // Configure for maximum reliability
+  // Match these radio parameters with RemoteController.
   SX127X_SetSpreadingFactor(7);
-  SX127X_SetSignalBandwidth(125E3);
-  SX127X_SetCodingRate4(5);
-  SX127X_SetPreambleLength(8);
-
-  // Set frequency to match transmitter (commonly 915MHz for this band)
-  SX127X_SetFrequency(915.0);
-
-  // Configure radio parameters
-  SX127X_SetSpreadingFactor(7);
-  SX127X_SetSignalBandwidth(125E3);
+  SX127X_SetSignalBandwidth(RADIO_BANDWIDTH_HZ);
   SX127X_SetCodingRate4(5);
   SX127X_SetPreambleLength(8);
 

@@ -17,6 +17,11 @@ static double liftoff_confirm_s;
 static uint8_t altitude_control_active;
 static double altitude_target_cm;
 static double takeoff_settled_s;
+static uint8_t landing_active;
+static uint32_t landing_started_ms;
+static double landing_initial_throttle;
+static double landing_initial_output_limit;
+static AppErrorCode_t landing_reason;
 
 static void FlightControl_ResetTakeoff(void)
 {
@@ -27,6 +32,34 @@ static void FlightControl_ResetTakeoff(void)
   altitude_control_active = 0U;
   altitude_target_cm = 0.0;
   takeoff_settled_s = 0.0;
+  landing_active = 0U;
+  landing_started_ms = 0U;
+  landing_initial_throttle = 0.0;
+  landing_initial_output_limit = 0.0;
+  landing_reason = APP_ERROR_NONE;
+}
+
+static void FlightControl_BeginLanding(AppErrorCode_t reason)
+{
+  if (landing_active) return;
+  landing_active = 1U;
+  landing_reason = reason;
+  landing_started_ms = HAL_GetTick();
+  /* Continue from the applied collective, including altitude PID and mixer
+   * limiting. A configured hover estimate could cause a throttle jump. */
+  landing_initial_throttle = 0.25 *
+      (Motors_Speed.front_left + Motors_Speed.front_right +
+       Motors_Speed.back_right + Motors_Speed.back_left);
+  landing_initial_output_limit = fmax(
+      fmax(Motors_Speed.front_left, Motors_Speed.front_right),
+      fmax(Motors_Speed.back_right, Motors_Speed.back_left));
+  current_throttle_command = landing_initial_throttle;
+  altitude_control_active = 0U;
+  takeoff_settled_s = 0.0;
+  PID_Reset(&pid_altitude);
+  LogError(2007, reason == APP_ERROR_ALTITUDE_UNAVAILABLE
+                     ? "Altitude lost: gradual throttle-down landing started"
+                     : "Takeoff timeout: gradual throttle-down landing started");
 }
 
 static double FlightControl_SlewValue(double current, double target,
@@ -64,9 +97,11 @@ void FlightControl_BeginTakeoff(void)
 
 uint8_t FlightControl_IsTakeoffComplete(void)
 {
-  return altitude_control_active &&
+  return !landing_active && altitude_control_active &&
          takeoff_settled_s >= TAKEOFF_SETTLE_TIME_S;
 }
+
+uint8_t FlightControl_IsLanding(void) { return landing_active; }
 
 HAL_StatusTypeDef FlightControl_Init(void)
 {
@@ -115,6 +150,7 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
 
   if (!isfinite(dt) || dt <= 0.0 || dt > 0.25)
   {
+    FlightControl_Stop();
     return AppError_Set(APP_ERROR_INVALID_FLIGHT_TIMESTEP, HAL_ERROR);
   }
 
@@ -149,6 +185,14 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
        droneState.state == DRONE_STATE_FLYING);
 
   if (stabilization_active &&
+      (!isfinite(flightData.roll_deg) || !isfinite(flightData.pitch_deg) ||
+       !isfinite(flightData.roll_rate_dps) || !isfinite(flightData.pitch_rate_dps)))
+  {
+    FlightControl_Stop();
+    return AppError_Set(APP_ERROR_MPU6050_READ, HAL_ERROR);
+  }
+
+  if (stabilization_active &&
       (fabs(flightData.roll_deg) > Config.maxAngle ||
        fabs(flightData.pitch_deg) > Config.maxAngle))
   {
@@ -156,30 +200,42 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
     return AppError_Set(APP_ERROR_MAXIMUM_FLIGHT_ANGLE, HAL_ERROR);
   }
 
-  /* Sensor acquisition already tolerates brief echo gaps (300 ms). Once a
-   * baseline is known, never resume a blind ramp after losing the sensor. */
-  if ((droneState.state == DRONE_STATE_FLYING ||
-       (droneState.state == DRONE_STATE_TAKEOFF && takeoff_baseline_valid)) &&
+  /* Near-ground echoes can appear/disappear before liftoff. Only confirmed
+   * liftoff engages the in-flight altitude-loss policy. Acquisition already
+   * tolerates 300 ms without an accepted echo. */
+  if (!landing_active &&
+      (droneState.state == DRONE_STATE_FLYING || altitude_control_active) &&
       (!flightData.takeoff_altitude_valid ||
        !isfinite(flightData.takeoff_altitude)))
   {
-    FlightControl_Stop();
-    return AppError_Set(APP_ERROR_ALTITUDE_UNAVAILABLE, HAL_ERROR);
+    FlightControl_BeginLanding(APP_ERROR_ALTITUDE_UNAVAILABLE);
   }
 
-  if (droneState.state == DRONE_STATE_TAKEOFF)
+  if (droneState.state == DRONE_STATE_TAKEOFF && !landing_active)
   {
     const uint32_t elapsed_ms = HAL_GetTick() - takeoff_started_ms;
     if (!altitude_control_active &&
         elapsed_ms >= CoreHelpers_GetTakeoffLiftoffTimeoutMs(&Config))
     {
-      FlightControl_Stop();
-      return AppError_Set(APP_ERROR_TAKEOFF_LIFTOFF_TIMEOUT, HAL_ERROR);
+      FlightControl_BeginLanding(APP_ERROR_TAKEOFF_LIFTOFF_TIMEOUT);
     }
-    if (elapsed_ms >= CoreHelpers_GetTakeoffTargetTimeoutMs(&Config))
+    if (!landing_active && elapsed_ms >= CoreHelpers_GetTakeoffTargetTimeoutMs(&Config))
     {
+      FlightControl_BeginLanding(APP_ERROR_TAKEOFF_TARGET_TIMEOUT);
+    }
+  }
+
+  if (landing_active)
+  {
+    const double elapsed_s = (uint32_t)(HAL_GetTick() - landing_started_ms) * 0.001;
+    current_throttle_command = fmax(0.0, landing_initial_throttle -
+        LANDING_THROTTLE_RAMP_DOWN_PER_SECOND * elapsed_s);
+    if (current_throttle_command <= 0.0)
+    {
+      const AppErrorCode_t reason = landing_reason;
       FlightControl_Stop();
-      return AppError_Set(APP_ERROR_TAKEOFF_TARGET_TIMEOUT, HAL_ERROR);
+      LogInformation(1004, "Gradual throttle-down complete: motors stopped");
+      return AppError_Set(reason, HAL_ERROR);
     }
   }
 
@@ -197,22 +253,26 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
        * attitude error from being stored and released at liftoff.
        */
       const uint8_t attitude_integral_enabled =
-          droneState.state == DRONE_STATE_FLYING;
+          landing_active ? PID_INTEGRAL_HOLD : droneState.state == DRONE_STATE_FLYING;
 
-      roll_modifier = PID_Calculate(&pid_roll, roll_error, dt,
-                                    attitude_integral_enabled);
-      pitch_modifier = PID_Calculate(&pid_pitch, pitch_error, dt,
-                                     attitude_integral_enabled);
+      /* These rates already have startup bias calibration and the MPU DLPF.
+       * Fusion angle corrections must not be interpreted as physical rotation. */
+      roll_modifier = PID_CalculateWithRate(&pid_roll, roll_error,
+          flightData.roll_rate_dps, dt, attitude_integral_enabled);
+      pitch_modifier = PID_CalculateWithRate(&pid_pitch, pitch_error,
+          flightData.pitch_rate_dps, dt, attitude_integral_enabled);
       Gz_modifier = PID_Calculate(&pid_Gz, gz_error, dt,
                                   attitude_integral_enabled);
     }
 
-    if (droneState.state == DRONE_STATE_ARMED)
+    /* During landing, keep stabilization but never re-enter a takeoff/altitude
+     * branch, even if valid sensor readings return. */
+    if (!landing_active && droneState.state == DRONE_STATE_ARMED)
     {
       // Arming starts every motor equally at the configured safe idle.
       current_throttle_command = Config.armThrottle;
     }
-    else if (droneState.state == DRONE_STATE_TAKEOFF &&
+    else if (!landing_active && droneState.state == DRONE_STATE_TAKEOFF &&
              !altitude_control_active)
     {
       if (flightData.takeoff_altitude_valid &&
@@ -234,6 +294,10 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
         {
           liftoff_confirm_s = 0.0;
         }
+      }
+      else
+      {
+        liftoff_confirm_s = 0.0;
       }
 
       if (liftoff_confirm_s >= TAKEOFF_LIFTOFF_CONFIRM_S)
@@ -300,11 +364,12 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
     Motors_Speed.back_right = collective + m3_pid;
     Motors_Speed.back_left = collective + m4_pid;
 
-    const double output_limit =
-        droneState.state == DRONE_STATE_TAKEOFF && !altitude_control_active
+    const double output_limit = landing_active
+        ? landing_initial_output_limit * current_throttle_command / landing_initial_throttle
+        : droneState.state == DRONE_STATE_TAKEOFF && !altitude_control_active
             ? CoreHelpers_GetTakeoffThrottleLimit(&Config)
             : Config.maxThrottle;
-    FlightControl_DesaturateSpeeds(&Motors_Speed, Config.minThrottle,
+    FlightControl_DesaturateSpeeds(&Motors_Speed, landing_active ? 0.0f : Config.minThrottle,
                                    output_limit);
     mixer_limited =
         fabs(Motors_Speed.front_left - (collective + m1_pid)) > 0.001 ||
@@ -357,7 +422,10 @@ HAL_StatusTypeDef FlightControl_Update(double dt)
                               .loop_dt_ms = dt * 1000.0,
                               .altitude_target = altitude_target_cm,
                               .altitude_control_active = altitude_control_active,
-                              .mixer_limited = mixer_limited};
+                              .mixer_limited = mixer_limited,
+                              .landing_active = landing_active,
+                              .attitude_trace = flightData.attitude_trace,
+                              .srf05_trace = flightData.srf05_trace};
   Logger_LogFlightData(&log_data);
   return HAL_OK;
 }

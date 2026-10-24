@@ -31,8 +31,9 @@ uint32_t CoreHelpers_GetTakeoffLiftoffTimeoutMs(
                     config->armThrottle);
   const double ramp_time_ms =
       1000.0 * ramp_range / config->takeoffThrottleRampPerSecond;
-  return (uint32_t)fmin(ramp_time_ms + TAKEOFF_LIFTOFF_MARGIN_MS,
-                        TAKEOFF_LIFTOFF_TIMEOUT_MAX_MS);
+  return (uint32_t)fmin(fmax(ramp_time_ms + TAKEOFF_LIFTOFF_MARGIN_MS,
+                             TAKEOFF_LIFTOFF_TIMEOUT_MIN_MS),
+                       TAKEOFF_LIFTOFF_TIMEOUT_MAX_MS);
 }
 
 uint32_t CoreHelpers_GetTakeoffTargetTimeoutMs(

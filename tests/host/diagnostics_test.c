@@ -82,9 +82,23 @@ int main(int argc, char **argv)
     assert(exchange(operation, 1, 0, true) == FLIGHT_LOG_BUSY);
   assert(exchange(FLIGHT_LOG_END, 1, 0, false) == FLIGHT_LOG_OK);
 
+  /* A startup failure has no applied configuration or real flight. Its
+   * diagnostic snapshot must retain the fault state and application code. */
+  now = 1150;
+  sample.timestamp_ms = now;
+  sample.state = 5;
+  sample.error = 2; /* MPU6050 calibration. */
+  FlightRecorder_LogMessage(now, 2003, true, "MPU6050 calibration timed out");
+  FlightRecorder_Snapshot(config, &sample);
+  download(99);
+  assert(blob[18] == FLIGHT_LOG_STOP_SNAPSHOT && blob[20] == 2 && blob[64] == 0);
+  assert(blob[128 + 4] == 5 && blob[128 + 6] == 2);
+  assert(exchange(FLIGHT_LOG_END, 99, 0, false) == FLIGHT_LOG_OK);
+
   now = 1200;
   sample.timestamp_ms = now;
   sample.state = 1;
+  sample.error = 0;
   config[0] = 1;
   FlightRecorder_Snapshot(config, &sample);
   download(2);

@@ -45,7 +45,7 @@ static void test_false_echo_bursts(void)
       setup();
       for (unsigned i = 0; i < burst_lengths[burst]; i++)
       {
-        assert(sample(false_echoes[value]) == VELOCITY_ESTIMATOR_SRF05_REJECTED);
+        assert(sample(false_echoes[value]) != VELOCITY_ESTIMATOR_SRF05_ACCEPTED);
         const VelocityEstimatorEstimate_t estimate = VelocityEstimator_GetEstimate();
         assert(fabs(estimate.srf05_altitude_cm - 100) < 0.001);
         if ((i + 1) * 55 > 300) assert(!estimate.srf05_altitude_valid);
@@ -64,7 +64,7 @@ static void test_dropout_does_not_accept_a_new_surface(void)
   assert(!VelocityEstimator_GetEstimate().srf05_altitude_valid);
   VelocityEstimator_HandleSrf05Timeout();
   for (unsigned i = 0; i < 20; i++)
-    assert(sample(3.0) == VELOCITY_ESTIMATOR_SRF05_REJECTED);
+    assert(sample(3.0) != VELOCITY_ESTIMATOR_SRF05_ACCEPTED);
   assert(!VelocityEstimator_GetEstimate().srf05_altitude_valid);
   for (unsigned i = 0; i < 12; i++) sample(1.0);
   assert(VelocityEstimator_GetEstimate().srf05_altitude_valid);
@@ -79,7 +79,7 @@ static void test_real_climb_with_interspersed_spikes(void)
     const double actual_m = 1.0 + 0.2 * (double)i * 0.055;
     const int spike = (i % 11) == 0;
     const VelocityEstimatorSrf05Result_t result = sample(spike ? 0.08 : actual_m);
-    if (spike) assert(result == VELOCITY_ESTIMATOR_SRF05_REJECTED);
+    if (spike) assert(result != VELOCITY_ESTIMATOR_SRF05_ACCEPTED);
     else if (result == VELOCITY_ESTIMATOR_SRF05_ACCEPTED) accepted++;
     const VelocityEstimatorEstimate_t estimate = VelocityEstimator_GetEstimate();
     assert(estimate.srf05_altitude_valid);
@@ -97,7 +97,7 @@ static void test_spikes_during_acquisition(void)
     for (unsigned i = 0; i < initial_samples; i++) sample(1.0);
     for (unsigned i = 0; i < 12; i++)
     {
-      assert(sample(1.5) == VELOCITY_ESTIMATOR_SRF05_REJECTED);
+      assert(sample(1.5) != VELOCITY_ESTIMATOR_SRF05_ACCEPTED);
       assert(fabs(VelocityEstimator_GetEstimate().srf05_altitude_cm - 100) < 0.001);
     }
   }
@@ -108,10 +108,10 @@ static void test_duplicate_old_and_wrapped_timestamps(void)
   setup();
   for (unsigned i = 0; i < 12; i++)
   {
-    assert(VelocityEstimator_CorrectSrf05Altitude(3.0, now_ms) ==
-           VELOCITY_ESTIMATOR_SRF05_REJECTED);
-    assert(VelocityEstimator_CorrectSrf05Altitude(3.0, now_ms - 55) ==
-           VELOCITY_ESTIMATOR_SRF05_REJECTED);
+    assert(VelocityEstimator_CorrectSrf05Altitude(3.0, now_ms) !=
+           VELOCITY_ESTIMATOR_SRF05_ACCEPTED);
+    assert(VelocityEstimator_CorrectSrf05Altitude(3.0, now_ms - 55) !=
+           VELOCITY_ESTIMATOR_SRF05_ACCEPTED);
   }
   assert(sample(1.0) == VELOCITY_ESTIMATOR_SRF05_ACCEPTED);
 
@@ -122,13 +122,37 @@ static void test_duplicate_old_and_wrapped_timestamps(void)
   assert(fabs(VelocityEstimator_GetEstimate().srf05_altitude_cm - 100) < 0.001);
 }
 
+static void test_specific_filter_results(void)
+{
+  VelocityEstimator_Init();
+  now_ms = 1000;
+  assert(sample(1.0) == VELOCITY_ESTIMATOR_SRF05_MEDIAN_WARMUP);
+  assert(sample(1.0) == VELOCITY_ESTIMATOR_SRF05_MEDIAN_WARMUP);
+  assert(sample(1.0) == VELOCITY_ESTIMATOR_SRF05_ACCEPTED);
+  assert(VelocityEstimator_CorrectSrf05Altitude(1.0, now_ms) ==
+         VELOCITY_ESTIMATOR_SRF05_BAD_TIMESTAMP);
+  assert(VelocityEstimator_CorrectSrf05Altitude(1.0, now_ms - 1) ==
+         VELOCITY_ESTIMATOR_SRF05_BAD_TIMESTAMP);
+  assert(sample(NAN) == VELOCITY_ESTIMATOR_SRF05_REJECTED);
+  setup();
+  assert(sample(3.0) == VELOCITY_ESTIMATOR_SRF05_MOTION_REJECTED);
+  assert(sample(3.0) == VELOCITY_ESTIMATOR_SRF05_INNOVATION_REJECTED);
+  assert(sample(1.0) == VELOCITY_ESTIMATOR_SRF05_MOTION_REJECTED);
+  assert(sample(1.0) == VELOCITY_ESTIMATOR_SRF05_ACCEPTED);
+  const VelocityEstimatorImuSample_t tilted = {
+      .mpu_angle_x_deg = 60, .acceleration_z_ms2 = 9.80665};
+  VelocityEstimator_UpdateImu(&tilted);
+  assert(sample(1.0) == VELOCITY_ESTIMATOR_SRF05_TILT_REJECTED);
+}
+
 int main(void)
 {
+  test_specific_filter_results();
   test_false_echo_bursts();
   test_dropout_does_not_accept_a_new_surface();
   test_real_climb_with_interspersed_spikes();
   test_spikes_during_acquisition();
   test_duplicate_old_and_wrapped_timestamps();
-  puts("PASS: 5 SRF05 altitude-filter regression groups");
+  puts("PASS: 6 SRF05 altitude-filter regression groups");
   return 0;
 }

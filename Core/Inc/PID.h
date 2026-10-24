@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+/* Normal callers pass 0 (clear) or 1 (accumulate). Landing holds the existing
+ * integral so it neither disappears on entry nor winds up during descent. */
+#define PID_INTEGRAL_HOLD 2u
+
 typedef struct {
     double Kp;
     double Ki;
@@ -22,6 +26,9 @@ typedef struct {
 void PID_Init(PID_t* pid, double kp, double ki, double kd);
 double PID_Calculate(PID_t* pid, double error, double dt,
                      uint8_t integral_enabled);
+/* Angle-controller damping from calibrated, filtered angular rate (deg/s). */
+double PID_CalculateWithRate(PID_t* pid, double error, double rate_dps, double dt,
+                             uint8_t integral_enabled);
 void PID_Reset(PID_t* pid);
 void PID_ClearTerms(PID_t* pid);  // Add this line
 

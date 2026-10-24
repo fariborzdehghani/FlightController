@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static uint8_t reply[64], blob[128 + 512 * 124 + 16 * 104];
+static uint8_t reply[64], blob[128 + FLIGHT_RECORDER_CAPACITY * FLIGHT_RECORDER_RECORD_SIZE + 16 * 104];
 static uint32_t now = 1100;
 
 static void exchange(uint8_t op, uint32_t id, uint32_t seq, uint8_t profile)
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
   FlightRecorder_End(FLIGHT_LOG_STOP_FAULT, 7, 1, 1020);
   uint32_t size = download(1, FLIGHT_LOG_PROFILE_COMPACT);
   assert(size == 128 + 3 * 50 + 104 && blob[4] == 4 && u16(blob + 14) == 50);
-  assert(blob[6] == 0 && blob[16] == 10 && blob[48] == 1);
+  assert(blob[6] == 4 && blob[16] == 10 && blob[48] == 1);
   assert(FlightLog_Read32(blob + 128) == 1000);
   assert(FlightLog_Read32(blob + 128 + 100) == 1020 && blob[128 + 100 + 4] == 5);
   assert(u16(blob + 128 + 100 + 6) == 7);
@@ -94,7 +94,8 @@ int main(int argc, char **argv)
   }
   /* The same onboard samples still offer all original floating-point values. */
   size = download(2, FLIGHT_LOG_PROFILE_FULL);
-  assert(size == 128 + 3 * 124 + 104 && blob[4] == 3 && blob[6] == 0);
+  assert(size == 128 + 3 * FLIGHT_RECORDER_RECORD_SIZE + 104 &&
+         blob[4] == FLIGHT_RECORDER_FORMAT_VERSION && blob[6] == 4);
   assert(memcmp(blob + 128 + 8, sample.values, sizeof(sample.values)) == 0);
 
   /* Full ring, wraparound, diagnostics, flags and end-of-chunk boundaries. */
@@ -107,7 +108,7 @@ int main(int argc, char **argv)
   }
   FlightRecorder_End(FLIGHT_LOG_STOP_OPERATOR, 0, 0, sample.timestamp_ms);
   size = download(3, FLIGHT_LOG_PROFILE_COMPACT);
-  assert(size == 128 + 512 * 50 + 104 && blob[4] == 4 && blob[6] == 1);
+  assert(size == 128 + 512 * 50 + 104 && blob[4] == 4 && blob[6] == 5);
   assert(FlightLog_Read32(blob + 32) == 44);
   assert(FlightLog_Read32(blob + 128) == 2440);
   assert(FlightLog_Read32(blob + 128 + 511 * 50) == 7550);
@@ -123,11 +124,12 @@ int main(int argc, char **argv)
     FlightRecorder_Record(&sample, true);
     FlightRecorder_End(FLIGHT_LOG_STOP_FAULT, 1, 0, 9000);
     download(10 + i, FLIGHT_LOG_PROFILE_COMPACT);
-    assert(blob[4] == 3 && blob[6] == 2 && u16(blob + 14) == 124);
+    assert(blob[4] == FLIGHT_RECORDER_FORMAT_VERSION && blob[6] == 6 &&
+           u16(blob + 14) == FLIGHT_RECORDER_RECORD_SIZE);
     assert(memcmp(blob + 128 + 8 + 11 * 4, &overflow[i], 4) == 0);
   }
   download(20, FLIGHT_LOG_PROFILE_FULL);
-  assert(blob[4] == 3 && blob[6] == 0); /* Explicit full download resets fallback flag. */
+  assert(blob[4] == FLIGHT_RECORDER_FORMAT_VERSION && blob[6] == 4); /* Explicit full download resets fallback flag. */
   puts("compact flight log tests passed");
   return 0;
 }

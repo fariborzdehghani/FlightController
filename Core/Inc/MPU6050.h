@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include "stdint.h"
+#include "AttitudeTrace.h"
 #include "stm32f4xx_hal.h"
 
 typedef struct
@@ -40,6 +41,7 @@ typedef struct
 		double KalmanAngleY;
 
 		double Vz;
+		AttitudeTrace_t attitude_trace;
 } MPU6050_t;
 
 #define MPU6050_ADDR 0xD0

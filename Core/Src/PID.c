@@ -18,9 +18,10 @@ void PID_Init(PID_t *pid, double Kp, double Ki, double Kd) {
     pid->min_output = -Config.pidMaxOutput;       // Use negative max output from config
 }
 
-double PID_Calculate(PID_t *pid, double error, double dt,
-                     uint8_t integral_enabled) {
-    if (pid == NULL || !isfinite(error) || !isfinite(dt) || dt <= 0.0) {
+static double calculate(PID_t *pid, double error, double dt,
+                        uint8_t integral_enabled, const double *rate_dps) {
+    if (pid == NULL || !isfinite(error) || !isfinite(dt) || dt <= 0.0 ||
+        (rate_dps != NULL && !isfinite(*rate_dps))) {
         return 0.0;
     }
 
@@ -28,7 +29,10 @@ double PID_Calculate(PID_t *pid, double error, double dt,
     pid->p_term = pid->Kp * error;
     
     // Avoid a derivative kick on the first update after a reset.
-    if (pid->previous_error_valid) {
+    if (rate_dps != NULL) {
+        pid->d_term = -pid->Kd * *rate_dps;
+        pid->previous_error_valid = 1U;
+    } else if (pid->previous_error_valid) {
         const double derivative = (error - pid->previous_error) / dt;
         pid->d_term = pid->Kd * derivative;
     } else {
@@ -45,7 +49,8 @@ double PID_Calculate(PID_t *pid, double error, double dt,
         pid->integral = 0.0;
         pid->i_term = 0.0;
     } else {
-        pid->integral += error * dt;
+        if (integral_enabled != PID_INTEGRAL_HOLD)
+            pid->integral += error * dt;
         pid->i_term = pid->Ki * pid->integral;
     }
     
@@ -74,6 +79,16 @@ double PID_Calculate(PID_t *pid, double error, double dt,
     pid->previous_error = error;
 
     return output;
+}
+
+double PID_Calculate(PID_t *pid, double error, double dt,
+                     uint8_t integral_enabled) {
+    return calculate(pid, error, dt, integral_enabled, NULL);
+}
+
+double PID_CalculateWithRate(PID_t *pid, double error, double rate_dps, double dt,
+                             uint8_t integral_enabled) {
+    return calculate(pid, error, dt, integral_enabled, &rate_dps);
 }
 
 void PID_Reset(PID_t *pid) {

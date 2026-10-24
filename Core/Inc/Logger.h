@@ -2,6 +2,8 @@
 #define __LOGGER_H
 
 #include "main.h"
+#include "AttitudeTrace.h"
+#include "Srf05Trace.h"
 
 typedef struct {
     float roll;
@@ -36,6 +38,9 @@ typedef struct {
     float altitude_target;
     uint8_t altitude_control_active;
     uint8_t mixer_limited;
+    uint8_t landing_active;
+    AttitudeTrace_t attitude_trace;
+    Srf05Trace_t srf05_trace;
 } FlightLogData_t;
 
 void Logger_LogFlightData(const FlightLogData_t *log_data);

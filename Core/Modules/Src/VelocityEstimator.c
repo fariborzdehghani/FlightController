@@ -301,12 +301,12 @@ void VelocityEstimator_UpdateImu(
       raw_vertical_acceleration_ms2 - vertical_acceleration_bias_ms2;
 }
 
-static uint8_t VelocityEstimator_FilterSrf05Altitude(
+static VelocityEstimatorSrf05Result_t VelocityEstimator_FilterSrf05Altitude(
     double altitude_m, uint32_t sample_time_ms, double *filtered_altitude_m)
 {
   if (filtered_altitude_m == NULL || !isfinite(altitude_m))
   {
-    return 0U;
+    return VELOCITY_ESTIMATOR_SRF05_REJECTED;
   }
 
   uint32_t elapsed_ms = VELOCITY_ESTIMATOR_SRF05_SAMPLE_MS;
@@ -315,7 +315,7 @@ static uint8_t VelocityEstimator_FilterSrf05Altitude(
     elapsed_ms = sample_time_ms - last_srf05_raw_sample_ms;
     if (elapsed_ms == 0U || elapsed_ms > INT32_MAX)
     {
-      return 0U; /* Duplicate/out-of-order data cannot build confidence. */
+      return VELOCITY_ESTIMATOR_SRF05_BAD_TIMESTAMP;
     }
     if (elapsed_ms > VELOCITY_ESTIMATOR_SRF05_MAX_GAP_MS)
     {
@@ -336,7 +336,7 @@ static uint8_t VelocityEstimator_FilterSrf05Altitude(
 
   if (srf05_median_count < VELOCITY_ESTIMATOR_SRF05_MEDIAN_SAMPLES)
   {
-    return 0U;
+    return VELOCITY_ESTIMATOR_SRF05_MEDIAN_WARMUP;
   }
 
   const double first = srf05_median_altitude_m[0];
@@ -375,11 +375,11 @@ static uint8_t VelocityEstimator_FilterSrf05Altitude(
 
   if (fabs(altitude_m - *filtered_altitude_m) > motion_gate_m)
   {
-    return 0U;
+    return VELOCITY_ESTIMATOR_SRF05_MOTION_REJECTED;
   }
 
   *filtered_altitude_m = altitude_m;
-  return 1U;
+  return VELOCITY_ESTIMATOR_SRF05_ACCEPTED;
 }
 
 static void VelocityEstimator_InitializeSrf05Filter(
@@ -557,21 +557,22 @@ static void VelocityEstimator_PredictSrf05(double dt, uint32_t now_ms)
   }
 }
 
-static uint8_t VelocityEstimator_UpdateSrf05Filter(
+static VelocityEstimatorSrf05Result_t VelocityEstimator_UpdateSrf05Filter(
     double altitude_m, uint32_t sample_time_ms)
 {
   double median_altitude_m;
-  if (!VelocityEstimator_FilterSrf05Altitude(
-          altitude_m, sample_time_ms, &median_altitude_m))
+  const VelocityEstimatorSrf05Result_t result = VelocityEstimator_FilterSrf05Altitude(
+      altitude_m, sample_time_ms, &median_altitude_m);
+  if (result != VELOCITY_ESTIMATOR_SRF05_ACCEPTED)
   {
-    return 0U;
+    return result;
   }
 
   if (!srf05_filter_initialized)
   {
     VelocityEstimator_InitializeSrf05Filter(median_altitude_m,
                                             sample_time_ms);
-    return 1U;
+    return VELOCITY_ESTIMATOR_SRF05_ACCEPTED;
   }
 
   const double measurement_variance =
@@ -587,7 +588,7 @@ static uint8_t VelocityEstimator_UpdateSrf05Filter(
   if (!isfinite(innovation) || !isfinite(innovation_variance) ||
       innovation_variance <= 0.0)
   {
-    return 0U;
+    return VELOCITY_ESTIMATOR_SRF05_INVALID_STATE;
   }
 
   /* The initial velocity covariance is deliberately broad. Until tracking is
@@ -602,7 +603,7 @@ static uint8_t VelocityEstimator_UpdateSrf05Filter(
   {
     /* Repetition does not make an implausible echo trustworthy. Keep rejecting
      * it; prediction/acquisition mark altitude unavailable after 300 ms. */
-    return 0U;
+    return VELOCITY_ESTIMATOR_SRF05_INNOVATION_REJECTED;
   }
 
   double kalman_gain[VELOCITY_ESTIMATOR_STATE_COUNT];
@@ -735,7 +736,7 @@ static uint8_t VelocityEstimator_UpdateSrf05Filter(
         estimator_ready && vertical_acceleration_bias_initialized;
   }
   estimate.vertical_velocity_valid = estimator_ready;
-  return 1U;
+  return VELOCITY_ESTIMATOR_SRF05_ACCEPTED;
 }
 
 void VelocityEstimator_Predict(double dt, uint32_t now_ms)
@@ -808,10 +809,11 @@ VelocityEstimatorSrf05Result_t VelocityEstimator_CorrectSrf05Altitude(
     vertical_altitude_m *= vertical_tilt_scale;
   }
 
-  if (!VelocityEstimator_UpdateSrf05Filter(vertical_altitude_m,
-                                           sample_time_ms))
+  const VelocityEstimatorSrf05Result_t result =
+      VelocityEstimator_UpdateSrf05Filter(vertical_altitude_m, sample_time_ms);
+  if (result != VELOCITY_ESTIMATOR_SRF05_ACCEPTED)
   {
-    return VELOCITY_ESTIMATOR_SRF05_REJECTED;
+    return result;
   }
 
   estimate.srf05_altitude_valid = 1U;

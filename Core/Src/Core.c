@@ -2,6 +2,7 @@
 #include "AppError.h"
 #include "BMPXX80.h"
 #include "CoreHelpers.h"
+#include "CommandProtocol.h"
 #include "FlightControl.h"
 #include "FlightRecorder.h"
 #include "Logger.h"
@@ -329,7 +330,7 @@ void Core_loop(void)
       droneState.state == DRONE_STATE_TAKEOFF ||
       droneState.state == DRONE_STATE_FLYING)
   {
-    if (HEARTBEAT_FAILSAFE_ENABLED &&
+    if (HEARTBEAT_FAILSAFE_ENABLED && !FlightControl_IsLanding() &&
         (currentTime - last_command_time) >= COMMAND_FAILSAFE_TIMEOUT_MS)
     {
       FlightControl_Stop();
@@ -387,15 +388,17 @@ void Core_loop(void)
 
 void HandlePackage(const uint8_t *data, uint8_t length)
 {
-  if (data == NULL || length == 0u)
+  if (!CommandPacket_IsValidShape(data, length))
   {
     return;
   }
 
-  /* Both UART and radio packets pass through this function. Keep every
-   * remote command locked out until the startup IMU calibration and sensor
-   * warm-up have completed successfully. */
-  if (!remote_commands_enabled)
+  /* Control commands stay locked out until startup succeeds. On a startup
+   * fault, allow only validated, read-only log requests so its cause can be
+   * downloaded over the radio. The log handler still rejects active motors. */
+  if (!remote_commands_enabled &&
+      !(droneState.state == DRONE_STATE_FAULT && length == PACKET_LENGTH &&
+        FlightLog_IsRequestValid(data)))
   {
     return;
   }
@@ -547,6 +550,13 @@ void HandlePackage(const uint8_t *data, uint8_t length)
 
     if (data[1] == CONTROL_COMMAND_DISARM)
     {
+      /* A bridge link timeout must not interrupt an already bounded landing.
+       * An explicit operator DISARM (reason zero) always stops immediately. */
+      if (data[2] == CONTROL_DISARM_REASON_LINK_TIMEOUT && FlightControl_IsLanding())
+      {
+        LogError(2004, "Control link lost: continuing gradual landing");
+        break;
+      }
       FlightControl_Stop();
       Logger_EndFlight(length >= 3u && data[2] == CONTROL_DISARM_REASON_LINK_TIMEOUT
                            ? FLIGHT_LOG_STOP_LINK_TIMEOUT : FLIGHT_LOG_STOP_OPERATOR,
@@ -554,7 +564,8 @@ void HandlePackage(const uint8_t *data, uint8_t length)
                        DRONE_STATE_CONFIGURED);
       FlightRecorder_CancelTransfer();
       log_response_pending = 0u;
-      if (droneState.state != DRONE_STATE_FAULT)
+      if (droneState.state != DRONE_STATE_FAULT &&
+          droneState.state != DRONE_STATE_INIT)
       {
         droneState.state = DRONE_STATE_CONFIGURED;
       }
@@ -633,9 +644,10 @@ void HandlePackage(const uint8_t *data, uint8_t length)
     }
 
     if (droneState.state == DRONE_STATE_INIT ||
-        droneState.state == DRONE_STATE_FAULT || !hardware_ready)
+        droneState.state == DRONE_STATE_FAULT || !hardware_ready ||
+        !CoreHelpers_IsConfigValid(&Config))
     {
-      LogError(2002, "Cannot start: Configuration not set");
+      LogError(2002, "Cannot start: valid configuration required");
       return;
     }
 

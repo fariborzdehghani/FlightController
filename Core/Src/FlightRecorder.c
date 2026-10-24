@@ -1,12 +1,17 @@
 #include "FlightRecorder.h"
+#include "SensorConfig.h"
 #include <string.h>
 #include <math.h>
 
 _Static_assert(sizeof(float) == 4u, "Log format requires 32-bit floats");
 _Static_assert(sizeof(FlightRecorderRecord_t) == FLIGHT_RECORDER_RECORD_SIZE,
                "Log record wire layout changed");
-_Static_assert(FLIGHT_RECORDER_CAPACITY * FLIGHT_RECORDER_RECORD_SIZE <= 64u * 1024u,
-               "Recorder exceeds the 64 KB sample budget");
+/* Format 7 reuses the format-6 trace bytes; the sample RAM budget is unchanged. */
+_Static_assert(FLIGHT_RECORDER_CAPACITY * FLIGHT_RECORDER_RECORD_SIZE <= 104u * 1024u,
+               "Recorder exceeds the 104 KB sample budget");
+#ifndef FLIGHT_LOG_ESTIMATOR_ID
+#define FLIGHT_LOG_ESTIMATOR_ID 0u
+#endif
 
 static FlightRecorderRecord_t records[FLIGHT_RECORDER_CAPACITY];
 static uint8_t header[FLIGHT_RECORDER_HEADER_SIZE];
@@ -150,6 +155,13 @@ void FlightRecorder_Begin(const uint8_t config[64], uint32_t now)
   FlightLog_Write32(header + 24, now);
   write16(header + 36, sizeof(configuration));
   write16(header + 38, sizeof(header));
+  header[52] = ATTITUDE_TRACE_VERSION;
+  header[53] = MPU6050_ACCEL_REJECTION_ENABLED;
+  header[54] = MPU6050_DLPF_HZ;
+  header[55] = MPU6050_ACCEL_RANGE_G;
+  write16(header + 56, 250u); /* MPU gyro range: +/-250 deg/s. */
+  write16(header + 58, ATTITUDE_TRACE_SIZE);
+  FlightLog_Write32(header + 60, FLIGHT_LOG_ESTIMATOR_ID);
   head = count = 0u;
   overwritten = 0u;
   last_sample = now - FLIGHT_RECORDER_INTERVAL_MS;
@@ -172,7 +184,8 @@ void FlightRecorder_End(uint8_t reason, uint16_t error, uint8_t hal_status, uint
 {
   if (!recording) return;
   recording = false;
-  write16(header + 6, overwritten > 0u ? 1u : 0u);
+  /* Bit 2 records gyro-based roll/pitch damping, including compact downloads. */
+  write16(header + 6, (overwritten > 0u ? 1u : 0u) | 4u);
   write16(header + 12, count);
   header[18] = reason;
   header[19] = hal_status;

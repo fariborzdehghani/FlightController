@@ -82,10 +82,27 @@ int main(int argc, char **argv)
   config[1] = 99; /* A later configuration cannot rewrite this session. */
   FlightRecorderRecord_t sample = {.timestamp_ms = 1000, .state = 3, .flags = 31};
   for (unsigned j = 0; j < 29; j++) sample.values[j] = (float)j + 0.25f;
+  sample.attitude_trace = (AttitudeTrace_t){
+      .sequence = 42, .timestamp_ms = 1000, .dt_ms = 15,
+      .accel_x_g = 0.0f, .accel_y_g = 0.0f, .accel_z_g = 1.0f,
+      .roll = {-.40875f, 0, .5f, 0, .25f},
+      .pitch = {.07625f, .5f, 2, 0, .75f}, .valid = 1,
+      .roll_flags = ATTITUDE_TRACE_CORRECTION_APPLIED,
+      .pitch_flags = ATTITUDE_TRACE_CORRECTION_APPLIED};
+  AttitudeTrace_t first_trace = sample.attitude_trace;
+  sample.srf05_trace = (Srf05Trace_t){.last_echo_ms = 995,
+      .last_accepted_ms = 700, .raw_distance_cm = 300, .valid = 1, .flags = 3,
+      .result = SRF05_TRACE_REJECTED, .filter_result = 5};
   FlightRecorder_Record(&sample, false);
   sample.timestamp_ms = 1001; FlightRecorder_Record(&sample, false); /* skipped */
   assert(exchange(FLIGHT_LOG_BEGIN, 10, 0, false) == FLIGHT_LOG_BUSY);
   sample.timestamp_ms = 1000 + FLIGHT_RECORDER_INTERVAL_MS; sample.state = 4; sample.values[0] = 3.5f;
+  sample.srf05_trace.result = SRF05_TRACE_TIMEOUT;
+  sample.attitude_trace.sequence++;
+  sample.attitude_trace.timestamp_ms = sample.timestamp_ms;
+  sample.attitude_trace.dt_ms = 10;
+  sample.attitude_trace.roll = (AttitudeAxisTrace_t){.25f, .5225f, 3.5f, 0, 2.9775f};
+  sample.attitude_trace.pitch = (AttitudeAxisTrace_t){1.25f, 1.5325f, 1.25f, 0, -.2825f};
   FlightRecorder_Record(&sample, false);
   sample.timestamp_ms = 1000 + 2 * FLIGHT_RECORDER_INTERVAL_MS; sample.state = 5; sample.error = 7;
   sample.values[6] = sample.values[7] = sample.values[8] = sample.values[9] = sample.values[10] = 0;
@@ -96,7 +113,8 @@ int main(int argc, char **argv)
   assert(exchange(FLIGHT_LOG_BEGIN, 10, 0, true) == FLIGHT_LOG_BUSY);
   uint32_t size = download(10);
   assert(size == 128 + 3 * FLIGHT_RECORDER_RECORD_SIZE && blob[12] == 3);
-  assert(blob[4] == 3 && blob[16] == FLIGHT_RECORDER_INTERVAL_MS);
+  assert(blob[4] == FLIGHT_RECORDER_FORMAT_VERSION && blob[16] == FLIGHT_RECORDER_INTERVAL_MS);
+  assert((blob[6] & 4u) != 0);
   assert(blob[18] == FLIGHT_LOG_STOP_FAULT && blob[20] == 7 && blob[19] == 1);
   assert(blob[65] == 10 && blob[108] == 81 && blob[109] == 5);
   assert(FlightLog_Read32(blob + 128) == 1000);
@@ -106,6 +124,17 @@ int main(int argc, char **argv)
   memcpy(&roll_rate, blob + 128 + 8 + 27 * 4, 4);
   memcpy(&pitch_rate, blob + 128 + 8 + 28 * 4, 4);
   assert(roll_rate == 27.25f && pitch_rate == 28.25f);
+  assert(blob[52] == ATTITUDE_TRACE_VERSION && blob[54] == 20);
+  assert(blob[55] == 8 && blob[56] == 250 && blob[58] == ATTITUDE_TRACE_SIZE);
+  assert(memcmp(blob + 128 + 124, &first_trace, sizeof(first_trace)) == 0);
+  assert(memcmp(blob + 128 + 2 * FLIGHT_RECORDER_RECORD_SIZE + 124,
+                &sample.attitude_trace, sizeof(sample.attitude_trace)) == 0);
+  assert(FlightLog_Read32(blob + 128 + 192) == 995);
+  assert(FlightLog_Read32(blob + 128 + 196) == 700);
+  float raw_cm; memcpy(&raw_cm, blob + 128 + 200, sizeof(raw_cm));
+  assert(raw_cm == 300 && blob[128 + 207] == 5);
+  assert(sizeof(FlightRecorderRecord_t) == 208);
+  assert(FLIGHT_RECORDER_CAPACITY * sizeof(FlightRecorderRecord_t) == 106496);
   if (argc > 1)
   {
     FILE *file = fopen(argv[1], "wb"); assert(file);
@@ -126,7 +155,7 @@ int main(int argc, char **argv)
   }
   FlightRecorder_End(FLIGHT_LOG_STOP_OPERATOR, 0, 0, sample.timestamp_ms);
   size = download(20);
-  assert(size == sizeof(blob) && blob[6] == 1);
+  assert(size == sizeof(blob) && blob[6] == 5);
   assert(FlightLog_Read32(blob + 32) == 44);
   assert(FlightLog_Read32(blob + 128) == 2440); /* oldest retained sample */
   uint32_t original_crc = crc32(blob, size);

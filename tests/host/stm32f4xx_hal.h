@@ -17,6 +17,14 @@ typedef struct {
 typedef struct { int unused; } UART_HandleTypeDef;
 typedef struct { uint32_t pin_state; } GPIO_TypeDef;
 uint32_t HAL_GetTick(void);
+void HAL_Delay(uint32_t);
+#define I2C_MEMADD_SIZE_8BIT 1u
+HAL_StatusTypeDef HAL_I2C_IsDeviceReady(I2C_HandleTypeDef *, uint16_t,
+                                     uint32_t, uint32_t);
+HAL_StatusTypeDef HAL_I2C_Mem_Read(I2C_HandleTypeDef *, uint16_t, uint16_t,
+                                uint16_t, uint8_t *, uint16_t, uint32_t);
+HAL_StatusTypeDef HAL_I2C_Mem_Write(I2C_HandleTypeDef *, uint16_t, uint16_t,
+                                 uint16_t, uint8_t *, uint16_t, uint32_t);
 
 #define TIM_CHANNEL_1 0u
 #define TIM_CHANNEL_2 4u

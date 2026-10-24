@@ -3,6 +3,8 @@
 
 #include "main.h"
 #include "PID.h"
+#include "AttitudeTrace.h"
+#include "Srf05Trace.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,15 +51,18 @@ extern TIM_HandleTypeDef htim4;
 #define TAKEOFF_THROTTLE_RAMP_DEFAULT_PER_SECOND 10.0
 #define TAKEOFF_THROTTLE_RAMP_MIN_PER_SECOND      1.0
 #define TAKEOFF_THROTTLE_RAMP_MAX_PER_SECOND     30.0
-#define TAKEOFF_MAX_TILT_DEG                      15.0
+#define TAKEOFF_MAX_TILT_DEG                      30.0
 /* Simple takeoff policy; these are firmware constants, not packet fields. */
 #define TAKEOFF_THROTTLE_MARGIN                   5.0
 #define TAKEOFF_LIFTOFF_CONFIRM_S                 0.15
+#define TAKEOFF_LIFTOFF_TIMEOUT_MIN_MS             4000U
 #define TAKEOFF_LIFTOFF_TIMEOUT_MAX_MS             10000U
 #define TAKEOFF_CLIMB_RATE_CM_S                   20.0
 #define TAKEOFF_SETTLE_TOLERANCE_CM               5.0
 #define TAKEOFF_SETTLE_SPEED_MS                   0.15
 #define TAKEOFF_SETTLE_TIME_S                     0.5
+/* Percentage points per second, independent of the takeoff ramp setting. */
+#define LANDING_THROTTLE_RAMP_DOWN_PER_SECOND     10.0
 
 // Safety constants
 #define MOTOR_ABSOLUTE_MIN_THROTTLE 0.0f
@@ -79,6 +84,8 @@ typedef struct {
     double fly_altitude;       // Current altitude read from barometer
     double takeoff_altitude;   // Current altitude read from distance sensor
     uint8_t takeoff_altitude_valid; // 1 when the distance-sensor altitude is usable
+    AttitudeTrace_t attitude_trace;
+    Srf05Trace_t srf05_trace;
 } FlightData_t;
 
 typedef enum {
