@@ -41,6 +41,7 @@
  static uint16_t t1, p1;
  static int32_t t_fine;
  static HAL_StatusTypeDef bmp_last_status = HAL_OK;
+ static uint8_t bmp280_initialized;
 
  static void BMP280_RecordStatus(HAL_StatusTypeDef status)
  {
@@ -352,6 +353,7 @@
  #if(BMP_I2C == 1)
  HAL_StatusTypeDef BMP280_Init(BMP280_Config_t config)
  {
+     bmp280_initialized = 0u;
      if (config.i2c == NULL)
          return HAL_ERROR;
      i2c_h = config.i2c;
@@ -419,6 +421,7 @@
 
     /* apply config register values from struct */
     BMP280_SetConfig(standby_time, filter);
+    bmp280_initialized = bmp_last_status == HAL_OK;
     return bmp_last_status;
 }
 #endif
@@ -838,7 +841,7 @@
  
  HAL_StatusTypeDef BMP280_ReadAltitude(float *altitude)
  {
-       if (altitude == NULL)
+       if (altitude == NULL || !bmp280_initialized)
            return HAL_ERROR;
 
        bmp_last_status = HAL_OK;

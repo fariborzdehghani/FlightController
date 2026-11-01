@@ -103,7 +103,7 @@ const char *AppError_GetMessage(void)
   case APP_ERROR_ALTITUDE_UNAVAILABLE:
     return "SRF05 altitude estimate was lost during flight";
   case APP_ERROR_TAKEOFF_LIFTOFF_TIMEOUT:
-    return "TAKEOFF aborted: no confirmed liftoff; check SRF05 and hover throttle";
+    return "TAKEOFF aborted: no confirmed liftoff within throttle/time limits";
   case APP_ERROR_TAKEOFF_TARGET_TIMEOUT:
     return "TAKEOFF aborted: target height did not settle in time";
   case APP_ERROR_BMP280_READ:

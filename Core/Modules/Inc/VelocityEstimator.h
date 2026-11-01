@@ -21,6 +21,9 @@ typedef struct
 
 typedef struct
 {
+  /* With SRF05 enabled these are echo-derived height/speed, with bounded
+   * constant-velocity prediction between accepted echoes, not integrated IMU
+   * acceleration. Invalid values may retain the last cached numbers. */
   double vertical_velocity_ms;
   uint8_t vertical_velocity_valid;
   double srf05_altitude_cm;
@@ -41,14 +44,19 @@ typedef enum
 
 void VelocityEstimator_Init(void);
 void VelocityEstimator_ResetVertical(void);
+/* Core permits wider stale-track recovery while stopped, landing, or holding
+ * an unconfirmed takeoff's throttle ramp. Disabled at initialization;
+ * disabling clears partial confirmation. */
+void VelocityEstimator_SetSrf05ReacquisitionAllowed(uint8_t allowed);
 double VelocityEstimator_CorrectGyroZ(double raw_gyro_z_dps);
 void VelocityEstimator_UpdateImu(
     const VelocityEstimatorImuSample_t *imu_sample);
 void VelocityEstimator_Predict(double dt, uint32_t now_ms);
 VelocityEstimatorSrf05Result_t VelocityEstimator_CorrectSrf05Altitude(
     double altitude_m, uint32_t sample_time_ms);
-/* Invalidates output but preserves the tracking reference, so repeated false
- * echoes cannot establish a new altitude. ResetVertical explicitly reacquires. */
+/* Invalidates output but preserves the trusted echo reference. Nearby recovery
+ * remains possible. Wider reacquisition needs explicit phase permission and
+ * fresh confirmation; ResetVertical clears the reference for acquisition. */
 void VelocityEstimator_HandleSrf05Timeout(void);
 void VelocityEstimator_CorrectBmp280Altitude(double altitude_m,
                                              uint32_t sample_time_ms);

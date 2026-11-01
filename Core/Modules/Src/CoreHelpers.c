@@ -13,8 +13,9 @@ double CoreHelpers_GetTakeoffThrottleLimit(
   {
     return 0.0;
   }
-  return fmin(config->maxThrottle,
-              config->hoverThrottle + TAKEOFF_THROTTLE_MARGIN);
+  /* A first flight has no hover estimate. The operator's maximum throttle
+   * bounds both the liftoff search and subsequent altitude control. */
+  return config->maxThrottle;
 }
 
 uint32_t CoreHelpers_GetTakeoffLiftoffTimeoutMs(
@@ -54,7 +55,6 @@ uint8_t CoreHelpers_IsConfigValid(const DroneConfig_t *config)
   if (config == NULL || !isfinite(config->minThrottle) ||
       !isfinite(config->maxThrottle) ||
       !isfinite(config->armThrottle) ||
-      !isfinite(config->hoverThrottle) ||
       !isfinite(config->maxAngle) ||
       !isfinite(config->takeoffThrottleRampPerSecond) ||
       !isfinite(config->takeoffAltitudeCm) ||
@@ -63,8 +63,6 @@ uint8_t CoreHelpers_IsConfigValid(const DroneConfig_t *config)
       config->minThrottle > config->maxThrottle ||
       config->armThrottle < config->minThrottle ||
       config->armThrottle > config->maxThrottle ||
-      config->hoverThrottle < config->armThrottle ||
-      config->hoverThrottle > config->maxThrottle ||
       config->maxAngle <= 0.0 || config->maxAngle > 90.0 ||
       config->takeoffThrottleRampPerSecond <
           TAKEOFF_THROTTLE_RAMP_MIN_PER_SECOND ||
@@ -72,6 +70,7 @@ uint8_t CoreHelpers_IsConfigValid(const DroneConfig_t *config)
           TAKEOFF_THROTTLE_RAMP_MAX_PER_SECOND ||
       config->takeoffAltitudeCm < TAKEOFF_ALTITUDE_MIN_CM ||
       config->takeoffAltitudeCm > TAKEOFF_ALTITUDE_MAX_CM ||
+      config->disableSrf05Failsafe > 1U ||
       config->pidMaxIPart < 0.0 || config->pidMaxIPart > 100.0 ||
       config->pidMaxOutput < 0.0 ||
       config->pidMaxOutput > 100.0)

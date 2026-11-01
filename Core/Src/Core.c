@@ -13,6 +13,7 @@
 #include "SensorAcquisition.h"
 #include "SensorConfig.h"
 #include "Tools.h"
+#include "VelocityEstimator.h"
 #include "srf05.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_uart.h"
@@ -233,8 +234,7 @@ void Core_init(void)
     // Initialize BMP280
     if (BMP280_Init(bmp280Config) != HAL_OK)
     {
-      Core_EnterFault("BMP280 initialization failed");
-      return;
+      LogError(2006, "BMP280 initialization failed: continuing without barometer altitude");
     }
   }
   else
@@ -317,6 +317,13 @@ void Core_loop(void)
 
   if (hardware_ready)
   {
+    /* Wider recovery may restore a stopped/landing track or an unconfirmed
+     * takeoff whose base-throttle ramp is explicitly paused. */
+    VelocityEstimator_SetSrf05ReacquisitionAllowed(
+        droneState.state == DRONE_STATE_INIT ||
+        droneState.state == DRONE_STATE_CONFIGURED ||
+        droneState.state == DRONE_STATE_FAULT || FlightControl_IsLanding() ||
+        FlightControl_IsTakeoffRecovery());
     const SensorAcquisitionResult_t sensor_result =
         SensorAcquisition_Update(dt);
     flightData = SensorAcquisition_GetFlightData();
@@ -344,6 +351,13 @@ void Core_loop(void)
       if (FlightControl_Update(dt) != HAL_OK)
       {
         Core_EnterFault(AppError_GetMessage());
+      }
+      else if (FlightControl_IsLandingComplete())
+      {
+        Logger_EndFlight(FLIGHT_LOG_STOP_OPERATOR, 0u, HAL_OK,
+                         DRONE_STATE_CONFIGURED);
+        droneState.state = DRONE_STATE_CONFIGURED;
+        LogInformation(1001, "LAND complete: drone disarmed");
       }
       else if (droneState.state == DRONE_STATE_TAKEOFF &&
                FlightControl_IsTakeoffComplete())
@@ -433,19 +447,14 @@ void HandlePackage(const uint8_t *data, uint8_t length)
     }
 
     DroneConfig_t candidate = Config;
+    candidate.disableSrf05Failsafe = length > 46u ? data[46] : 0U;
     candidate.armThrottle = data[1];
     candidate.minThrottle = data[2];
     candidate.maxThrottle = data[3];
     candidate.maxAngle = data[4];
 
-    /* Byte 43 optionally carries the measured hover throttle. A zero keeps
-     * older senders working by choosing a reasonable first estimate halfway
-     * between armed idle and maximum throttle. */
-    candidate.hoverThrottle =
-        length >= 44u && data[43] != 0U
-            ? (double)data[43]
-            : candidate.armThrottle +
-                  0.5 * (candidate.maxThrottle - candidate.armThrottle);
+    /* Byte 43 is retained for older senders, but no longer sets throttle.
+     * Liftoff supplies the initial estimate; steady altitude hold refines it. */
 
     // Parse Target values as signed 16-bit
     candidate.pitch.target = (int16_t)(data[5] | (data[6] << 8));
@@ -573,8 +582,34 @@ void HandlePackage(const uint8_t *data, uint8_t length)
       break;
     }
 
+    if (data[1] == CONTROL_COMMAND_LAND)
+    {
+      FlightControl_RequestLanding();
+      break;
+    }
+
+    if (FlightControl_IsLanding())
+    {
+      LogError(2002, "Landing in progress: DISARM before starting again");
+      break;
+    }
+
+    if (data[1] == CONTROL_COMMAND_THROTTLE_UP ||
+        data[1] == CONTROL_COMMAND_THROTTLE_DOWN)
+    {
+      if (!FlightControl_AdjustThrottle(
+              data[1] == CONTROL_COMMAND_THROTTLE_UP ? 1 : -1))
+        LogError(2002, "ARM before adjusting live throttle");
+      break;
+    }
+
     if (data[1] == CONTROL_COMMAND_TAKEOFF)
     {
+      if (FlightControl_IsManualThrottle())
+      {
+        LogError(2002, "DISARM before automatic TAKEOFF after manual throttle");
+        break;
+      }
       if (droneState.state == DRONE_STATE_TAKEOFF ||
           droneState.state == DRONE_STATE_FLYING)
       {

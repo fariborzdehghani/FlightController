@@ -18,8 +18,13 @@
 #define VELOCITY_ESTIMATOR_SRF05_MIN_INNOVATION_GATE_M 0.08
 #define VELOCITY_ESTIMATOR_SRF05_INNOVATION_SIGMA 5.0
 #define VELOCITY_ESTIMATOR_ACCEL_PROCESS_NOISE_MS2 0.8
-#define VELOCITY_ESTIMATOR_BIAS_RANDOM_WALK_MS2 0.02
-#define VELOCITY_ESTIMATOR_MAX_RESIDUAL_BIAS_MS2 1.0
+#define VELOCITY_ESTIMATOR_SRF05_RECOVERY_SAMPLES 3U
+#define VELOCITY_ESTIMATOR_SRF05_RECOVERY_MAX_MOTION_M 0.12
+#define VELOCITY_ESTIMATOR_SRF05_REACQUIRE_SAMPLES 5U
+#define VELOCITY_ESTIMATOR_SRF05_REACQUIRE_SPAN_MS 250U
+#define VELOCITY_ESTIMATOR_SRF05_REACQUIRE_MAX_SPAN_MS 500U
+#define VELOCITY_ESTIMATOR_SRF05_REACQUIRE_MAX_OUTLIERS 2U
+#define VELOCITY_ESTIMATOR_SRF05_REACQUIRE_MAX_SPEED_MS 1.0
 #define VELOCITY_ESTIMATOR_BMP280_SAMPLE_MS 100U
 #define VELOCITY_ESTIMATOR_GRAVITY_MS2 9.80665
 #define VELOCITY_ESTIMATOR_ACCEL_NORM_TOLERANCE_MS2 1.5
@@ -54,7 +59,6 @@ enum
 {
   VELOCITY_ESTIMATOR_STATE_ALTITUDE = 0,
   VELOCITY_ESTIMATOR_STATE_VELOCITY,
-  VELOCITY_ESTIMATOR_STATE_ACCEL_BIAS,
   VELOCITY_ESTIMATOR_STATE_COUNT
 };
 
@@ -69,6 +73,23 @@ static uint8_t srf05_filter_initialized;
 static uint8_t srf05_filter_inliers;
 static uint32_t last_srf05_filter_update_ms;
 static uint32_t last_srf05_raw_sample_ms;
+static uint8_t srf05_have_raw_sample;
+static double last_srf05_accepted_altitude_m;
+static double last_srf05_accepted_velocity_ms;
+static double srf05_recovery_altitude_m;
+static uint32_t srf05_recovery_sample_ms;
+static uint8_t srf05_recovery_samples;
+static uint8_t srf05_reacquisition_allowed;
+static struct
+{
+  double first_altitude_m;
+  double altitude_m;
+  double velocity_ms;
+  uint32_t first_ms;
+  uint32_t last_ms;
+  uint8_t samples;
+  uint8_t outliers;
+} srf05_reacquisition;
 
 static double VelocityEstimator_Clamp(double value, double minimum,
                                       double maximum)
@@ -115,6 +136,11 @@ static void VelocityEstimator_ResetSrf05Filter(void)
   srf05_filter_inliers = 0U;
   last_srf05_filter_update_ms = 0U;
   last_srf05_raw_sample_ms = 0U;
+  srf05_have_raw_sample = 0U;
+  last_srf05_accepted_altitude_m = 0.0;
+  last_srf05_accepted_velocity_ms = 0.0;
+  srf05_recovery_samples = 0U;
+  srf05_reacquisition.samples = 0U;
   estimate.vertical_velocity_ms = 0.0;
   estimate.vertical_velocity_valid = 0U;
   estimate.srf05_altitude_valid = 0U;
@@ -152,12 +178,22 @@ void VelocityEstimator_ResetVertical(void)
 
 void VelocityEstimator_Init(void)
 {
+  srf05_reacquisition_allowed = 0U;
   if (SENSOR_MPU6050_ENABLED)
   {
     VelocityEstimator_ResetGyroZ();
   }
   estimate.srf05_altitude_cm = 0.0;
   VelocityEstimator_ResetVertical();
+}
+
+void VelocityEstimator_SetSrf05ReacquisitionAllowed(uint8_t allowed)
+{
+  srf05_reacquisition_allowed = allowed != 0U;
+  if (!srf05_reacquisition_allowed)
+  {
+    srf05_reacquisition.samples = 0U;
+  }
 }
 
 double VelocityEstimator_CorrectGyroZ(double raw_gyro_z_dps)
@@ -310,7 +346,7 @@ static VelocityEstimatorSrf05Result_t VelocityEstimator_FilterSrf05Altitude(
   }
 
   uint32_t elapsed_ms = VELOCITY_ESTIMATOR_SRF05_SAMPLE_MS;
-  if (srf05_median_count != 0U)
+  if (srf05_have_raw_sample)
   {
     elapsed_ms = sample_time_ms - last_srf05_raw_sample_ms;
     if (elapsed_ms == 0U || elapsed_ms > INT32_MAX)
@@ -324,6 +360,15 @@ static VelocityEstimatorSrf05Result_t VelocityEstimator_FilterSrf05Altitude(
     }
   }
   last_srf05_raw_sample_ms = sample_time_ms;
+  srf05_have_raw_sample = 1U;
+
+  if (srf05_filter_initialized)
+  {
+    /* Tracking uses only the accepted echo history and prediction below.
+     * Rejected raw spikes must not enter a median and veto the next real echo. */
+    *filtered_altitude_m = altitude_m;
+    return VELOCITY_ESTIMATOR_SRF05_ACCEPTED;
+  }
 
   srf05_median_altitude_m[srf05_median_index] = altitude_m;
   srf05_median_index =
@@ -358,24 +403,15 @@ static VelocityEstimatorSrf05Result_t VelocityEstimator_FilterSrf05Altitude(
     *filtered_altitude_m = third;
   }
 
-  const double elapsed_s =
-      (double)((elapsed_ms > VELOCITY_ESTIMATOR_SRF05_MAX_GAP_MS)
-                   ? VELOCITY_ESTIMATOR_SRF05_MAX_GAP_MS
-                   : elapsed_ms) /
-      1000.0;
-  double motion_gate_m = VELOCITY_ESTIMATOR_SRF05_MEDIAN_GATE_M;
-  if (srf05_filter_initialized)
+  /* Initial acquisition has no trusted prediction yet. Require a coherent
+   * three-echo window instead of treating one member as a validated surface. */
+  for (uint8_t i = 0U; i < VELOCITY_ESTIMATOR_SRF05_MEDIAN_SAMPLES; i++)
   {
-    motion_gate_m +=
-        fabs(velocity_state[VELOCITY_ESTIMATOR_STATE_VELOCITY]) *
-            elapsed_s +
-        0.5 * VELOCITY_ESTIMATOR_SRF05_MOTION_GATE_ACCEL_MS2 *
-            elapsed_s * elapsed_s;
-  }
-
-  if (fabs(altitude_m - *filtered_altitude_m) > motion_gate_m)
-  {
-    return VELOCITY_ESTIMATOR_SRF05_MOTION_REJECTED;
+    if (fabs(srf05_median_altitude_m[i] - *filtered_altitude_m) >
+        VELOCITY_ESTIMATOR_SRF05_MEDIAN_GATE_M)
+    {
+      return VELOCITY_ESTIMATOR_SRF05_MOTION_REJECTED;
+    }
   }
 
   *filtered_altitude_m = altitude_m;
@@ -387,7 +423,6 @@ static void VelocityEstimator_InitializeSrf05Filter(
 {
   velocity_state[VELOCITY_ESTIMATOR_STATE_ALTITUDE] = altitude_m;
   velocity_state[VELOCITY_ESTIMATOR_STATE_VELOCITY] = 0.0;
-  velocity_state[VELOCITY_ESTIMATOR_STATE_ACCEL_BIAS] = 0.0;
 
   for (uint8_t row = 0U; row < VELOCITY_ESTIMATOR_STATE_COUNT; row++)
   {
@@ -406,15 +441,13 @@ static void VelocityEstimator_InitializeSrf05Filter(
       altitude_variance;
   velocity_covariance[VELOCITY_ESTIMATOR_STATE_VELOCITY]
                      [VELOCITY_ESTIMATOR_STATE_VELOCITY] = 0.25;
-  if (SENSOR_MPU6050_ENABLED)
-  {
-    velocity_covariance[VELOCITY_ESTIMATOR_STATE_ACCEL_BIAS]
-                       [VELOCITY_ESTIMATOR_STATE_ACCEL_BIAS] = 0.04;
-  }
-
   srf05_filter_initialized = 1U;
   srf05_filter_inliers = 1U;
   last_srf05_filter_update_ms = sample_time_ms;
+  last_srf05_accepted_altitude_m = altitude_m;
+  last_srf05_accepted_velocity_ms = 0.0;
+  srf05_recovery_samples = 0U;
+  srf05_reacquisition.samples = 0U;
   estimate.vertical_velocity_ms = 0.0;
   estimate.vertical_velocity_valid = 0U;
 }
@@ -431,44 +464,25 @@ static void VelocityEstimator_PredictSrf05(double dt, uint32_t now_ms)
   if ((now_ms - last_srf05_filter_update_ms) >
       VELOCITY_ESTIMATOR_SRF05_MAX_GAP_MS)
   {
-    /* Keep the last tracking reference. Forgetting it would let a repeated
-     * false echo become a new, apparently valid altitude after a dropout. */
+    /* Preserve the trusted reference. Recovery uses separate confirmation
+     * gates; merely becoming stale must not validate a different surface. */
     estimate.srf05_altitude_valid = 0U;
     estimate.vertical_velocity_valid = 0U;
     return;
   }
 
-  double acceleration_ms2 = 0.0;
-  if (SENSOR_MPU6050_ENABLED)
-  {
-    acceleration_ms2 = VelocityEstimator_Clamp(
-        vertical_acceleration_ms2, -VELOCITY_ESTIMATOR_MAX_ACCEL_MS2,
-        VELOCITY_ESTIMATOR_MAX_ACCEL_MS2);
-  }
-
+  /* Height and speed follow accepted distance echoes. Motor vibration and
+   * accelerometer offset must not integrate into a fictitious height, then
+   * make the echo gate reject the real floor. IMU-only/BMP280 paths below
+   * retain their existing acceleration fusion. */
   const double half_dt_squared = 0.5 * dt * dt;
-  const double corrected_acceleration_ms2 =
-      acceleration_ms2 -
-      velocity_state[VELOCITY_ESTIMATOR_STATE_ACCEL_BIAS];
-
   velocity_state[VELOCITY_ESTIMATOR_STATE_ALTITUDE] +=
-      velocity_state[VELOCITY_ESTIMATOR_STATE_VELOCITY] * dt +
-      corrected_acceleration_ms2 * half_dt_squared;
-  velocity_state[VELOCITY_ESTIMATOR_STATE_VELOCITY] +=
-      corrected_acceleration_ms2 * dt;
+      velocity_state[VELOCITY_ESTIMATOR_STATE_VELOCITY] * dt;
 
   double transition[VELOCITY_ESTIMATOR_STATE_COUNT]
                    [VELOCITY_ESTIMATOR_STATE_COUNT] = {
-                       {1.0, dt, 0.0},
-                       {0.0, 1.0, 0.0},
-                       {0.0, 0.0, 1.0}};
-  if (SENSOR_MPU6050_ENABLED)
-  {
-    transition[VELOCITY_ESTIMATOR_STATE_ALTITUDE]
-              [VELOCITY_ESTIMATOR_STATE_ACCEL_BIAS] = -half_dt_squared;
-    transition[VELOCITY_ESTIMATOR_STATE_VELOCITY]
-              [VELOCITY_ESTIMATOR_STATE_ACCEL_BIAS] = -dt;
-  }
+                       {1.0, dt},
+                       {0.0, 1.0}};
 
   double transition_covariance[VELOCITY_ESTIMATOR_STATE_COUNT]
                               [VELOCITY_ESTIMATOR_STATE_COUNT] = {{0.0}};
@@ -518,16 +532,6 @@ static void VelocityEstimator_PredictSrf05(double dt, uint32_t now_ms)
   predicted_covariance[VELOCITY_ESTIMATOR_STATE_VELOCITY]
                       [VELOCITY_ESTIMATOR_STATE_VELOCITY] +=
       dt * dt * acceleration_variance;
-  if (SENSOR_MPU6050_ENABLED)
-  {
-    const double bias_random_walk_variance =
-        VELOCITY_ESTIMATOR_BIAS_RANDOM_WALK_MS2 *
-        VELOCITY_ESTIMATOR_BIAS_RANDOM_WALK_MS2 * dt;
-    predicted_covariance[VELOCITY_ESTIMATOR_STATE_ACCEL_BIAS]
-                        [VELOCITY_ESTIMATOR_STATE_ACCEL_BIAS] +=
-        bias_random_walk_variance;
-  }
-
   for (uint8_t row = 0U; row < VELOCITY_ESTIMATOR_STATE_COUNT; row++)
   {
     for (uint8_t column = 0U; column < VELOCITY_ESTIMATOR_STATE_COUNT;
@@ -543,11 +547,15 @@ static void VelocityEstimator_PredictSrf05(double dt, uint32_t now_ms)
           velocity_state[VELOCITY_ESTIMATOR_STATE_VELOCITY],
           -VELOCITY_ESTIMATOR_MAX_SPEED_MS,
           VELOCITY_ESTIMATOR_MAX_SPEED_MS);
-  velocity_state[VELOCITY_ESTIMATOR_STATE_ACCEL_BIAS] =
-      VelocityEstimator_Clamp(
-          velocity_state[VELOCITY_ESTIMATOR_STATE_ACCEL_BIAS],
-          -VELOCITY_ESTIMATOR_MAX_RESIDUAL_BIAS_MS2,
-          VELOCITY_ESTIMATOR_MAX_RESIDUAL_BIAS_MS2);
+  if (!isfinite(velocity_state[VELOCITY_ESTIMATOR_STATE_ALTITUDE]) ||
+      velocity_state[VELOCITY_ESTIMATOR_STATE_ALTITUDE] < 0.0)
+  {
+    /* A downward extrapolation cannot be a usable negative distance. Keep
+     * the cached output invalid until a real echo establishes height again. */
+    estimate.srf05_altitude_valid = 0U;
+    estimate.vertical_velocity_valid = 0U;
+    return;
+  }
   estimate.vertical_velocity_ms =
       velocity_state[VELOCITY_ESTIMATOR_STATE_VELOCITY];
   if (estimate.srf05_altitude_valid)
@@ -555,6 +563,129 @@ static void VelocityEstimator_PredictSrf05(double dt, uint32_t now_ms)
     estimate.srf05_altitude_cm =
         velocity_state[VELOCITY_ESTIMATOR_STATE_ALTITUDE] * 100.0;
   }
+}
+
+static uint8_t VelocityEstimator_TryRecoverSrf05(
+    double altitude_m, uint32_t sample_time_ms)
+{
+  /* Prediction can be wrong after motion or a dropout. Recover only near an
+   * independently retained accepted echo; elapsed time never opens the gate
+   * indefinitely toward a different reflecting surface. */
+  const double age_s = fmin(
+      (double)(sample_time_ms - last_srf05_filter_update_ms) / 1000.0,
+      (double)VELOCITY_ESTIMATOR_SRF05_MAX_GAP_MS / 1000.0);
+  const double speed_ms = fabs(last_srf05_accepted_velocity_ms);
+  const double recovery_gate_m =
+      VELOCITY_ESTIMATOR_SRF05_MIN_INNOVATION_GATE_M +
+      fmin(speed_ms * age_s,
+           VELOCITY_ESTIMATOR_SRF05_RECOVERY_MAX_MOTION_M);
+  if (fabs(altitude_m - last_srf05_accepted_altitude_m) > recovery_gate_m)
+  {
+    srf05_recovery_samples = 0U;
+    return 0U;
+  }
+
+  const uint32_t gap_ms = sample_time_ms - srf05_recovery_sample_ms;
+  const double gap_s = (double)gap_ms / 1000.0;
+  const double local_gate_m = VELOCITY_ESTIMATOR_SRF05_MEDIAN_GATE_M +
+      speed_ms * gap_s + 0.5 * VELOCITY_ESTIMATOR_SRF05_MOTION_GATE_ACCEL_MS2 *
+                              gap_s * gap_s;
+  if (srf05_recovery_samples == 0U ||
+      gap_ms > VELOCITY_ESTIMATOR_SRF05_MAX_GAP_MS ||
+      fabs(altitude_m - srf05_recovery_altitude_m) > local_gate_m)
+  {
+    srf05_recovery_samples = 0U;
+  }
+  srf05_recovery_altitude_m = altitude_m;
+  srf05_recovery_sample_ms = sample_time_ms;
+  srf05_recovery_samples++;
+  if (srf05_recovery_samples < VELOCITY_ESTIMATOR_SRF05_RECOVERY_SAMPLES)
+  {
+    return 0U;
+  }
+
+  VelocityEstimator_InitializeSrf05Filter(altitude_m, sample_time_ms);
+  return 1U;
+}
+
+static void VelocityEstimator_StartSrf05Reacquisition(
+    double altitude_m, uint32_t sample_time_ms)
+{
+  srf05_reacquisition.first_altitude_m = altitude_m;
+  srf05_reacquisition.altitude_m = altitude_m;
+  srf05_reacquisition.velocity_ms = 0.0;
+  srf05_reacquisition.first_ms = sample_time_ms;
+  srf05_reacquisition.last_ms = sample_time_ms;
+  srf05_reacquisition.samples = 1U;
+  srf05_reacquisition.outliers = 0U;
+}
+
+static uint8_t VelocityEstimator_TryReacquireSrf05(
+    double altitude_m, uint32_t sample_time_ms)
+{
+  if (!srf05_reacquisition_allowed ||
+      sample_time_ms - last_srf05_filter_update_ms <=
+          VELOCITY_ESTIMATOR_SRF05_MAX_GAP_MS)
+  {
+    srf05_reacquisition.samples = 0U;
+    return 0U;
+  }
+
+  const uint32_t gap_ms = sample_time_ms - srf05_reacquisition.last_ms;
+  if (srf05_reacquisition.samples == 0U ||
+      gap_ms > VELOCITY_ESTIMATOR_SRF05_MAX_GAP_MS ||
+      sample_time_ms - srf05_reacquisition.first_ms >
+          VELOCITY_ESTIMATOR_SRF05_REACQUIRE_MAX_SPAN_MS)
+  {
+    VelocityEstimator_StartSrf05Reacquisition(altitude_m, sample_time_ms);
+    return 0U;
+  }
+
+  const double gap_s = (double)gap_ms / 1000.0;
+  const double span_s =
+      (double)(sample_time_ms - srf05_reacquisition.first_ms) / 1000.0;
+  const double prediction_m = srf05_reacquisition.altitude_m +
+      srf05_reacquisition.velocity_ms * gap_s;
+  const double local_gate_m = VELOCITY_ESTIMATOR_SRF05_MEDIAN_GATE_M +
+      0.5 * VELOCITY_ESTIMATOR_SRF05_MOTION_GATE_ACCEL_MS2 * gap_s * gap_s;
+  if (fabs(altitude_m - prediction_m) > local_gate_m ||
+      fabs(altitude_m - srf05_reacquisition.first_altitude_m) >
+          VELOCITY_ESTIMATOR_SRF05_MEDIAN_GATE_M +
+              VELOCITY_ESTIMATOR_SRF05_REACQUIRE_MAX_SPEED_MS * span_s)
+  {
+    /* Isolated spikes do not confirm or replace the candidate. Repeated
+     * contradictions do: sparse minority matches cannot certify a surface. */
+    srf05_reacquisition.outliers++;
+    if (srf05_reacquisition.outliers >
+        VELOCITY_ESTIMATOR_SRF05_REACQUIRE_MAX_OUTLIERS)
+    {
+      VelocityEstimator_StartSrf05Reacquisition(altitude_m, sample_time_ms);
+    }
+    return 0U;
+  }
+
+  srf05_reacquisition.velocity_ms = VelocityEstimator_Clamp(
+      (altitude_m - srf05_reacquisition.first_altitude_m) / span_s,
+      -VELOCITY_ESTIMATOR_SRF05_REACQUIRE_MAX_SPEED_MS,
+      VELOCITY_ESTIMATOR_SRF05_REACQUIRE_MAX_SPEED_MS);
+  srf05_reacquisition.altitude_m = altitude_m;
+  srf05_reacquisition.last_ms = sample_time_ms;
+  if (srf05_reacquisition.samples < VELOCITY_ESTIMATOR_SRF05_REACQUIRE_SAMPLES)
+  {
+    srf05_reacquisition.samples++;
+  }
+  if (srf05_reacquisition.samples < VELOCITY_ESTIMATOR_SRF05_REACQUIRE_SAMPLES ||
+      sample_time_ms - srf05_reacquisition.first_ms <
+          VELOCITY_ESTIMATOR_SRF05_REACQUIRE_SPAN_MS)
+  {
+    return 0U;
+  }
+
+  /* This is a confirmed alternative echo track, not proof of true height.
+   * Core permits it while stopped, landing, or holding an unconfirmed takeoff
+   * ramp. Reset speed conservatively; the controller confirms handover separately. */
+  VelocityEstimator_InitializeSrf05Filter(altitude_m, sample_time_ms);
+  return 1U;
 }
 
 static VelocityEstimatorSrf05Result_t VelocityEstimator_UpdateSrf05Filter(
@@ -565,6 +696,8 @@ static VelocityEstimatorSrf05Result_t VelocityEstimator_UpdateSrf05Filter(
       altitude_m, sample_time_ms, &median_altitude_m);
   if (result != VELOCITY_ESTIMATOR_SRF05_ACCEPTED)
   {
+    srf05_recovery_samples = 0U;
+    srf05_reacquisition.samples = 0U;
     return result;
   }
 
@@ -599,12 +732,27 @@ static VelocityEstimatorSrf05Result_t VelocityEstimator_UpdateSrf05Filter(
           : fmax(VELOCITY_ESTIMATOR_SRF05_MIN_INNOVATION_GATE_M,
                  VELOCITY_ESTIMATOR_SRF05_INNOVATION_SIGMA *
                      sqrt(innovation_variance));
-  if (fabs(innovation) > innovation_gate)
+  const double accepted_gap_s = fmin(
+      (double)(sample_time_ms - last_srf05_filter_update_ms) / 1000.0,
+      (double)VELOCITY_ESTIMATOR_SRF05_MAX_GAP_MS / 1000.0);
+  const double motion_gate_m = VELOCITY_ESTIMATOR_SRF05_MEDIAN_GATE_M +
+      fabs(last_srf05_accepted_velocity_ms) * accepted_gap_s +
+      0.5 * VELOCITY_ESTIMATOR_SRF05_MOTION_GATE_ACCEL_MS2 *
+          accepted_gap_s * accepted_gap_s;
+  const uint8_t motion_rejected =
+      fabs(median_altitude_m - last_srf05_accepted_altitude_m) > motion_gate_m;
+  if (motion_rejected || fabs(innovation) > innovation_gate)
   {
-    /* Repetition does not make an implausible echo trustworthy. Keep rejecting
-     * it; prediction/acquisition mark altitude unavailable after 300 ms. */
-    return VELOCITY_ESTIMATOR_SRF05_INNOVATION_REJECTED;
+    if (VelocityEstimator_TryRecoverSrf05(median_altitude_m, sample_time_ms) ||
+        VelocityEstimator_TryReacquireSrf05(median_altitude_m, sample_time_ms))
+    {
+      return VELOCITY_ESTIMATOR_SRF05_ACCEPTED;
+    }
+    return motion_rejected ? VELOCITY_ESTIMATOR_SRF05_MOTION_REJECTED
+                           : VELOCITY_ESTIMATOR_SRF05_INNOVATION_REJECTED;
   }
+  srf05_recovery_samples = 0U;
+  srf05_reacquisition.samples = 0U;
 
   double kalman_gain[VELOCITY_ESTIMATOR_STATE_COUNT];
   for (uint8_t index = 0U; index < VELOCITY_ESTIMATOR_STATE_COUNT; index++)
@@ -622,9 +770,8 @@ static VelocityEstimatorSrf05Result_t VelocityEstimator_UpdateSrf05Filter(
 
   double residual_transform[VELOCITY_ESTIMATOR_STATE_COUNT]
                            [VELOCITY_ESTIMATOR_STATE_COUNT] = {
-                               {1.0, 0.0, 0.0},
-                               {0.0, 1.0, 0.0},
-                               {0.0, 0.0, 1.0}};
+                               {1.0, 0.0},
+                               {0.0, 1.0}};
   double transformed_covariance[VELOCITY_ESTIMATOR_STATE_COUNT]
                                [VELOCITY_ESTIMATOR_STATE_COUNT] = {{0.0}};
   double updated_covariance[VELOCITY_ESTIMATOR_STATE_COUNT]
@@ -699,6 +846,14 @@ static VelocityEstimatorSrf05Result_t VelocityEstimator_UpdateSrf05Filter(
     VelocityEstimator_ResetSrf05Filter();
     return 0U;
   }
+  if (velocity_state[VELOCITY_ESTIMATOR_STATE_ALTITUDE] < 0.0)
+  {
+    /* This positive echo passed both gates, but a downward extrapolation
+     * dominated the update. Restart from the measurement, never publish a
+     * negative distance as valid. */
+    VelocityEstimator_InitializeSrf05Filter(median_altitude_m, sample_time_ms);
+    return VELOCITY_ESTIMATOR_SRF05_ACCEPTED;
+  }
 
   for (uint8_t row = 0U; row < VELOCITY_ESTIMATOR_STATE_COUNT; row++)
   {
@@ -714,27 +869,20 @@ static VelocityEstimatorSrf05Result_t VelocityEstimator_UpdateSrf05Filter(
           velocity_state[VELOCITY_ESTIMATOR_STATE_VELOCITY],
           -VELOCITY_ESTIMATOR_MAX_SPEED_MS,
           VELOCITY_ESTIMATOR_MAX_SPEED_MS);
-  velocity_state[VELOCITY_ESTIMATOR_STATE_ACCEL_BIAS] =
-      VelocityEstimator_Clamp(
-          velocity_state[VELOCITY_ESTIMATOR_STATE_ACCEL_BIAS],
-          -VELOCITY_ESTIMATOR_MAX_RESIDUAL_BIAS_MS2,
-          VELOCITY_ESTIMATOR_MAX_RESIDUAL_BIAS_MS2);
 
   if (srf05_filter_inliers < UINT8_MAX)
   {
     srf05_filter_inliers++;
   }
   last_srf05_filter_update_ms = sample_time_ms;
+  last_srf05_accepted_altitude_m = median_altitude_m;
+  last_srf05_accepted_velocity_ms =
+      velocity_state[VELOCITY_ESTIMATOR_STATE_VELOCITY];
   estimate.vertical_velocity_ms =
       velocity_state[VELOCITY_ESTIMATOR_STATE_VELOCITY];
 
-  uint8_t estimator_ready =
+  const uint8_t estimator_ready =
       srf05_filter_inliers >= VELOCITY_ESTIMATOR_SRF05_ACQUIRE_SAMPLES;
-  if (SENSOR_MPU6050_ENABLED)
-  {
-    estimator_ready =
-        estimator_ready && vertical_acceleration_bias_initialized;
-  }
   estimate.vertical_velocity_valid = estimator_ready;
   return VELOCITY_ESTIMATOR_SRF05_ACCEPTED;
 }
@@ -796,12 +944,20 @@ VelocityEstimatorSrf05Result_t VelocityEstimator_CorrectSrf05Altitude(
     (void)sample_time_ms;
     return VELOCITY_ESTIMATOR_SRF05_REJECTED;
   }
+  if (!isfinite(altitude_m) || altitude_m <= 0.0)
+  {
+    srf05_recovery_samples = 0U;
+    srf05_reacquisition.samples = 0U;
+    return VELOCITY_ESTIMATOR_SRF05_REJECTED;
+  }
 
   double vertical_altitude_m = altitude_m;
   if (SENSOR_MPU6050_ENABLED)
   {
     if (vertical_tilt_scale < VELOCITY_ESTIMATOR_SRF05_MIN_TILT_SCALE)
     {
+      srf05_recovery_samples = 0U;
+      srf05_reacquisition.samples = 0U;
       estimate.srf05_altitude_valid = 0U;
       estimate.vertical_velocity_valid = 0U;
       return VELOCITY_ESTIMATOR_SRF05_TILT_REJECTED;
@@ -828,8 +984,8 @@ void VelocityEstimator_HandleSrf05Timeout(void)
   {
     estimate.srf05_altitude_valid = 0U;
     estimate.vertical_velocity_valid = 0U;
-    /* Only an explicit vertical reset (stop/start) forgets the tracking
-     * reference. A sensor timeout must not authorize a jump to another echo. */
+    /* A timeout alone preserves the reference. Wider reacquisition needs
+     * separate phase permission and fresh coherent confirmation. */
   }
 }
 

@@ -18,6 +18,7 @@
 
 static FlightData_t sensor_data;
 static uint8_t sensor_acquisition_ready;
+static uint8_t bmp280_unavailable_reported;
 
 static uint8_t srf05_measurement_pending;
 static uint8_t srf05_have_success;
@@ -201,6 +202,7 @@ static SensorAcquisitionResult_t SensorAcquisition_WaitForYawStable(void)
 void SensorAcquisition_Init(void)
 {
   sensor_acquisition_ready = 0U;
+  bmp280_unavailable_reported = 0U;
   sensor_data.roll_deg = 0.0;
   sensor_data.pitch_deg = 0.0;
   sensor_data.yaw_deg = 0.0;
@@ -371,21 +373,32 @@ SensorAcquisitionResult_t SensorAcquisition_Update(double dt)
 
   if (SENSOR_BMP280_ENABLED)
   {
-    float barometer_altitude_m;
+    float barometer_altitude_m = NAN;
     const HAL_StatusTypeDef bmp_status =
         BMP280_ReadAltitude(&barometer_altitude_m);
-    if (bmp_status != HAL_OK)
+    if (bmp_status != HAL_OK || !isfinite(barometer_altitude_m))
     {
-      return SensorAcquisition_Result(
-          SENSOR_ACQUISITION_ERROR_BMP280_READ, bmp_status);
+      sensor_data.fly_altitude = NAN;
+      if (!bmp280_unavailable_reported)
+      {
+        LogError(2006, "BMP280 unavailable: continuing without barometer altitude");
+        bmp280_unavailable_reported = 1U;
+      }
     }
-    sensor_data.fly_altitude = barometer_altitude_m;
-
-    if (!SENSOR_SRF05_ENABLED)
+    else
     {
-      VelocityEstimator_CorrectBmp280Altitude(
-          (double)barometer_altitude_m, now_ms);
-      SensorAcquisition_ApplyVelocityEstimate();
+      sensor_data.fly_altitude = barometer_altitude_m;
+      if (bmp280_unavailable_reported)
+      {
+        LogInformation(1003, "BMP280 recovered: barometer altitude available");
+        bmp280_unavailable_reported = 0U;
+      }
+      if (!SENSOR_SRF05_ENABLED)
+      {
+        VelocityEstimator_CorrectBmp280Altitude(
+            (double)barometer_altitude_m, now_ms);
+        SensorAcquisition_ApplyVelocityEstimate();
+      }
     }
   }
   else

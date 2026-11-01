@@ -16,6 +16,10 @@
                 "interface/stlink.cfg",
                 "target/stm32f4x.cfg"
             ],
+            // Require this project's ST-Link, including when other probes are connected.
+            "openOCDLaunchCommands": [
+                "adapter serial 16004A002933353739303541"
+            ],
             "liveWatch": {
                 "enabled": true,
                 "samplesPerSecond": 4

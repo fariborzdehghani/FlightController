@@ -2,12 +2,13 @@
 #include "Tools.h"
 #include "Core.h"
 #include "FlightRecorder.h"
+#include "FlightControl.h"
 #include "SensorConfig.h"
 #include "AppError.h"
-#include <stdio.h>
 #include <string.h>
+#include <math.h>
 
-#define LOGGER_INTERVAL_MS 100u
+#define LOGGER_INTERVAL_MS FLIGHT_RECORDER_LIVE_INTERVAL_MS
 
 static uint8_t live_serial;
 static uint8_t accepted_configuration[64];
@@ -31,9 +32,10 @@ void Logger_SetConfiguration(const uint8_t *data, uint8_t length)
     const uint16_t ramp = (uint16_t)(Config.takeoffThrottleRampPerSecond * 10.0);
     accepted_configuration[41] = (uint8_t)ramp;
     accepted_configuration[42] = (uint8_t)(ramp >> 8);
-    /* The automatic hover default can include a half percent. Byte 44 stores
-     * hover throttle in half-percent units in the log snapshot only. */
-    accepted_configuration[44] = (uint8_t)(Config.hoverThrottle * 2.0);
+    /* Commands retain the legacy slot; recorded configuration identifies auto.
+     * Byte 44 is the estimate in half-percent units, updated during flight. */
+    accepted_configuration[43] = 0u;
+    accepted_configuration[44] = (uint8_t)lround(Config.armThrottle * 2.0);
     accepted_configuration[45] =
         (SENSOR_MPU6050_ENABLED ? 1u : 0u) | (SENSOR_QMC5883_ENABLED ? 2u : 0u) |
         (SENSOR_SRF05_ENABLED ? 4u : 0u) | (SENSOR_BMP280_ENABLED ? 8u : 0u);
@@ -122,6 +124,41 @@ void Logger_EndFlight(uint8_t reason, uint16_t error, uint8_t hal_status, uint8_
     FlightRecorder_End(reason, error, hal_status, record.timestamp_ms);
 }
 
+static void log_full_serial_sample(const FlightRecorderRecord_t *record)
+{
+    /* 336-byte v7 snapshot + CRC16 -> 452 Base64 characters. Including
+     * LiveLog= and newline: 461 bytes, at most 4610 bytes/s at 115200 8N1.
+     * The existing asynchronous UART queue keeps transmission nonblocking. */
+    uint8_t packet[FLIGHT_RECORDER_LIVE_BLOB_SIZE + 2u];
+    uint8_t config[64];
+    memcpy(config, accepted_configuration, sizeof(config));
+    const uint16_t yaw = (uint16_t)Config.yaw.target;
+    config[9] = (uint8_t)yaw;
+    config[10] = (uint8_t)(yaw >> 8);
+    config[44] = (uint8_t)lround(FlightControl_GetHoverThrottleEstimate() * 2.0);
+    FlightRecorder_EncodeLiveSample(config, record, packet);
+    const uint16_t crc = FlightLog_Crc16(packet, FLIGHT_RECORDER_LIVE_BLOB_SIZE);
+    packet[FLIGHT_RECORDER_LIVE_BLOB_SIZE] = (uint8_t)crc;
+    packet[FLIGHT_RECORDER_LIVE_BLOB_SIZE + 1u] = (uint8_t)(crc >> 8);
+
+    static const char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    char line[8u + 4u * ((sizeof(packet) + 2u) / 3u) + 1u];
+    memcpy(line, "LiveLog=", 8u);
+    unsigned out = 8u;
+    for (unsigned i = 0u; i < sizeof(packet); i += 3u)
+    {
+        const uint32_t value = ((uint32_t)packet[i] << 16) |
+            (i + 1u < sizeof(packet) ? (uint32_t)packet[i + 1u] << 8 : 0u) |
+            (i + 2u < sizeof(packet) ? packet[i + 2u] : 0u);
+        line[out++] = alphabet[(value >> 18) & 63u];
+        line[out++] = alphabet[(value >> 12) & 63u];
+        line[out++] = i + 1u < sizeof(packet) ? alphabet[(value >> 6) & 63u] : '=';
+        line[out++] = i + 2u < sizeof(packet) ? alphabet[value & 63u] : '=';
+    }
+    line[out] = '\0';
+    (void)LogStringToPC(line);
+}
+
 void Logger_LogFlightData(const FlightLogData_t *log_data) {
     static uint32_t last_log_ms;
 
@@ -130,7 +167,9 @@ void Logger_LogFlightData(const FlightLogData_t *log_data) {
     }
 
     latest_data = *log_data;
+    FlightRecorder_SetHoverThrottle((float)FlightControl_GetHoverThrottleEstimate());
     FlightRecorderRecord_t record = make_record(log_data, (uint8_t)droneState.state);
+    record.error = (uint16_t)AppError_GetCode();
     FlightRecorder_Record(&record, false);
     if (!live_serial) return;
 
@@ -140,24 +179,5 @@ void Logger_LogFlightData(const FlightLogData_t *log_data) {
     }
     last_log_ms = now;
 
-    char buffer[512];
-    memset(buffer, 0, sizeof(buffer));
-
-    const int written = snprintf(buffer, sizeof(buffer),
-             "Data={\"roll\":%.2f,\"pitch\":%.2f,\"yaw\":%.2f,\"Gz\":%.2f,\"Vz\":%.2f,\"Vz_valid\":%u,\"altitude\":%.2f,\"base_throttle\":%.2f,"
-             "\"m1\":%.2f,\"m2\":%.2f,\"m3\":%.2f,\"m4\":%.2f,"
-             "\"roll_p\":%.4f,\"roll_i\":%.4f,\"roll_d\":%.4f,\"roll_total\":%.4f,"
-             "\"pitch_p\":%.4f,\"pitch_i\":%.4f,\"pitch_d\":%.4f,\"pitch_total\":%.4f,"
-             "\"Gz_p\":%.4f,\"Gz_i\":%.4f,\"Gz_d\":%.4f,"
-             "\"altitude_p\":%.4f,\"altitude_i\":%.4f,\"altitude_d\":%.4f}",
-             (double)log_data->roll, (double)log_data->pitch, (double)log_data->yaw, (double)log_data->Gz, (double)log_data->Vz, (unsigned int)log_data->Vz_valid, (double)log_data->altitude, (double)log_data->base_throttle,
-             (double)log_data->m1_speed, (double)log_data->m2_speed, (double)log_data->m3_speed, (double)log_data->m4_speed,
-             (double)log_data->roll_p, (double)log_data->roll_i, (double)log_data->roll_d, (double)log_data->roll_total,
-             (double)log_data->pitch_p, (double)log_data->pitch_i, (double)log_data->pitch_d, (double)log_data->pitch_total,
-             (double)log_data->Gz_p, (double)log_data->Gz_i, (double)log_data->Gz_d,
-             (double)log_data->altitude_p, (double)log_data->altitude_i, (double)log_data->altitude_d);
-
-    if (written > 0 && (size_t)written < sizeof(buffer)) {
-        (void)LogStringToPC(buffer);
-    }
+    log_full_serial_sample(&record);
 }

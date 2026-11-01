@@ -10,6 +10,9 @@
 #define FLIGHT_RECORDER_INTERVAL_MS 10u
 #define FLIGHT_RECORDER_HEADER_SIZE 64u
 #define FLIGHT_RECORDER_RECORD_SIZE 208u
+/* Live serial frames are one self-contained full-precision snapshot. */
+#define FLIGHT_RECORDER_LIVE_INTERVAL_MS 100u
+#define FLIGHT_RECORDER_LIVE_BLOB_SIZE (128u + FLIGHT_RECORDER_RECORD_SIZE)
 #define FLIGHT_RECORDER_TRANSFER_TIMEOUT_MS 8000u
 #define FLIGHT_RECORDER_EVENT_CAPACITY 16u
 #define FLIGHT_RECORDER_EVENT_SIZE 104u
@@ -43,6 +46,10 @@ bool FlightRecorder_HasFlight(void);
 void FlightRecorder_Snapshot(const uint8_t configuration[64], const FlightRecorderRecord_t *sample);
 void FlightRecorder_LogMessage(uint32_t now, uint16_t code, bool error, const char *message);
 void FlightRecorder_SetLoopTiming(float dt_ms);
+void FlightRecorder_SetHoverThrottle(float throttle);
+void FlightRecorder_EncodeLiveSample(const uint8_t configuration[64],
+                                   const FlightRecorderRecord_t *sample,
+                                   uint8_t blob[FLIGHT_RECORDER_LIVE_BLOB_SIZE]);
 bool FlightRecorder_Respond(const uint8_t request[64], uint8_t response[64],
                            uint32_t now, bool motors_active);
 

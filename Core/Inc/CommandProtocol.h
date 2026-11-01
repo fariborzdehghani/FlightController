@@ -17,11 +17,17 @@ static inline bool CommandPacket_IsValidShape(const uint8_t *packet,
   switch (packet[0])
   {
   case 1u: /* Configuration: semantic limits are checked by the receiver. */
-    if (packet[35] != 0u || packet[40] != 0u) return false;
-    reserved_start = 44u;
+    /* New senders use zero. Accept a bounded legacy hover value, which the
+     * aircraft ignores while learning its own throttle. Both receivers agree. */
+    if (packet[43] != 0u && (packet[43] < packet[1] ||
+        packet[43] > packet[3] || packet[43] > 100u)) return false;
+    /* 44/45 are recorder-only metadata; 46 disables the SRF05 failsafe. */
+    if (packet[35] != 0u || packet[40] != 0u || packet[44] != 0u ||
+        packet[45] != 0u || packet[46] > 1u) return false;
+    reserved_start = 47u;
     break;
-  case 2u: /* DISARM=0, ARM=1, TAKEOFF=2. */
-    if (packet[1] > 2u ||
+  case 2u: /* DISARM=0, ARM=1, TAKEOFF=2, LAND=3, throttle +/-1%=4/5. */
+    if (packet[1] > 5u ||
         (packet[1] == 0u ? packet[2] > CONTROL_DISARM_REASON_LINK_TIMEOUT
                          : packet[2] != 0u)) return false;
     reserved_start = 3u;

@@ -138,6 +138,46 @@ static uint32_t calculate_crc(void)
   return ~crc;
 }
 
+static void initialize_header(uint8_t *destination, uint32_t now, uint32_t id)
+{
+  memset(destination, 0, FLIGHT_RECORDER_HEADER_SIZE);
+  memcpy(destination, "FLOG", 4u);
+  write16(destination + 4, FLIGHT_RECORDER_FORMAT_VERSION);
+  FlightLog_Write32(destination + 8, id);
+  write16(destination + 14, FLIGHT_RECORDER_RECORD_SIZE);
+  write16(destination + 16, FLIGHT_RECORDER_INTERVAL_MS);
+  FlightLog_Write32(destination + 24, now);
+  write16(destination + 36, sizeof(configuration));
+  write16(destination + 38, FLIGHT_RECORDER_HEADER_SIZE);
+  destination[52] = ATTITUDE_TRACE_VERSION;
+  destination[53] = MPU6050_ACCEL_REJECTION_ENABLED;
+  destination[54] = MPU6050_DLPF_HZ;
+  destination[55] = MPU6050_ACCEL_RANGE_G;
+  write16(destination + 56, 250u); /* MPU gyro range: +/-250 deg/s. */
+  write16(destination + 58, ATTITUDE_TRACE_SIZE);
+  FlightLog_Write32(destination + 60, FLIGHT_LOG_ESTIMATOR_ID);
+}
+
+void FlightRecorder_EncodeLiveSample(const uint8_t config[64],
+                                   const FlightRecorderRecord_t *sample,
+                                   uint8_t blob[FLIGHT_RECORDER_LIVE_BLOB_SIZE])
+{
+  /* Do not touch the onboard ring, its session or an ongoing download. */
+  initialize_header(blob, sample->timestamp_ms, session);
+  write16(blob + 6, 4u | 8u); /* Gyro damping and automatic hover estimation. */
+  write16(blob + 12, 1u);
+  write16(blob + 16, FLIGHT_RECORDER_LIVE_INTERVAL_MS);
+  blob[18] = FLIGHT_LOG_STOP_SNAPSHOT;
+  write16(blob + 20, sample->error);
+  FlightLog_Write32(blob + 28, sample->timestamp_ms);
+  const float average = (float)average_loop_ms;
+  memcpy(blob + 40, &average, sizeof(average));
+  FlightLog_Write32(blob + 44, loop_count);
+  write16(blob + 50, FLIGHT_RECORDER_EVENT_SIZE);
+  memcpy(blob + 64, config, 64u);
+  memcpy(blob + 128, sample, FLIGHT_RECORDER_RECORD_SIZE);
+}
+
 void FlightRecorder_Begin(const uint8_t config[64], uint32_t now)
 {
   has_flight = true;
@@ -145,23 +185,8 @@ void FlightRecorder_Begin(const uint8_t config[64], uint32_t now)
   wire_record_size = FLIGHT_RECORDER_RECORD_SIZE;
   compact_cached = false;
   memcpy(configuration, config, sizeof(configuration));
-  memset(header, 0, sizeof(header));
-  memcpy(header, "FLOG", 4u);
-  write16(header + 4, FLIGHT_RECORDER_FORMAT_VERSION);
   if (++session == 0u) session = 1u;
-  FlightLog_Write32(header + 8, session);
-  write16(header + 14, FLIGHT_RECORDER_RECORD_SIZE);
-  write16(header + 16, FLIGHT_RECORDER_INTERVAL_MS);
-  FlightLog_Write32(header + 24, now);
-  write16(header + 36, sizeof(configuration));
-  write16(header + 38, sizeof(header));
-  header[52] = ATTITUDE_TRACE_VERSION;
-  header[53] = MPU6050_ACCEL_REJECTION_ENABLED;
-  header[54] = MPU6050_DLPF_HZ;
-  header[55] = MPU6050_ACCEL_RANGE_G;
-  write16(header + 56, 250u); /* MPU gyro range: +/-250 deg/s. */
-  write16(header + 58, ATTITUDE_TRACE_SIZE);
-  FlightLog_Write32(header + 60, FLIGHT_LOG_ESTIMATOR_ID);
+  initialize_header(header, now, session);
   head = count = 0u;
   overwritten = 0u;
   last_sample = now - FLIGHT_RECORDER_INTERVAL_MS;
@@ -184,8 +209,8 @@ void FlightRecorder_End(uint8_t reason, uint16_t error, uint8_t hal_status, uint
 {
   if (!recording) return;
   recording = false;
-  /* Bit 2 records gyro-based roll/pitch damping, including compact downloads. */
-  write16(header + 6, (overwritten > 0u ? 1u : 0u) | 4u);
+  /* Bits 2/3 record gyro damping/automatic hover, including compact downloads. */
+  write16(header + 6, (overwritten > 0u ? 1u : 0u) | 4u | 8u);
   write16(header + 12, count);
   header[18] = reason;
   header[19] = hal_status;
@@ -196,6 +221,13 @@ void FlightRecorder_End(uint8_t reason, uint16_t error, uint8_t hal_status, uint
 }
 
 bool FlightRecorder_IsRecording(void) { return recording; }
+
+void FlightRecorder_SetHoverThrottle(float throttle)
+{
+  /* Never mutate a frozen flight or the bytes covered by a download CRC. */
+  if (recording && isfinite(throttle) && throttle >= 0.0f && throttle <= 100.0f)
+    configuration[44] = (uint8_t)lroundf(throttle * 2.0f);
+}
 bool FlightRecorder_IsTransferring(uint32_t now)
 {
   if (transferring && now - last_request >= FLIGHT_RECORDER_TRANSFER_TIMEOUT_MS)

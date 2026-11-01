@@ -1,5 +1,13 @@
 # Radio diagnostics, flight logs and playback
 
+Direct serial ARM-to-DISARM recordings now automatically include full-precision
+v7 samples and IMU/SRF05 traces at up to 10 Hz on updated aircraft firmware and
+desktop builds. The serial stream preserves every float bit in each transmitted
+snapshot; the onboard recorder retains its higher sampling rate independently.
+See [DESKTOP_FLIGHT_WORKFLOW.md](DESKTOP_FLIGHT_WORKFLOW.md) for stream framing,
+bandwidth, saved-file behavior and compatibility. The existing download-profile
+selector affects onboard downloads; live serial captures always use full detail.
+
 Update all three projects together. No CubeMX settings or regeneration are
 required for this feature; the existing UART, SPI, motor timers and LED are used.
 
@@ -10,6 +18,9 @@ and `../RemoteController/build/Debug/RemoteController.elf`. Flash each
 to its corresponding board using your usual STM32 programmer. The desktop build
 is in `D:\Electronic Projects\Flight Controller\07-Desktop Apps\DroneLogger\DroneLogger\bin\RadioDownload\net8.0-windows`.
 Run `DroneLogger.exe` from that folder, keeping its companion files beside it.
+The L landing shortcut update is also built in the desktop project's
+`bin/Release/net8.0-windows` folder. Flash both updated firmwares and restart
+the updated desktop app before using LAND; older firmware rejects that command.
 
 Both radio firmwares now default to **250 kHz bandwidth** for faster log
 downloads. Flash **both boards** before using the radio link. The matching
@@ -28,6 +39,32 @@ or desktop packet-format change is needed.
    ARM first if needed. Press Space again to send DISARM immediately. Holding
    Space does not repeat the toggle. The TAKE OFF button also becomes STOP
    during a requested takeoff. The separate DISARM button remains available.
+   The top toolbar's **LAND (L)** button or **L** while armed
+   requests landing. It works
+   with a textbox focused too; while disarmed, L types normally. Backspace
+   retains its usual text-editing behavior in all flight states.
+   After confirmed liftoff, usable SRF05 height above 12 cm enables controlled
+   descent: the altitude target starts at measured height and falls at 10 cm/s.
+   The altitude PID controls thrust and attitude stabilization remains active.
+   At 12 cm, above the drone's approximately 8 cm SRF05 reporting threshold,
+   the firmware switches to its existing final throttle-down, reducing applied
+   collective by 10 percentage points per second until all motors stop.
+   Missing/invalid altitude, no confirmed liftoff, or a descent timeout also
+   select this bounded throttle-down. The descent budget is the height above
+   12 cm divided by descent rate, plus five seconds, capped at 60 seconds.
+   Repeated LAND requests do not reset either phase. Initial thrust is taken
+   from applied motor output; stale invalid height/velocity values are ignored.
+   Once final throttle-down starts, returning altitude cannot restart a climb.
+   This has no touchdown detector and still requires real-flight tuning and
+   validation for a soft physical landing. Space/DISARM and hard
+   safety faults can still stop immediately. Once accepted, LAND finishes even
+   if heartbeats stop. Operator LAND completes as a normal operator stop;
+   an existing fault landing retains its original fault.
+   The desktop keeps heartbeats and armed interlocks active because LAND has
+   no completion acknowledgement. After observing stopped motors, press
+   Space or DISARM to clear that desktop state before downloading or restarting.
+   The fixed 64-byte LAND packet is `[2, 3, 0, ...]`; byte 0 is the control type,
+   byte 1 is LAND, and every remaining byte is reserved zero.
 4. While disarmed, open **Flight Logs**, keep **Compact PID log** selected, and
    press **Download diagnostics**. Select **Full precision + sensor traces** when
    diagnosing roll/pitch estimation, or when you need yaw/altitude PID channels
@@ -47,8 +84,10 @@ or desktop packet-format change is needed.
    The progress area shows elapsed time, estimated remaining time, and estimated
    total time, without a `~` prefix on the displayed durations. Estimates use accepted payload bytes and average payload-transfer
    speed, including retry delays; the total also includes the initial BEGIN wait.
-   They remain "Estimating" before data arrives, then update every 250 ms even
-   while waiting for a response. After all bytes arrive, "Finishing" covers
+   Remaining and total stay "Estimating" until three seconds of payload data
+   have been observed, then recalculate together every three seconds, including
+   while waiting for a response. Elapsed time refreshes every 250 ms.
+   After all bytes arrive, "Finishing" covers
    verification, release and saving. Successful downloads retain the actual total
    elapsed time; cancellation/failure clears the estimates and freezes elapsed
    time when the operation ends. Opening a saved recording hides old timings.
@@ -65,6 +104,10 @@ or desktop packet-format change is needed.
    filter; selecting a row pauses playback at that sample. **Raw data** shows
    JSON, original log bytes in hex, or CSV, with a copy button. **Recorded settings**
    shows the PID gains and configuration that were used during the flight.
+   **Reset UI** clears the loaded review, playback, charts, displayed telemetry
+   and transfer timings, then returns to the live Main tab. Saved recordings,
+   configuration and connections are kept; reset sends no flight command and
+   is unavailable while armed, starting takeoff or downloading.
    **Export CSV** saves a separate sample file. **Open flight log** loads a saved recording for
    later replay. Playback sends no commands to the aircraft. Space still starts
    a real flight test and exits playback.
@@ -250,12 +293,14 @@ chronological 50-byte compact or 208-byte full records, then chronological 104-b
 little-endian. Stop reason 4 means a disarmed diagnostic snapshot; only this
 kind may contain configuration byte 0 equal to zero (not yet configured).
 In the log snapshot only,
-configuration byte 44 stores effective hover throttle × 2 and byte 45 stores
+configuration byte 44 stores effective hover throttle × 2 (the current/last
+learned estimate when header bit 3 is set), and byte 45 stores
 enabled sensor bits (MPU6050=1, QMC5883=2, SRF05=4, BMP280=8). These are not new
 configuration-command settings.
 
 Header offsets: magic `FLOG` at 0; uint16 version at 4, flags at 6 (bit 0 overwritten,
-bit 1 automatic full-precision fallback, bit 2 gyro-based roll/pitch damping),
+bit 1 automatic full-precision fallback, bit 2 gyro-based roll/pitch damping,
+bit 3 automatic hover-throttle learning),
 uint32 session at 8, uint16 count at 12, record size at 14, interval at 16;
 byte stop reason at 18, HAL status at 19, uint16 application error at 20;
 uint32 start tick at 24, stop tick at 28, overwritten count at 32;
@@ -463,7 +508,7 @@ Older logs do not invent raw distance/filter details. Compact logs omit all trac
 | 2 | Rejected due to tilt |
 | 3 | Waiting for the first three echoes to establish the median |
 | 4 | Duplicate or out-of-order timestamp |
-| 5 | Raw echo differs too far from the three-echo median/motion allowance |
+| 5 | Echo outside the acquisition median or accepted-history motion allowance |
 | 6 | Echo differs too far from the predicted altitude (innovation gate) |
 | 7 | Invalid innovation or covariance |
 
@@ -493,9 +538,10 @@ confirmation. It no longer makes a pre-liftoff echo gap stop the motors.
 
 The bounded liftoff budget is now at least **4,000 ms** from accepted TAKEOFF,
 or longer if the configured ramp needs it, up to the existing 10,000 ms maximum.
-Absent/intermittent altitude before confirmed liftoff keeps the bounded ramp
-running. Missing altitude resets partial confirmation so it cannot leave the
-ramp stuck. Explicit DISARM, invalid attitude/timing, excessive tilt and hardware
+Before the first usable altitude report, the bounded ramp keeps running.
+Loss after reporting starts resets partial confirmation and pauses the base
+command for guarded recovery within the same deadline. Explicit DISARM,
+invalid attitude/timing, excessive tilt and hardware
 failures still take priority over this wait. A liftoff/target timeout starts a
 gradual rundown, since an unconfirmed aircraft might nevertheless be airborne.
 
@@ -529,7 +575,80 @@ rate needs restrained, low-height validation on this aircraft before free flight
 A long descent can overwrite early samples in the existing 512-record ring;
 start/end ticks and diagnostic messages still describe the full attempt.
 
+## Echo-based altitude tracking and takeoff handover (2026-10-24)
+
+The 16:49 recording exposed a height-estimator failure: raw echoes stayed near
+8-10 cm while acceleration prediction drove filtered height below zero, then
+the innovation gate rejected the nearby floor. Once freshness expired, the
+prediction froze and preserved that incorrect reference. The later invalid
+-6.43 cm value was a cached number, not physical height.
+
+With SRF05 enabled, height and vertical speed now use a two-state,
+constant-velocity filter driven by accepted distance echoes. IMU attitude still
+provides tilt compensation, but motor vibration and accelerometer offset are
+not integrated into this height prediction. The existing IMU-only/BMP280 paths
+are unchanged. Invalid/nonpositive echoes are rejected; a negative extrapolated
+height is never published as valid. Median rejection, tilt rejection, timestamp
+validation and the 300 ms maximum accepted-echo age remain in force.
+
+The median window is used only for initial acquisition, which requires three
+coherent echoes. Established tracking checks each echo against the prediction
+and the motion allowance from independently retained accepted height/speed.
+Rejected spikes never enter this trusted history, so two large outliers cannot
+veto the next nearby echo through a contaminated raw median.
+
+Nearby recovery still requires three fresh, locally consistent echoes near
+the last accepted echo. Its allowance is 8 cm plus bounded movement based on
+the last sonar-derived velocity, capped at 20 cm total. During ARMED, normal
+takeoff ramping and altitude-controlled climb/FLYING, repeated distant surfaces
+remain rejected.
+
+Core permits wider stale-track reacquisition with motors stopped, an
+already-latched landing, or an unconfirmed takeoff whose base-throttle ramp has
+paused after losing previously usable height. It requires at least five fresh coherent echoes over
+250-500 ms, with at most two inconsistent echoes in that candidate run; a third
+starts a new candidate. Candidate velocity is bounded to +/-1 m/s, candidate
+echo gaps cannot exceed 300 ms, and duplicate/old timestamps, invalid input or
+tilt rejection clear confirmation. An isolated spike neither moves the candidate
+nor adds confidence. Disabling permission clears partial evidence before arming
+or normal climbing. Output remains invalid until confirmation; speed then warms
+up conservatively. Recovery never cancels landing. During paused takeoff, the
+controller separately requires three distinct accepted echoes spanning 150 ms
+before resuming the ramp near the baseline or handing over after a confirmed
+rise. Baseline echoes cannot count toward rise confirmation. Initial absence
+of usable reports below roughly 8 cm retains the normal ramp/grace period.
+Recovery cannot restart or extend either takeoff deadline; timeout still latches
+the gradual throttle-down landing. Attitude stabilization stays active while
+the base command is held, so individual motors can still change.
+
+This explicitly trades the old permanent-reference guarantee for a confirmed
+alternative echo track in those permitted phases. Consistency is not proof of true
+height: a stable different reflecting surface remains observationally ambiguous.
+
+Normal liftoff and an already-reached takeoff goal now require at least three
+distinct accepted echoes spanning 150 ms. Cached control-loop samples cannot
+confirm liftoff. A usable height at/above the goal pauses the ramp and permits
+handover without another 5 cm rise. The initial takeoff target is capped at the
+configured goal. Above-goal handover preserves the applied collective, bounds
+its correction at the configured takeoff ramp rate, and holds altitude I during
+that correction; takeoff feedforward does not increase while already above goal.
+The near-ground acquisition grace and latched fallback landing are retained.
+
+No packet, archive-format or radio-bridge change is required. The user separately
+changed the TIM3 CH3 input filter from 8 to 15 through CubeMX regeneration; the
+generated source and project configuration agree, with timer prescaler and
+period unchanged. The desktop
+labels result 5 "Rejected by echo motion gate", covering both initial median
+checks and accepted-history motion checks. PID gains and sensor cutoff settings
+are unchanged. Host regressions and the full recorded-sensor replay exercise
+these changes; they do not prove true height accuracy or eliminate physical
+overshoot from momentum or incorrect echoes.
+
 ## Verification
+
+The regression suites and fixtures described below were used during development.
+Their folders were subsequently removed at the owner's request; this section
+records completed validation rather than commands available in this checkout.
 
 The IMU trace tests reconstruct both angle predictions from the recorded gyro,
 bias and effective sensor dt, and final angles from prediction plus correction.
@@ -559,11 +678,7 @@ Compact tests cover integer precision/sign, full-fidelity redownload, range and
 nonfinite fallback, ring wraparound, frozen profile retries and whole-blob CRC.
 The shared request-validator test is compiled against both firmware headers.
 
-Desktop tests:
-
-```powershell
-dotnet test tests\DroneLogger.PacketTests\DroneLogger.PacketTests.csproj
-```
+The desktop packet, serial transport and flight-log checks passed before removal.
 
 `Fixtures/flight-log-v1.bin` remains a compatibility fixture from the original
 recorder, and `Fixtures/diagnostics-v2.bin` preserves format-2 compatibility.

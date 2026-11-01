@@ -44,6 +44,9 @@ extern TIM_HandleTypeDef htim4;
 #define CONTROL_COMMAND_DISARM    0u
 #define CONTROL_COMMAND_ARM       1u
 #define CONTROL_COMMAND_TAKEOFF   2u
+#define CONTROL_COMMAND_LAND      3u
+#define CONTROL_COMMAND_THROTTLE_UP   4u
+#define CONTROL_COMMAND_THROTTLE_DOWN 5u
 #define TAKEOFF_ALTITUDE_DEFAULT_CM 50.0
 #define TAKEOFF_ALTITUDE_MIN_CM     20.0
 #define TAKEOFF_ALTITUDE_MAX_CM     300.0
@@ -53,7 +56,11 @@ extern TIM_HandleTypeDef htim4;
 #define TAKEOFF_THROTTLE_RAMP_MAX_PER_SECOND     30.0
 #define TAKEOFF_MAX_TILT_DEG                      30.0
 /* Simple takeoff policy; these are firmware constants, not packet fields. */
-#define TAKEOFF_THROTTLE_MARGIN                   5.0
+#define HOVER_LEARN_DWELL_S                       1.0
+#define HOVER_LEARN_TIME_CONSTANT_S               5.0
+#define HOVER_LEARN_RATE_PER_SECOND               1.0
+#define HOVER_LEARN_MAX_TILT_DEG                  5.0
+#define HOVER_LEARN_MAX_SPEED_MS                  0.10
 #define TAKEOFF_LIFTOFF_CONFIRM_S                 0.15
 #define TAKEOFF_LIFTOFF_TIMEOUT_MIN_MS             4000U
 #define TAKEOFF_LIFTOFF_TIMEOUT_MAX_MS             10000U
@@ -63,6 +70,11 @@ extern TIM_HandleTypeDef htim4;
 #define TAKEOFF_SETTLE_TIME_S                     0.5
 /* Percentage points per second, independent of the takeoff ramp setting. */
 #define LANDING_THROTTLE_RAMP_DOWN_PER_SECOND     10.0
+/* Descend slowly while SRF05 is usable, then finish above its ~8 cm floor. */
+#define LANDING_DESCENT_RATE_CM_S                 10.0
+#define LANDING_NEAR_GROUND_CM                    12.0
+#define LANDING_DESCENT_MARGIN_MS                 5000.0
+#define LANDING_DESCENT_MAX_TIME_MS               60000.0
 
 // Safety constants
 #define MOTOR_ABSOLUTE_MIN_THROTTLE 0.0f
@@ -125,9 +137,9 @@ typedef struct {
     double maxThrottle;
     double maxAngle;
     double armThrottle;
-    double hoverThrottle;
     double takeoffThrottleRampPerSecond;
     double takeoffAltitudeCm;
+    uint8_t disableSrf05Failsafe; // 0 keeps the default automatic altitude-loss landing.
     double pidMaxIPart;
     double pidMaxOutput;    // Add this new field
     PIDConfig_t pitch;

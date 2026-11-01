@@ -11,7 +11,7 @@ This firmware is one part of a three-project system:
 
 The three projects share the same fixed 64-byte command protocol. When a
 configuration or control-packet field changes, inspect and keep all three
-projects synchronized, including desktop packet tests and radio validation.
+projects synchronized, including desktop packet encoding and radio validation.
 
 ## Project goals and code style
 
@@ -20,6 +20,19 @@ projects synchronized, including desktop packet tests and radio validation.
   existing code or adding features to the firmware or companion applications.
 - Avoid unnecessary abstractions, architectural complexity, and dependencies.
   Prefer straightforward solutions, while preserving correctness and safety.
+
+## Project programmer
+
+- Only use ST-Link serial number `16004A002933353739303541` to program or debug
+  this flight-controller project, even when multiple probes are connected.
+- `.vscode/launch.json` enforces this with OpenOCD's `adapter serial` command.
+  Preserve this restriction when changing or adding launch configurations.
+- Manual programming/debug commands must also select this serial explicitly:
+  `adapter serial 16004A002933353739303541` for OpenOCD,
+  `sn=16004A002933353739303541` for STM32CubeProgrammer, or
+  `--serial-number 16004A002933353739303541` for ST-LINK GDB server.
+- If this probe is unavailable, stop and report it. Never fall back to another
+  probe or select a probe by its discovery index.
 
 ## CubeMX configuration changes
 
